@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -54,6 +56,7 @@ export async function POST(request: Request) {
             image: body.image || null,
             views: body.views || 0,
             unlocks: body.unlocks || 0,
+            language: body.language || 'text',
             createdAt: body.createdAt
         };
 

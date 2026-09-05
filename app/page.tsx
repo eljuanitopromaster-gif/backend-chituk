@@ -1,69 +1,76 @@
-import Image from "next/image";
+import './chituk.css';
+import Script from 'next/script';
 
-export default function Home() {
+export default function ChitukPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+
+      <div className="shell">
+        <header className="masthead">
+          <a href="#feed" className="brand" aria-label="Ir a proyectos"><span className="brand-mark">C</span><span><span
+            className="eyebrow">Scripts</span><span className="wordmark">CHITUK</span></span></a>
+          <div className="top-actions">
+            <div className="presence" title="Pestañas activas de este archivo"><span className="presence-dot"></span><strong
+              id="online-count">1</strong><span>en esta vista</span></div>
+            <button id="theme-button" className="small-button" type="button">Tema</button>
+            <button id="support-button" className="small-button hidden" type="button">Soporte</button>
+            <button id="account-chip" className="account-chip" type="button"><span id="avatar-chip" className="avatar">?</span><span
+              id="account-name" className="account-name">Mi perfil</span></button>
+            <button id="open-auth" className="small-button clay" type="button">Acceder</button>
+            <button id="open-publish" className="small-button" type="button">Publicar</button>
+          </div>
+        </header>
+        <main id="feed">
+          <section id="ban-bar" className="ban-bar" aria-live="assertive">
+            <div><strong>Acceso prohibido</strong>
+              <p id="ban-copy">Un administrador ha prohibido el acceso a este usuario.</p>
+            </div><button className="small-button clay" data-action="support" type="button">Contactar con soporte</button>
+          </section>
+          <section id="global-bar" className="global-bar" aria-live="polite"></section>
+          <section className="feed-intro">
+            <div>
+              <p className="eyebrow">archivo vivo · del primero al más reciente</p>
+              <h1>Scripts<em>Loger</em></h1>
+            </div>
+            <p>Una colección local de Scripts listas para usarse.</p>
+          </section>
+          <div className="feed-tools">
+            <div className="search-filters">
+              <div className="search-bar-row">
+                <input type="text" id="search-input" className="search-input" placeholder="Buscar scripts..." aria-label="Buscar proyectos" />
+                <select id="language-filter" className="language-select" aria-label="Filtrar por lenguaje">
+                  <option value="all">Todos los lenguajes</option>
+                  {/* Se llenará dinámicamente desde JS */}
+                </select>
+              </div>
+            </div>
+            <p className="archive-note">Los proyectos nuevos aparecen al final</p>
+            <button id="feed-account-action" className="small-button" type="button">Crear una cuenta</button>
+          </div>
+          <section id="project-list" className="project-list" aria-live="polite"></section>
+          <footer className="site-footer">
+            <p>&copy; 2026 Chituk ScriptsLoger. Todos los derechos reservados.</p>
+            <div className="footer-links">
+              <a href="#">Términos y Condiciones</a>
+              <a href="#">Política de Cookies</a>
+            </div>
+          </footer>
+        </main>
+      </div>
+      <div id="notice" className="notice" role="status" aria-live="polite"></div>
+      <div id="modal-backdrop" className="backdrop" aria-hidden="true">
+        <section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <header className="modal-head">
+            <div>
+              <p id="modal-kicker" className="eyebrow">CHITUK</p>
+              <h2 id="modal-title">Espacio</h2>
+            </div><button id="close-modal" className="close" type="button" aria-label="Cerrar">×</button>
+          </header>
+          <div id="modal-body" className="modal-body"></div>
+        </section>
+      </div>
+
+      <Script src="/chituk-script.js" strategy="afterInteractive" />
+    </>
   );
 }

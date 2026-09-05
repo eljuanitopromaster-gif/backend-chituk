@@ -1795,13 +1795,27 @@
       function readLegacyLocal() { try { var raw = localStorage.getItem(DB_KEY) || localStorage.getItem(LEGACY_DB_KEY); return raw ? safeParse(raw, null) : null } catch (error) { return null } }
       async function load() { var remote = null; try { var dbResult = await window.storage.get(DB_KEY, true); remote = dbResult ? safeParse(dbResult.value, null) : null } catch (error) { remote = null } if (!remote) { var legacy = readLegacyLocal(); if (legacy) { remote = legacy } } state.db = migrate(remote); ensureCreator(); try { var sessionResult = await window.storage.get(SESSION_KEY, false); state.session = sessionResult ? safeParse(sessionResult.value, null) : null } catch (error) { state.session = null } await save(false) }
       function ensureCreator() { var creator = state.db.users.find(function (user) { return user.id === CREATOR_ID }); if (!creator) { creator = blankDb().users[0]; state.db.users.unshift(creator) } creator.role = "creator"; creator.verified = true; creator.banned = false; creator.following = creator.following || []; creator.savedProjects = creator.savedProjects || []; creator.unlockedScripts = creator.unlockedScripts || [] }
-      async function save(broadcast) { try { await window.storage.set(DB_KEY, JSON.stringify(state.db), true) } catch (error) { } try { if (state.session) { await window.storage.set(SESSION_KEY, JSON.stringify(state.session), false) } else { try { await window.storage.delete(SESSION_KEY, false) } catch (innerError) { } } } catch (error) { } if (broadcast !== false && channel) { channel.postMessage({ type: "sync" }) } }
+      async function save(broadcast) {
+        try { await window.storage.set(DB_KEY, JSON.stringify(state.db), true) } catch (error) { }
+        try { if (state.session) { await window.storage.set(SESSION_KEY, JSON.stringify(state.session), false) } else { try { await window.storage.delete(SESSION_KEY, false) } catch (innerError) { } } } catch (error) { }
+
+        var currentUserObj = state.db.users.find(function (u) { return state.session && u.id === state.session.userId });
+        if (currentUserObj) { fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentUserObj) }); }
+
+        if (broadcast !== false && channel) { channel.postMessage({ type: "sync" }) }
+      }
       async function pollRemote() {
         try {
-          var res = await fetch('/api/scripts');
-          if (res.ok) {
-            var globalProjects = await res.json();
-            state.db.projects = globalProjects;
+          var resProj = await fetch('/api/scripts', { cache: 'no-store' });
+          var resUsers = await fetch('/api/users', { cache: 'no-store' });
+
+          if (resProj.ok && resUsers.ok) {
+            state.db.projects = await resProj.json();
+            var cloudUsers = await resUsers.json();
+            if (cloudUsers.length > 0) {
+              state.db.users = cloudUsers;
+              ensureCreator();
+            }
             renderAll();
           }
         } catch (error) { console.log("Esperando servidor..."); }
