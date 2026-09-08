@@ -22,6 +22,7 @@ export async function GET() {
     const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('status', 'approved')
         .order('createdAt', { ascending: true });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
