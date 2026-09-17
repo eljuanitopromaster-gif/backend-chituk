@@ -1,192 +1,143 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth, supabase } from '../../components/AuthProvider';
 
-type ScriptItem = {
+interface Script {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   script: string;
-  scriptMode: string;
-  kind: string;
   authorId: string;
-  youtubeUrl: string | null;
-  destinationUrl: string | null;
-  image: string | null;
-  language: string;
   createdAt: string;
   status: string;
-};
+}
 
-export default function PendingQueuePage() {
-  const [scripts, setScripts] = useState<ScriptItem[]>([]);
+export default function AdminQueuePage() {
+  const [scripts, setScripts] = useState<Script[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    try {
-        const globalCurrentUser = (window as any).currentUser;
-        let u = null;
-        if (globalCurrentUser) {
-            u = globalCurrentUser();
-        } else {
-            const rawStorage = localStorage.getItem('chituk') || localStorage.getItem('chituk_session');
-            if (rawStorage) {
-                const parsed = JSON.parse(rawStorage);
-                u = parsed.session ? (parsed.db?.users || []).find((x: any) => x.id === parsed.session.id) : null;
-            }
-        }
-        if (u) {
-            setUserId(u.id);
-        }
-    } catch(e) {}
-  }, []);
+    async function checkAuthAndFetch() {
+      if (authLoading) return;
 
-  const fetchQueue = async (uid: string) => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/admin/scripts', {
-        headers: { 'X-User-Id': uid }
-      });
-      if (res.ok) {
+      if (!user || (user.role !== 'owner' && user.role !== 'mod')) {
+        router.push('/');
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('No session');
+
+        const res = await fetch('/api/admin/scripts', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'X-User-Id': user.id
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch pending scripts');
+        }
+
         const data = await res.json();
         setScripts(data);
-      } else {
-        console.error("Failed to fetch queue, status", res.status);
+      } catch (err: any) {
+        setError(err.message || 'Ocurrió un error');
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      console.error("Failed to fetch queue", e);
-    } finally {
-      setLoading(false);
     }
-  };
 
-  useEffect(() => {
-    if (userId) {
-      fetchQueue(userId);
-    }
-  }, [userId]);
+    checkAuthAndFetch();
+  }, [user, authLoading, router]);
 
-  const handleAction = async (scriptId: string, action: 'approve' | 'reject' | 'delete') => {
-    if (!userId) return;
+  const handleAction = async (id: string, action: 'approve' | 'reject' | 'delete') => {
+    if (!user) return;
+    
     try {
-      const res = await fetch('/api/admin/scripts/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': userId
-        },
-        body: JSON.stringify({ scriptId, action })
-      });
-      
-      if (res.ok) {
-        setScripts(prev => prev.filter(s => s.id !== scriptId));
-      } else {
-        alert("Action failed. You may lack permissions.");
-      }
-    } catch (e) {
-      console.error(e);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('No session');
+
+        const res = await fetch('/api/admin/scripts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'X-User-Id': user.id
+          },
+          body: JSON.stringify({ projectId: id, action })
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to perform action');
+        }
+
+        // Remover de la lista
+        setScripts(prev => prev.filter(s => s.id !== id));
+    } catch (err: any) {
+        alert(err.message);
     }
   };
+
+  if (loading) {
+    return <div className="p-8 text-neutral-400">Cargando cola de scripts...</div>;
+  }
+
+  if (error) {
+    return <div className="p-8 text-red-500">{error}</div>;
+  }
 
   return (
-    <div style={{ maxWidth: '900px' }}>
-      <header style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 8px 0', color: '#fff' }}>Pending Scripts Queue</h2>
-        <p style={{ margin: 0, color: '#A3A3A3' }}>Review and approve community submitted scripts.</p>
-      </header>
-
-      {loading ? (
-        <p style={{ color: '#737373' }}>Cargando la cola...</p>
-      ) : scripts.length === 0 ? (
-        <p style={{ color: '#737373', fontStyle: 'italic' }}>No hay scripts pendientes de aprobación en este momento.</p>
+    <div className="p-8 max-w-5xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-white">Cola de Aprobación</h1>
+      
+      {scripts.length === 0 ? (
+        <p className="text-neutral-500">No hay scripts pendientes por revisar.</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="flex flex-col gap-6">
           {scripts.map(script => (
-            <div key={script.id} style={{ 
-              backgroundColor: '#131A15', 
-              border: '1px solid #262626',
-              borderRadius: '8px',
-              padding: '24px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: '0 0 6px 0', color: '#fff' }}>
-                    {script.title}
-                  </h3>
-                  <p style={{ fontSize: '0.85rem', color: '#737373', margin: 0 }}>
-                    Autor ID: {script.authorId} &bull; {new Date(script.createdAt).toLocaleString()}
-                  </p>
+            <div key={script.id} className="bg-[#131A15] border border-neutral-800 rounded-lg p-6 flex flex-col gap-4">
+              <div className="flex justify-between items-start gap-4 flex-col sm:flex-row">
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-[#E2E8F0]">{script.title}</h2>
+                  <p className="text-sm text-neutral-400 mt-1">Autor ID: {script.authorId}</p>
+                </div>
+                <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                  <button 
+                    onClick={() => handleAction(script.id, 'approve')}
+                    className="bg-[#FACC15] text-black px-4 py-2 rounded-md font-medium hover:bg-yellow-500 transition-colors"
+                  >
+                    Aprobar
+                  </button>
+                  <button 
+                    onClick={() => handleAction(script.id, 'reject')}
+                    className="bg-transparent text-red-600 px-4 py-2 rounded-md font-medium hover:bg-red-900/20 transition-colors"
+                  >
+                    Rechazar
+                  </button>
+                  <button 
+                    onClick={() => handleAction(script.id, 'delete')}
+                    className="bg-transparent text-neutral-500 px-4 py-2 rounded-md font-medium hover:text-neutral-300 transition-colors"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
               
-              <div style={{ marginBottom: '16px' }}>
-                <p style={{ color: '#E2E8F0', marginBottom: '12px' }}>{script.description}</p>
-                <div style={{
-                  backgroundColor: '#0A0F0D',
-                  padding: '16px',
-                  borderRadius: '6px',
-                  maxHeight: '250px',
-                  overflowY: 'auto',
-                  border: '1px solid #262626'
-                }}>
-                  <pre style={{ margin: 0, fontSize: '0.9rem', color: '#A3A3A3', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
-                    {script.script}
-                  </pre>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <button 
-                  onClick={() => handleAction(script.id, 'approve')}
-                  style={{
-                    backgroundColor: '#FACC15',
-                    color: '#000',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s'
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.opacity = '0.8')}
-                  onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
-                >
-                  Aprobar
-                </button>
-                <button 
-                  onClick={() => handleAction(script.id, 'reject')}
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: '#dc2626', // Rojo quemado
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Rechazar
-                </button>
-                <div style={{ flex: 1 }} />
-                <button 
-                  onClick={() => {
-                    if (confirm('¿Eliminar definitivamente este script de la base de datos?')) {
-                      handleAction(script.id, 'delete');
-                    }
-                  }}
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: '#525252',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontWeight: 'normal',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Eliminar
-                </button>
+              {script.description && (
+                <p className="text-neutral-300 text-sm">{script.description}</p>
+              )}
+              
+              <div className="bg-[#0A0F0D] rounded-md border border-neutral-800/50 p-4 max-h-64 overflow-y-auto">
+                <pre className="text-sm font-mono text-neutral-300 whitespace-pre-wrap">
+                  {script.script}
+                </pre>
               </div>
             </div>
           ))}

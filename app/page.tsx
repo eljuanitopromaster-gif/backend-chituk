@@ -18,11 +18,17 @@ type ScriptItem = {
   language: string;
   createdAt: string;
   status: string;
+  authorName?: string;
+  likesCount?: number;
 };
+
+import { useRouter } from 'next/navigation';
+import { supabase } from './components/AuthProvider';
 
 export default function ChitukPage() {
   const [scripts, setScripts] = useState<ScriptItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchScripts = async () => {
@@ -41,30 +47,55 @@ export default function ChitukPage() {
     fetchScripts();
   }, []);
 
+  const handleLike = async (id: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        alert("Inicia sesión para dar like");
+        return;
+      }
+      
+      const token = session.access_token;
+      
+      const likedList = JSON.parse(localStorage.getItem('user_liked_scripts') || '[]');
+      const isCurrentlyLiked = likedList.includes(id);
+      const action = isCurrentlyLiked ? 'unlike' : 'like';
+
+      const res = await fetch(`/api/scripts/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action })
+      });
+      
+      if (res.ok) {
+        const { likes } = await res.json();
+        setScripts(prev => prev.map(s => s.id === id ? { ...s, likesCount: likes } : s));
+        
+        let newList;
+        if (action === 'like') {
+          newList = [...likedList, id];
+        } else {
+          newList = likedList.filter((x: string) => x !== id);
+        }
+        localStorage.setItem('user_liked_scripts', JSON.stringify([...new Set(newList)]));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full relative">
       <TermsModal />
       
-      {/* Header and Top Actions */}
-      <header className="flex justify-between items-center mb-12 border-b border-neutral-800 pb-6">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight text-white mb-2">Chituk <span className="text-[#FACC15]">Scripts</span></h1>
-          <p className="text-neutral-400">Una colección premium de scripts para la comunidad.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => (window as any).openAuth && (window as any).openAuth()} 
-            className="px-6 py-2 rounded-full font-bold bg-[#FACC15] text-black hover:bg-yellow-500 transition-colors shadow-[0_0_15px_rgba(250,204,21,0.2)]"
-          >
-            Acceder
-          </button>
-          <button 
-            onClick={() => (window as any).openPublish && (window as any).openPublish()} 
-            className="px-6 py-2 rounded-full font-bold bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
-          >
-            Publicar
-          </button>
-        </div>
+      {/* Header */}
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Descubre Scripts</h1>
+        <p className="text-neutral-400">Explora la colección de scripts para la comunidad.</p>
       </header>
 
       {/* Feed */}
@@ -91,26 +122,58 @@ export default function ChitukPage() {
                   <span className="text-xs text-neutral-500">{new Date(script.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{script.title}</h3>
+                
+                {script.scriptMode && script.scriptMode !== 'script' && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {script.scriptMode.includes('no-key') && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">No key</span>
+                    )}
+                    {script.scriptMode.includes('mobile-friendly') && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Mobile</span>
+                    )}
+                    {script.scriptMode.includes('open-source') && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Open source</span>
+                    )}
+                    {script.scriptMode.includes('paid') && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Paid</span>
+                    )}
+                  </div>
+                )}
+                
                 <p className="text-sm text-neutral-400 mb-6 line-clamp-3 flex-1">{script.description}</p>
                 
                 <div className="flex justify-between items-center mt-auto pt-4 border-t border-neutral-800">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white">
-                      {script.authorId.charAt(0).toUpperCase()}
+                    <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white shrink-0">
+                      {(script.authorName || script.authorId).charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-xs text-neutral-400 font-medium">{script.authorId}</span>
+                    <span className="text-xs text-neutral-400 font-medium truncate max-w-[100px]">
+                      {script.authorName || script.authorId}
+                    </span>
                   </div>
-                  <button 
-                    onClick={() => {
-                        // Attempt to use legacy function if available
-                        if ((window as any).openProject) {
-                            (window as any).openProject(script.id);
-                        }
-                    }}
-                    className="text-xs font-bold text-white hover:text-[#FACC15] transition-colors"
-                  >
-                    Ver Código &rarr;
-                  </button>
+                  
+                  <div className="flex items-center gap-4 shrink-0">
+                    <button 
+                      onClick={() => handleLike(script.id)}
+                      className={`flex items-center gap-1 text-xs font-bold transition-colors ${
+                        (typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id))
+                          ? 'text-red-500' 
+                          : 'text-neutral-400 hover:text-red-500'
+                      }`}
+                      title="Me gusta"
+                    >
+                      <svg className="w-4 h-4" fill={(typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id)) ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      {script.likesCount || 0}
+                    </button>
+                    <button 
+                      onClick={() => router.push(`/scripts/${script.id}`)}
+                      className="text-xs font-bold text-white hover:text-[#FACC15] transition-colors"
+                    >
+                      Ver Código &rarr;
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

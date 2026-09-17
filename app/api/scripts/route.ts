@@ -27,10 +27,22 @@ export async function GET() {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
 
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const authorIds = data.map(p => p.authorId).filter(id => uuidRegex.test(id));
+    const usersMap: Record<string, string> = {};
+    if (authorIds.length > 0) {
+        const { data: usersData } = await supabase.from('users').select('id, username').in('id', authorIds);
+        if (usersData) {
+            usersData.forEach(u => usersMap[u.id] = u.username);
+        }
+    }
+
     // Le agregamos los arrays vacíos de likes y vistas para que el frontend no marque error
     const formattedData = data.map(p => ({
         ...p,
-        likes: [],
+        authorName: usersMap[p.authorId] || p.authorId,
+        likesCount: p.likes || 0, // Real like count for new React UI
+        likes: [], // Legacy array format so old scripts don't crash
         shares: 0,
         viewedBy: [],
         unlockedBy: []
