@@ -15,6 +15,8 @@ interface AuthContextType {
   openAuthModal: (tab: 'login' | 'signup') => void;
   closeAuthModal: () => void;
   authTab: 'login' | 'signup';
+  updateUser: (data: any) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +27,8 @@ const AuthContext = createContext<AuthContextType>({
   openAuthModal: () => {},
   closeAuthModal: () => {},
   authTab: 'login',
+  updateUser: async () => {},
+  refreshUser: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -93,8 +97,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsAuthModalOpen(false);
   };
 
+  const updateUser = async (updatedData: any) => {
+    setUser((prev: any) => ({ ...prev, ...updatedData }));
+  };
+
+  const refreshUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: publicUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      if (publicUser) {
+        setUser(publicUser);
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, isAuthModalOpen, openAuthModal, closeAuthModal, authTab }}>
+    <AuthContext.Provider value={{ user, loading, signOut, isAuthModalOpen, openAuthModal, closeAuthModal, authTab, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
