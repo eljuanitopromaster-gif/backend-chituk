@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useAuth, supabase } from './AuthProvider';
+import CaptchaWidget, { CaptchaValue } from './CaptchaWidget';
 
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, authTab } = useAuth();
@@ -11,6 +12,7 @@ export default function AuthModal() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState<CaptchaValue>({ token: '', answer: '', honeypot: '', isReady: false });
 
   // Sync tab state when opened
   React.useEffect(() => {
@@ -39,6 +41,7 @@ export default function AuthModal() {
         closeAuthModal();
       } else {
         if (username.length < 3) throw new Error("El nombre de usuario debe tener al menos 3 caracteres.");
+        if (!captchaValue.isReady || !captchaValue.answer) throw new Error("Por favor completa la verificación de seguridad anti-bot.");
         
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -55,7 +58,10 @@ export default function AuthModal() {
             body: JSON.stringify({
               id: data.user.id,
               email: data.user.email,
-              username: username
+              username: username,
+              captchaToken: captchaValue.token,
+              captchaAnswer: captchaValue.answer,
+              honeypot: captchaValue.honeypot
             })
           });
           
@@ -77,7 +83,7 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={closeAuthModal}>
       <div 
-        className="bg-[#0A0F0D] border border-[#262626] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
+        className="bg-base border border-border-theme rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
         onClick={e => e.stopPropagation()}
       >
         <button 
@@ -90,21 +96,21 @@ export default function AuthModal() {
         </button>
 
         <div className="p-6 pt-8">
-          <p className="text-[#FACC15] text-[10px] font-bold tracking-widest uppercase mb-1">CHITUK</p>
+          <p className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">CHITUK</p>
           <h2 className="text-2xl font-bold text-white mb-6">
             {tab === 'login' ? 'Vuelve al archivo' : 'Crea tu cuenta'}
           </h2>
 
-          <div className="flex border-b border-[#262626] mb-6">
+          <div className="flex border-b border-border-theme mb-6">
             <button 
-              className={`flex-1 pb-3 text-sm font-medium ${tab === 'login' ? 'text-white border-b-2 border-[#FACC15]' : 'text-neutral-500 hover:text-neutral-300'}`}
+              className={`flex-1 pb-3 text-sm font-medium ${tab === 'login' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
               onClick={() => setTab('login')}
               type="button"
             >
               Iniciar sesión
             </button>
             <button 
-              className={`flex-1 pb-3 text-sm font-medium ${tab === 'signup' ? 'text-white border-b-2 border-[#FACC15]' : 'text-neutral-500 hover:text-neutral-300'}`}
+              className={`flex-1 pb-3 text-sm font-medium ${tab === 'signup' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
               onClick={() => setTab('signup')}
               type="button"
             >
@@ -121,7 +127,7 @@ export default function AuthModal() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full bg-[#131A15] border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors"
+                className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
             </div>
 
@@ -134,7 +140,7 @@ export default function AuthModal() {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   placeholder="Sin espacios"
-                  className="w-full bg-[#131A15] border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors"
+                  className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
               </div>
             )}
@@ -147,9 +153,26 @@ export default function AuthModal() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
-                className="w-full bg-[#131A15] border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors"
+                className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
             </div>
+
+            {tab === 'signup' && (
+              <div className="flex flex-col gap-3">
+                <CaptchaWidget onChange={setCaptchaValue} compact />
+                <div className="flex items-start gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="terms" 
+                    required 
+                    className="mt-1 w-4 h-4 rounded border-neutral-700 text-accent focus:ring-accent bg-card"
+                  />
+                  <label htmlFor="terms" className="text-xs text-neutral-400">
+                    He leído y acepto los <a href="/terminos" target="_blank" className="text-accent hover:underline">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="text-accent hover:underline">Política de Privacidad</a> de Chituk.
+                  </label>
+                </div>
+              </div>
+            )}
 
             {error && (
               <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
@@ -158,7 +181,7 @@ export default function AuthModal() {
             <button 
               type="submit" 
               disabled={loading}
-              className="mt-2 w-full py-3 bg-[#FACC15] text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors disabled:opacity-50"
+              className="mt-2 w-full py-3 bg-accent text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors disabled:opacity-50"
             >
               {loading ? 'Cargando...' : tab === 'login' ? 'Entrar' : 'Registrarse'}
             </button>
