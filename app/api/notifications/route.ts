@@ -65,3 +65,40 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+
+    const { data: publicUser } = await supabase.from('users').select('username').eq('id', user.id).single();
+    const username = publicUser?.username;
+
+    const { searchParams } = new URL(req.url);
+    const notificationId = searchParams.get('id');
+
+    let matchStr = `user_id.eq.${user.id}`;
+    if (username) matchStr += `,user_id.eq.${username}`;
+
+    let deleteQuery = supabase.from('notifications').delete();
+    
+    if (notificationId) {
+      deleteQuery = deleteQuery.eq('id', notificationId).or(matchStr);
+    } else {
+      deleteQuery = deleteQuery.or(matchStr);
+    }
+
+    const { data, error } = await deleteQuery.select();
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, deleted: data?.length || 0 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+

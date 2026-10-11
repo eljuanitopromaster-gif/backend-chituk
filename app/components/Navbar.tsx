@@ -8,6 +8,8 @@ export default function Navbar() {
   const { user, signOut, openAuthModal } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,14 +63,58 @@ export default function Navbar() {
     } catch (err) { }
   };
 
+  const handleClearAll = async () => {
+    if (!user || notifications.length === 0) return;
+    setClearing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      if (res.ok) {
+        setNotifications([]);
+      }
+    } catch (err) {
+      console.error('Error clearing notifications', err);
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  const handleDeleteOne = async (id: string) => {
+    if (!user) return;
+    setDeletingId(id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }
+    } catch (err) {
+      console.error('Error deleting notification', err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <nav className="h-16 flex items-center px-6 bg-[#0A0F0D] border-b border-[#262626] shrink-0">
+    <nav className="h-16 flex items-center px-6 bg-base border-b border-border-theme shrink-0">
       {/* Left - Logo */}
       <div className="flex-1 flex items-center">
         <Link href="/" className="text-xl font-bold text-white flex items-center tracking-tight">
-          Chituk<span className="text-[#FACC15]">Scripts</span>
+          Chituk<span className="text-accent">Scripts</span>
         </Link>
       </div>
 
@@ -83,7 +129,7 @@ export default function Navbar() {
           <input 
             type="text" 
             placeholder="Buscar scripts, juegos..." 
-            className="w-full bg-[#131A15] border border-neutral-800 text-neutral-300 rounded-md pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors"
+            className="w-full bg-card border border-neutral-800 text-neutral-300 rounded-md pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
             <span className="text-neutral-600 text-sm font-mono">/</span>
@@ -91,19 +137,32 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Right - Auth Buttons */}
-      <div className="flex-1 flex items-center justify-end gap-2">
+      {/* Right - Auth Buttons & Discord */}
+      <div className="flex-1 flex items-center justify-end gap-2.5">
+        <a
+          href="https://discord.gg/mdvByagDr3"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md font-medium text-neutral-300 hover:text-white bg-card hover:bg-[#5865F2]/15 border border-neutral-800 hover:border-[#5865F2]/40 transition-all text-xs cursor-pointer group"
+          title="Unirse a nuestro Discord"
+        >
+          <svg className="w-4 h-4 text-[#5865F2] fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.0777.0777 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+          </svg>
+          <span className="hidden sm:inline font-semibold">Discord</span>
+        </a>
+
         {!user ? (
           <>
             <button 
               onClick={() => openAuthModal('login')}
-              className="px-4 py-2 rounded-md font-medium bg-[#1A1A1A] text-white hover:bg-[#2A2A2A] transition-colors text-sm border border-neutral-800 cursor-pointer"
+              className="px-4 py-2 rounded-md font-medium bg-card-hover text-white hover:bg-[#2A2A2A] transition-colors text-sm border border-neutral-800 cursor-pointer"
             >
               Acceder
             </button>
             <button 
               onClick={() => openAuthModal('signup')}
-              className="px-4 py-2 rounded-md font-bold bg-[#FACC15] text-black hover:bg-yellow-500 transition-colors text-sm cursor-pointer"
+              className="px-4 py-2 rounded-md font-bold bg-accent text-black hover:bg-yellow-500 transition-colors text-sm cursor-pointer"
             >
               Registrarse
             </button>
@@ -126,44 +185,102 @@ export default function Navbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#FACC15] rounded-full border-2 border-[#0A0F0D]"></span>
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-[#0A0F0D]"></span>
                 )}
               </button>
 
               {/* Dropdown */}
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#131A15] border border-neutral-800 rounded-lg shadow-xl overflow-hidden z-50">
-                  <div className="p-3 border-b border-neutral-800 flex justify-between items-center bg-[#0A0F0D]">
-                    <span className="font-bold text-sm text-white">Notificaciones</span>
-                    {unreadCount > 0 && (
-                      <span className="text-xs text-[#FACC15]">{unreadCount} nuevas</span>
+                <div className="absolute right-0 mt-2 w-84 bg-card border border-neutral-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="p-3.5 border-b border-neutral-800 flex justify-between items-center bg-base">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-white">Notificaciones</span>
+                      {unreadCount > 0 && (
+                        <span className="text-[11px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold">{unreadCount} nuevas</span>
+                      )}
+                    </div>
+                    {notifications.length > 0 && (
+                      <button
+                        onClick={handleClearAll}
+                        disabled={clearing}
+                        className="text-xs text-neutral-400 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        title="Eliminar todas las notificaciones recientes"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>{clearing ? 'Borrando...' : 'Eliminar recientes'}</span>
+                      </button>
                     )}
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto">
+                  <div className="max-h-[320px] overflow-y-auto divide-y divide-neutral-800/60">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-neutral-500">
-                        No hay notificaciones
+                      <div className="p-8 text-center flex flex-col items-center justify-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-600">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                          </svg>
+                        </div>
+                        <p className="text-sm font-medium text-neutral-400">No hay notificaciones</p>
+                        <p className="text-xs text-neutral-600">Te avisaremos cuando haya actividad</p>
                       </div>
                     ) : (
                       notifications.map(n => (
-                        <div key={n.id} className={`p-3 border-b border-neutral-800 text-sm ${!n.read ? 'bg-[#1A221C]' : ''}`}>
-                          {n.type === 'like' && (
-                            <p className="text-neutral-300">
-                              A <span className="font-bold text-white">{n.actor_id}</span> le gustó tu script.
+                        <div key={n.id} className={`p-3.5 text-sm flex items-start justify-between gap-2.5 hover:bg-neutral-800/40 transition-colors ${!n.read ? 'bg-card-hover' : ''}`}>
+                          <div className="flex-1 min-w-0">
+                            {n.type === 'like' && (
+                              <p className="text-neutral-300">
+                                A <span className="font-bold text-white">{n.actor_id}</span> le gustó tu script.
+                              </p>
+                            )}
+                            {n.type === 'comment' && (
+                              <p className="text-neutral-300">
+                                <span className="font-bold text-white">{n.actor_id}</span> comentó en tu script.
+                              </p>
+                            )}
+                            {n.type === 'review_pending' && (
+                              <p className="text-neutral-300">
+                                <span className="font-bold text-white">{n.actor_id}</span> ha enviado un script para revisión.
+                              </p>
+                            )}
+                            <p className="text-xs text-neutral-500 mt-1">
+                              {new Date(n.created_at).toLocaleDateString()}
                             </p>
-                          )}
-                          {n.type === 'review_pending' && (
-                            <p className="text-neutral-300">
-                              <span className="font-bold text-white">{n.actor_id}</span> ha enviado un script para revisión.
-                            </p>
-                          )}
-                          <p className="text-xs text-neutral-500 mt-1">
-                            {new Date(n.created_at).toLocaleDateString()}
-                          </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteOne(n.id);
+                            }}
+                            disabled={deletingId === n.id}
+                            title="Eliminar esta notificación"
+                            className="p-1 text-neutral-500 hover:text-rose-400 hover:bg-neutral-800/80 rounded transition-colors cursor-pointer shrink-0"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                       ))
                     )}
                   </div>
+                  {notifications.length > 0 && (
+                    <div className="p-2.5 bg-neutral-950/60 border-t border-neutral-800 flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-neutral-500 font-medium">
+                        {notifications.length} {notifications.length === 1 ? 'notificación' : 'notificaciones'}
+                      </span>
+                      <button
+                        onClick={handleClearAll}
+                        disabled={clearing}
+                        className="text-[11px] text-rose-400/90 hover:text-rose-300 font-medium flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>{clearing ? 'Borrando...' : 'Eliminar todas'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -171,15 +288,25 @@ export default function Navbar() {
             <div className="w-px h-6 bg-neutral-800"></div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white border border-neutral-700">
-                {user.username ? user.username.charAt(0).toUpperCase() : '?'}
+            <button 
+              onClick={() => document.dispatchEvent(new CustomEvent('open-profile-modal'))}
+              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-card border border-transparent hover:border-border-theme transition-all group cursor-pointer text-left"
+              title="Editar perfil"
+            >
+              <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white border border-neutral-700 overflow-hidden group-hover:border-accent transition-colors shrink-0">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.username || 'Avatar'} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</span>
+                )}
               </div>
-              <span className="text-sm font-medium text-white hidden md:block">{user.username || user.email}</span>
-            </div>
+              <span className="text-sm font-medium text-white hidden md:block group-hover:text-accent transition-colors max-w-[120px] truncate">
+                {user.username || user.email}
+              </span>
+            </button>
             <button 
               onClick={() => signOut()}
-              className="px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-white hover:bg-[#131A15] transition-colors text-sm"
+              className="px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-white hover:bg-card transition-colors text-sm"
             >
               Cerrar Sesión
             </button>
