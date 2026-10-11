@@ -1,23 +1,158 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0A0F0D;
-  --foreground: #E2E8F0;
+:root, [data-theme="predeterminado"], [data-theme="default"] {
+  --bg-base: #0A0F0D;
+  --bg-card: #131A15;
+  --bg-card-hover: #1A221C;
+  --border-theme: #262626;
+  --color-accent: #FACC15;
+  --text-color: #E2E8F0;
+}
+
+[data-theme="gaming"] {
+  --bg-base: #070B14;
+  --bg-card: #101A2D;
+  --bg-card-hover: #16243E;
+  --border-theme: #1E3A5F;
+  --color-accent: #0EA5E9;
+  --text-color: #F0F9FF;
+}
+
+[data-theme="papel-calido"] {
+  --bg-base: #F5F1E7;
+  --bg-card: #FAF8F2;
+  --bg-card-hover: #EAE3D1;
+  --border-theme: #D3C9B8;
+  --color-accent: #C09E83;
+  --text-color: #4A4A4A;
+}
+
+[data-theme="noche-tinta"] {
+  --bg-base: #1C1614;
+  --bg-card: #2B221E;
+  --bg-card-hover: #3A2F2A;
+  --border-theme: #4A3E38;
+  --color-accent: #8C5A41;
+  --text-color: #E2E8F0;
+}
+
+[data-theme="bosque-suave"] {
+  --bg-base: #E8F5E9;
+  --bg-card: #F1F8E9;
+  --bg-card-hover: #C8E6C9;
+  --border-theme: #A5D6A7;
+  --color-accent: #88B289;
+  --text-color: #2E7D32;
+}
+
+[data-theme="oceano-claro"] {
+  --bg-base: #E0F2F1;
+  --bg-card: #E0F7FA;
+  --bg-card-hover: #B2EBF2;
+  --border-theme: #80DEEA;
+  --color-accent: #80CBC4;
+  --text-color: #006064;
+}
+
+[data-theme="lavanda"] {
+  --bg-base: #F3E5F5;
+  --bg-card: #FCE4EC;
+  --bg-card-hover: #E1BEE7;
+  --border-theme: #CE93D8;
+  --color-accent: #BA68C8;
+  --text-color: #4A148C;
+}
+
+[data-theme="rosa"] {
+  --bg-base: #FCE4EC;
+  --bg-card: #FFF0F5;
+  --bg-card-hover: #F8BBD0;
+  --border-theme: #F48FB1;
+  --color-accent: #F06292;
+  --text-color: #881337;
+}
+
+[data-theme="terracota"] {
+  --bg-base: #FBE9E7;
+  --bg-card: #FFF3E0;
+  --bg-card-hover: #FFCCBC;
+  --border-theme: #FFAB91;
+  --color-accent: #FF8A65;
+  --text-color: #BF360C;
+}
+
+[data-theme="sol"] {
+  --bg-base: #FFF8E1;
+  --bg-card: #FFFDE7;
+  --bg-card-hover: #FFECB3;
+  --border-theme: #FFE082;
+  --color-accent: #FFD54F;
+  --text-color: #F57F17;
+}
+
+[data-theme="medianoche"] {
+  --bg-base: #0F172A;
+  --bg-card: #1E293B;
+  --bg-card-hover: #334155;
+  --border-theme: #475569;
+  --color-accent: #38BDF8;
+  --text-color: #E2E8F0;
+}
+
+[data-theme="tinta"] {
+  --bg-base: #18181B;
+  --bg-card: #27272A;
+  --bg-card-hover: #3F3F46;
+  --border-theme: #52525B;
+  --color-accent: #D4D4D8;
+  --text-color: #FAFAFA;
+}
+
+[data-theme="marea"] {
+  --bg-base: #064E3B;
+  --bg-card: #065F46;
+  --bg-card-hover: #047857;
+  --border-theme: #059669;
+  --color-accent: #34D399;
+  --text-color: #ECFDF5;
+}
+
+[data-theme="ciruela"] {
+  --bg-base: #3B0764;
+  --bg-card: #581C87;
+  --bg-card-hover: #6B21A8;
+  --border-theme: #7E22CE;
+  --color-accent: #C084FC;
+  --text-color: #FAF5FF;
+}
+
+[data-theme="monocromo"] {
+  --bg-base: #FFFFFF;
+  --bg-card: #F3F4F6;
+  --bg-card-hover: #E5E7EB;
+  --border-theme: #D1D5DB;
+  --color-accent: #000000;
+  --text-color: #000000;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-base: var(--bg-base);
+  --color-card: var(--bg-card);
+  --color-card-hover: var(--bg-card-hover);
+  --color-border-theme: var(--border-theme);
+  --color-accent: var(--color-accent);
+  --color-foreground: var(--text-color);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text-color);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Legacy JS Compat for Modals (Dark Mode Redesign) */
@@ -53,3 +188,20 @@ body {
 .tab.active { border-bottom-color: #FACC15; color: #FACC15; }
 
 .hidden { display: none !important; }
+
+/* Page Navigation Transition */
+@keyframes pageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-transition {
+  animation: pageSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}

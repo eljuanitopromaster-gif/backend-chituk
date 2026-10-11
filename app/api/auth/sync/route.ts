@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { verifyCaptcha } from '@/app/lib/captcha';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -7,7 +8,13 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {
-    const { id, email, username } = await req.json();
+    const { id, email, username, captchaToken, captchaAnswer, honeypot } = await req.json();
+
+    // Verificación anti-bot
+    const captchaCheck = verifyCaptcha(captchaToken, captchaAnswer, honeypot);
+    if (!captchaCheck.valid) {
+      return NextResponse.json({ error: captchaCheck.error || 'Código de seguridad incorrecto' }, { status: 400 });
+    }
 
     if (!id || !email || !username) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });

@@ -5,6 +5,8 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { AuthProvider } from "./components/AuthProvider";
 import AuthModal from "./components/AuthModal";
+import ThemeModalWrapper from "./components/ThemeModalWrapper";
+import ProfileModalWrapper from "./components/ProfileModalWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +17,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+import PageTransition from "./components/PageTransition";
 
 export const metadata: Metadata = {
   title: "CHITUK | Scripts Loger",
@@ -35,16 +39,20 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full flex flex-col bg-[#0A0F0D] text-[#E2E8F0] font-sans overflow-hidden">
+      <body className="h-full flex flex-col bg-base text-[#E2E8F0] font-sans overflow-hidden">
         <AuthProvider>
           <Navbar />
           <div className="flex-1 flex min-h-0">
             <Sidebar />
             <main className="flex-1 overflow-y-auto relative w-full">
-              {children}
+              <PageTransition>
+                {children}
+              </PageTransition>
             </main>
           </div>
           <AuthModal />
+          <ThemeModalWrapper />
+          <ProfileModalWrapper />
         </AuthProvider>
       </body>
     </html>
