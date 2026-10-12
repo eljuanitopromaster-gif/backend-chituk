@@ -78,13 +78,6 @@ export default function PublicarPage() {
     }
   };
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-      openAuthModal('login');
-    }
-  }, [user, authLoading, router, openAuthModal]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -105,7 +98,8 @@ export default function PublicarPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`,
+          'X-User-Id': user.id
         },
         body: JSON.stringify({
           title,
@@ -138,10 +132,33 @@ export default function PublicarPage() {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-neutral-500 animate-pulse">Cargando...</p>
+      <div className="p-12 flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-muted">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-xl mx-auto my-16 p-8 bg-card border border-border-theme rounded-2xl text-center shadow-2xl flex flex-col items-center gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-accent/15 text-accent border border-accent/30 flex items-center justify-center">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Inicia Sesión para Publicar Scripts</h2>
+        <p className="text-sm text-muted leading-relaxed">
+          Comparte tus creaciones con la comunidad de Chituk. Tus scripts pasarán por moderación antes de ser visibles en el feed público.
+        </p>
+        <button
+          onClick={() => openAuthModal('login')}
+          className="mt-2 px-6 py-3 bg-accent text-accent-contrast font-bold rounded-xl hover:opacity-90 transition-opacity shadow-md cursor-pointer"
+        >
+          Iniciar Sesión
+        </button>
       </div>
     );
   }

@@ -7,6 +7,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
+
 export async function GET(request: Request) {
     const userId = request.headers.get('X-User-Id');
     if (!userId) {
@@ -20,7 +22,7 @@ export async function GET(request: Request) {
         .eq('id', userId)
         .single();
         
-    if (userError || !user || (user.role !== 'owner' && user.role !== 'mod')) {
+    if (userError || !user || !allowedRoles.includes(user.role)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -51,7 +53,7 @@ export async function POST(request: Request) {
         .eq('id', userId)
         .single();
         
-    if (userError || !user || (user.role !== 'owner' && user.role !== 'mod')) {
+    if (userError || !user || !allowedRoles.includes(user.role)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

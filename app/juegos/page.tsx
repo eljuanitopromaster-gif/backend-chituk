@@ -1,66 +1,134 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const GAMES = [
+interface GameItem {
+  id: number;
+  name: string;
+  icon: string;
+  color: string;
+  keywords: string[];
+}
+
+const BASE_GAMES: GameItem[] = [
   {
     id: 1,
     name: 'Blox Fruits',
-    scriptCount: 142,
     icon: '🍇',
-    color: 'from-purple-500/20 to-transparent'
+    color: 'from-purple-500/20 to-transparent',
+    keywords: ['blox fruits', 'bloxfruits']
   },
   {
     id: 2,
     name: 'Da Hood',
-    scriptCount: 89,
     icon: '👊',
-    color: 'from-red-500/20 to-transparent'
+    color: 'from-red-500/20 to-transparent',
+    keywords: ['da hood', 'dahood']
   },
   {
     id: 3,
     name: 'Arsenal',
-    scriptCount: 56,
     icon: '🔫',
-    color: 'from-green-500/20 to-transparent'
+    color: 'from-green-500/20 to-transparent',
+    keywords: ['arsenal']
   },
   {
     id: 4,
     name: 'Adopt Me!',
-    scriptCount: 34,
     icon: '🐶',
-    color: 'from-blue-500/20 to-transparent'
+    color: 'from-blue-500/20 to-transparent',
+    keywords: ['adopt me', 'adoptme']
   },
   {
     id: 5,
     name: 'Pet Simulator 99',
-    scriptCount: 78,
     icon: '🐱',
-    color: 'from-yellow-500/20 to-transparent'
+    color: 'from-yellow-500/20 to-transparent',
+    keywords: ['pet simulator 99', 'pet simulator', 'ps99']
   },
   {
     id: 6,
     name: 'Murder Mystery 2',
-    scriptCount: 65,
     icon: '🔪',
-    color: 'from-orange-500/20 to-transparent'
+    color: 'from-orange-500/20 to-transparent',
+    keywords: ['murder mystery 2', 'murder mystery', 'mm2']
   },
   {
     id: 7,
     name: 'Blade Ball',
-    scriptCount: 42,
     icon: '⚔️',
-    color: 'from-red-600/20 to-transparent'
+    color: 'from-red-600/20 to-transparent',
+    keywords: ['blade ball', 'bladeball']
   },
   {
     id: 8,
     name: 'Brookhaven RP',
-    scriptCount: 21,
     icon: '🏠',
-    color: 'from-sky-500/20 to-transparent'
+    color: 'from-sky-500/20 to-transparent',
+    keywords: ['brookhaven rp', 'brookhaven']
   }
 ];
 
 export default function JuegosPage() {
+  const [counts, setCounts] = useState<Record<number, number>>({
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGameCounts = async () => {
+      try {
+        const res = await fetch('/api/scripts');
+        if (res.ok) {
+          const scripts = await res.json();
+          if (Array.isArray(scripts)) {
+            const newCounts: Record<number, number> = {
+              1: 0,
+              2: 0,
+              3: 0,
+              4: 0,
+              5: 0,
+              6: 0,
+              7: 0,
+              8: 0
+            };
+
+            scripts.forEach((script: any) => {
+              const title = (script.title || '').toLowerCase();
+              const desc = (script.description || '').toLowerCase();
+              const firstLine = desc.split('\n')[0].trim();
+
+              BASE_GAMES.forEach(game => {
+                const matches = game.keywords.some(kw => 
+                  firstLine.includes(kw) || title.includes(kw) || desc.includes(kw)
+                );
+                if (matches) {
+                  newCounts[game.id] = (newCounts[game.id] || 0) + 1;
+                }
+              });
+            });
+
+            setCounts(newCounts);
+          }
+        }
+      } catch (err) {
+        console.error("Error al cargar contador de juegos:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGameCounts();
+  }, []);
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full relative">
       <header className="mb-10">
@@ -71,28 +139,31 @@ export default function JuegosPage() {
 
       {/* Grid of Games */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {GAMES.map((game) => (
-          <Link 
-            key={game.id} 
-            href={`/?game=${encodeURIComponent(game.name)}`}
-            className="group relative bg-card border border-neutral-800 rounded-2xl p-6 shadow-xl hover:shadow-accent/5 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
-          >
-            {/* Background Gradient Effect */}
-            <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
-            
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 bg-base border border-neutral-800 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                {game.icon}
+        {BASE_GAMES.map((game) => {
+          const scriptCount = counts[game.id] || 0;
+          return (
+            <Link 
+              key={game.id} 
+              href={`/scripts?search=${encodeURIComponent(game.name)}`}
+              className="group relative bg-card border border-neutral-800 rounded-2xl p-6 shadow-xl hover:shadow-accent/5 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
+            >
+              {/* Background Gradient Effect */}
+              <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
+              
+              {/* Content */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-16 h-16 bg-base border border-neutral-800 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                  {game.icon}
+                </div>
+                <h2 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-neutral-700/50 rounded-full text-xs font-bold text-neutral-300">
+                  <div className={`w-1.5 h-1.5 rounded-full ${scriptCount > 0 ? 'bg-[#22C55E]' : 'bg-neutral-500'}`}></div>
+                  {scriptCount} Scripts disponibles
+                </span>
               </div>
-              <h2 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-neutral-700/50 rounded-full text-xs font-bold text-neutral-300">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></div>
-                {game.scriptCount} Scripts disponibles
-              </span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
       
       {/* Search Hint or Missing Game */}
@@ -108,3 +179,4 @@ export default function JuegosPage() {
     </div>
   );
 }
+

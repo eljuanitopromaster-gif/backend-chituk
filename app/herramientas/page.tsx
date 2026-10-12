@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../components/AuthProvider';
 
 interface ToolItem {
   id: string;
@@ -14,7 +15,7 @@ interface ToolItem {
   viewsCount: number;
   rating: number;
   reviewsCount: number;
-  status: 'Actualizado' | 'Funcionando' | 'Beta';
+  status: 'Actualizado' | 'Funcionando' | 'Beta' | 'Mantenimiento' | 'Parcheado' | string;
   description: string;
   features: string[];
   downloadUrl: string;
@@ -22,27 +23,7 @@ interface ToolItem {
   thumbnailComponent?: React.ReactNode;
 }
 
-export default function HerramientasPage() {
-  // Independent filters for Executors and Externals
-  const [execPlatform, setExecPlatform] = useState<'all' | 'windows' | 'android'>('all');
-  const [execAccess, setExecAccess] = useState<'all' | 'free' | 'paid'>('all');
-  const [execSort, setExecSort] = useState<'views' | 'rating'>('views');
-
-  const [extPlatform, setExtPlatform] = useState<'all' | 'windows' | 'android'>('all');
-  const [extAccess, setExtAccess] = useState<'all' | 'free' | 'paid'>('all');
-  const [extSort, setExtSort] = useState<'views' | 'rating'>('views');
-
-  const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
-  const [copiedHash, setCopiedHash] = useState<string | null>(null);
-  const [showVersionsModal, setShowVersionsModal] = useState(false);
-
-  const copyHash = (hash: string) => {
-    navigator.clipboard.writeText(hash);
-    setCopiedHash(hash);
-    setTimeout(() => setCopiedHash(null), 2500);
-  };
-
-  const TOOLS_DATA: ToolItem[] = useMemo(() => [
+const DEFAULT_TOOLS: ToolItem[] = [
     // -------------------------------------------------------------
     // EXECUTORS (Utilizando las portadas de assets/Executors Tools)
     // -------------------------------------------------------------
@@ -97,23 +78,6 @@ export default function HerramientasPage() {
       downloadUrl: 'https://deltaexploits.net/',
       imageSrc: '/assets/Executors Tools/Delta.jpg'
     },
-    {
-      id: 'wave',
-      name: 'Wave',
-      category: 'executors',
-      platforms: ['windows'],
-      access: 'paid',
-      priceDisplay: 'from $2.49',
-      viewsDisplay: '14.8K',
-      viewsCount: 14800,
-      rating: 4.3,
-      reviewsCount: 4,
-      status: 'Actualizado',
-      description: 'Ejecutor premium Nivel 8 de vanguardia con descompilador avanzado, protección contra detecciones y soporte técnico prioritario.',
-      features: ['Nivel 8 de ejecución', 'Descompilador nativo', 'Sin crashes / alta estabilidad', 'Soporte 24/7'],
-      downloadUrl: 'https://getwave.gg/',
-      imageSrc: '/assets/Executors Tools/Wave.jpg'
-    },
 
     // -------------------------------------------------------------
     // EXTERNALS
@@ -135,11 +99,47 @@ export default function HerramientasPage() {
       downloadUrl: 'https://aimmy.dev/',
       imageSrc: '/assets/Executors Tools/Aimmy.jpg?v=2'
     }
-  ], []);
+];
+
+export default function HerramientasPage() {
+  const { user } = useAuth();
+  const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
+
+  const [toolsData, setToolsData] = useState<ToolItem[]>(DEFAULT_TOOLS);
+
+  // Independent filters for Executors and Externals
+  const [execPlatform, setExecPlatform] = useState<'all' | 'windows' | 'android'>('all');
+  const [execAccess, setExecAccess] = useState<'all' | 'free' | 'paid'>('all');
+  const [execSort, setExecSort] = useState<'views' | 'rating'>('views');
+
+  const [extPlatform, setExtPlatform] = useState<'all' | 'windows' | 'android'>('all');
+  const [extAccess, setExtAccess] = useState<'all' | 'free' | 'paid'>('all');
+  const [extSort, setExtSort] = useState<'views' | 'rating'>('views');
+
+  const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
+  const [copiedHash, setCopiedHash] = useState<string | null>(null);
+  const [showVersionsModal, setShowVersionsModal] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/tools')
+      .then(res => res.json())
+      .then(data => {
+        if (data.tools && Array.isArray(data.tools) && data.tools.length > 0) {
+          setToolsData(data.tools);
+        }
+      })
+      .catch(err => console.error('Error fetching tools:', err));
+  }, []);
+
+  const copyHash = (hash: string) => {
+    navigator.clipboard.writeText(hash);
+    setCopiedHash(hash);
+    setTimeout(() => setCopiedHash(null), 2500);
+  };
 
   // Filtered lists
   const filteredExecutors = useMemo(() => {
-    return TOOLS_DATA
+    return toolsData
       .filter(t => t.category === 'executors')
       .filter(t => {
         if (execPlatform === 'all') return true;
@@ -153,10 +153,10 @@ export default function HerramientasPage() {
         if (execSort === 'views') return b.viewsCount - a.viewsCount;
         return b.rating - a.rating;
       });
-  }, [TOOLS_DATA, execPlatform, execAccess, execSort]);
+  }, [toolsData, execPlatform, execAccess, execSort]);
 
   const filteredExternals = useMemo(() => {
-    return TOOLS_DATA
+    return toolsData
       .filter(t => t.category === 'externals')
       .filter(t => {
         if (extPlatform === 'all') return true;
@@ -170,7 +170,7 @@ export default function HerramientasPage() {
         if (extSort === 'views') return b.viewsCount - a.viewsCount;
         return b.rating - a.rating;
       });
-  }, [TOOLS_DATA, extPlatform, extAccess, extSort]);
+  }, [toolsData, extPlatform, extAccess, extSort]);
 
   // Reusable Filter Bar matching the reference UI
   const renderFilterControls = (
@@ -394,6 +394,19 @@ export default function HerramientasPage() {
               scripts de roblox
             </Link>.
           </p>
+          {isAdmin && (
+            <div className="mt-3">
+              <Link
+                href="/admin/herramientas"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-accent text-accent-contrast text-xs font-bold hover:opacity-90 transition-opacity shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Gestionar Ejecutores y Herramientas (Admin)
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* ROBLOX VERSIONS WIDGET */}

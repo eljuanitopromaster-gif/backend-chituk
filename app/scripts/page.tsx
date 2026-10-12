@@ -30,6 +30,14 @@ export default function ScriptsCatalogPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const query = params.get('search') || params.get('game');
+      if (query) {
+        setSearchTerm(query);
+      }
+    }
+
     const fetchScripts = async () => {
       try {
         const res = await fetch('/api/scripts');

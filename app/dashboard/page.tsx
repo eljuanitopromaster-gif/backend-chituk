@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, supabase } from '../components/AuthProvider';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -326,6 +327,26 @@ export default function DashboardPage() {
               </h3>
             </div>
           </div>
+
+          <Link 
+            href="/favoritos"
+            className="bg-card border border-border-theme rounded-2xl p-4 shadow-xl flex items-center justify-between group hover:border-accent/40 transition-colors cursor-pointer mt-1"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-base border border-border-theme flex items-center justify-center group-hover:border-accent text-yellow-500 group-hover:scale-105 transition-all shrink-0">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-foreground group-hover:text-accent transition-colors">Mis Favoritos</p>
+                <p className="text-[11px] text-muted">Ver colección guardada</p>
+              </div>
+            </div>
+            <svg className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
 
         </div>
       </div>

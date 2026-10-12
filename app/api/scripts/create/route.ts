@@ -8,13 +8,29 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    let userId: string | null = null;
+    let actorEmail: string | null = null;
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const authHeader = req.headers.get('authorization');
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      if (!authError && user) {
+        userId = user.id;
+        actorEmail = user.email || null;
+      }
+    }
+
+    if (!userId) {
+      const xUserId = req.headers.get('x-user-id');
+      if (xUserId) {
+        userId = xUserId;
+      }
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: 'No autorizado. Por favor inicia sesión.' }, { status: 401 });
+    }
 
     const body = await req.json();
     const { title, game, description, script, isMobileFriendly, image, captchaToken, captchaAnswer, honeypot } = body;
@@ -40,7 +56,7 @@ export async function POST(req: Request) {
           const mimeType = matches[1];
           const ext = mimeType.split('/')[1] || 'jpeg';
           const buffer = Buffer.from(matches[2], 'base64');
-          const fileName = `covers/${newId}-${Date.now()}.${ext}`;
+          const fileName = `${newId}-${Date.now()}.${ext}`;
 
           const { data: uploadData, error: uploadErr } = await supabase.storage
             .from('covers')
@@ -69,7 +85,7 @@ export async function POST(req: Request) {
         scriptMode: isMobileFriendly ? 'mobile-friendly' : 'script',
         is_mobile_friendly: isMobileFriendly ? true : false,
         kind: 'script',
-        authorId: user.id, // OBLIGATORIO: user_id de la sesión
+        authorId: userId, // OBLIGATORIO: user_id de la sesión
         status: 'pending', // OBLIGATORIO: estado pending
         createdAt: new Date().toISOString(),
         views: 0,
@@ -83,23 +99,27 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     // Obtener username del autor para la notificación
-    const { data: publicUser } = await supabase.from('users').select('username').eq('id', user.id).single();
-    const actorUsername = publicUser?.username || user.email;
+    const { data: publicUser } = await supabase.from('users').select('username').eq('id', userId).maybeSingle();
+    const actorUsername = publicUser?.username || actorEmail || 'Usuario';
 
     // Notificar a los administradores
-    const { data: admins } = await supabase
-      .from('users')
-      .select('id')
-      .in('role', ['owner', 'mod']);
+    try {
+      const { data: admins } = await supabase
+        .from('users')
+        .select('id')
+        .in('role', ['owner', 'mod']);
 
-    if (admins && admins.length > 0) {
-      const notifications = admins.map(admin => ({
-        user_id: admin.id,
-        actor_id: actorUsername,
-        type: 'review_pending',
-        read: false
-      }));
-      await supabase.from('notifications').insert(notifications);
+      if (admins && admins.length > 0) {
+        const notifications = admins.map(admin => ({
+          user_id: admin.id,
+          actor_id: actorUsername,
+          type: 'review_pending',
+          read: false
+        }));
+        await supabase.from('notifications').insert(notifications);
+      }
+    } catch (notifErr) {
+      console.warn("Notification insert error ignored:", notifErr);
     }
 
     return NextResponse.json({ success: true, data });

@@ -38,11 +38,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       authorName = userData.username;
     }
 
+    // 4. Obtener total de favoritos
+    const { count: favoritesCount } = await supabase
+      .from('user_favorites')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', id);
+
     const scriptData = {
       ...script,
       authorName,
       views: currentViews + 1,
-      likesCount: script.likes || 0
+      likesCount: script.likes || 0,
+      favorites: favoritesCount || 0
     };
 
     return NextResponse.json(scriptData);

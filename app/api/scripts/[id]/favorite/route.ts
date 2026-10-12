@@ -9,88 +9,104 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const { id: scriptId } = await params;
     
-    // Auth check
+    // Auth check: support Bearer token and X-User-Id header fallback
+    let userId: string | null = null;
+    let actorUsername: string | null = null;
+
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      if (!authError && user) {
+        userId = user.id;
+        actorUsername = user.email || null;
+      }
+    }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    if (!userId) {
+      const xUserId = req.headers.get('x-user-id');
+      if (xUserId) {
+        userId = xUserId;
+      }
+    }
 
-    const { data: publicUser } = await supabase.from('users').select('username').eq('id', user.id).single();
-    const actorUsername = publicUser?.username || user.email;
+    if (!userId) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
 
-    // Verificar si ya existe el favorito
+    const { data: publicUser } = await supabase.from('users').select('username').eq('id', userId).single();
+    if (publicUser?.username) {
+      actorUsername = publicUser.username;
+    }
+
+    // 1. Verificar si ya existe el favorito en user_favorites
     const { data: existingFav, error: favError } = await supabase
       .from('user_favorites')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('project_id', scriptId)
       .maybeSingle();
 
-    let action = 'favorite';
-    if (existingFav) {
-      action = 'unfavorite';
-    }
+    if (favError) throw favError;
+
+    const action = existingFav ? 'unfavorite' : 'favorite';
 
     if (action === 'unfavorite') {
       // Eliminar el favorito
-      await supabase
+      const { error: deleteError } = await supabase
         .from('user_favorites')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('project_id', scriptId);
+
+      if (deleteError) throw deleteError;
     } else {
       // Insertar el favorito
-      await supabase
+      const { error: insertError } = await supabase
         .from('user_favorites')
-        .insert([{ user_id: user.id, project_id: scriptId }]);
+        .insert([{ user_id: userId, project_id: scriptId }]);
+
+      if (insertError) throw insertError;
     }
 
-    // Obtener el script actual para actualizar contador
-    const { data: script, error: scriptError } = await supabase
-      .from('projects')
-      .select('favorites, authorId')
-      .eq('id', scriptId)
-      .single();
+    // 2. Obtener el total exacto de favoritos para este script
+    const { count: favoritesCount, error: countError } = await supabase
+      .from('user_favorites')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', scriptId);
 
-    if (scriptError || !script) return NextResponse.json({ error: 'Script no encontrado' }, { status: 404 });
+    if (countError) throw countError;
 
-    let currentFavorites = 0;
-    if (typeof script.favorites === 'number') {
-      currentFavorites = script.favorites;
-    } else if (typeof script.favorites === 'string') {
-      currentFavorites = parseInt(script.favorites) || 0;
-    }
-
-    let newFavorites = currentFavorites;
+    // 3. Notificación al autor solo si es nuevo favorito
     if (action === 'favorite') {
-      newFavorites += 1;
-    } else {
-      newFavorites = Math.max(0, newFavorites - 1);
+      const { data: script } = await supabase
+        .from('projects')
+        .select('authorId')
+        .eq('id', scriptId)
+        .maybeSingle();
+
+      if (script && script.authorId && script.authorId !== userId && script.authorId !== actorUsername) {
+        try {
+          await supabase.from('notifications').insert([{
+            user_id: script.authorId,
+            actor_id: actorUsername || userId,
+            type: 'favorite',
+            read: false
+          }]);
+        } catch (e) {
+          // Ignorar error de notificación
+        }
+      }
     }
 
-    // Actualizar favorites
-    const { error: updateError } = await supabase
-      .from('projects')
-      .update({ favorites: newFavorites })
-      .eq('id', scriptId);
-
-    if (updateError) throw updateError;
-
-    // Insertar Notificación si lo deseas (opcional para favoritos)
-    if (action === 'favorite' && script.authorId !== user.id && script.authorId !== actorUsername) {
-      await supabase.from('notifications').insert([{
-        user_id: script.authorId,
-        actor_id: actorUsername,
-        type: 'favorite',
-        read: false
-      }]);
-    }
-
-    return NextResponse.json({ success: true, favorites: newFavorites, action });
+    return NextResponse.json({ 
+      success: true, 
+      favorites: favoritesCount || 0, 
+      action 
+    });
   } catch (err: any) {
+    console.error("Error in favorite route:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

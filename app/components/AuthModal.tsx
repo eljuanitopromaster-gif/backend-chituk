@@ -5,11 +5,23 @@ import CaptchaWidget, { CaptchaValue } from './CaptchaWidget';
 
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, authTab } = useAuth();
-  const [tab, setTab] = useState<'login' | 'signup'>(authTab);
+  const [tab, setTab] = useState<'login' | 'signup' | 'forgot'>(authTab);
   
+  // Login fields
+  const [identifier, setIdentifier] = useState(''); // Email o Username
+  const [password, setPassword] = useState('');
+
+  // Signup fields
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+
+  // Forgot password fields
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+  const [recoveryMethod, setRecoveryMethod] = useState<'email' | 'direct_link'>('email');
+  const [actionLink, setActionLink] = useState('');
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [captchaValue, setCaptchaValue] = useState<CaptchaValue>({ token: '', answer: '', honeypot: '', isReady: false });
@@ -19,10 +31,52 @@ export default function AuthModal() {
     if (isAuthModalOpen) {
       setTab(authTab);
       setError('');
+      setForgotSent(false);
+      setActionLink('');
+      setCopiedLink(false);
     }
   }, [isAuthModalOpen, authTab]);
 
   if (!isAuthModalOpen) return null;
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (!forgotEmail.trim()) {
+        throw new Error("Por favor ingresa un correo electrónico o nombre de usuario registrado.");
+      }
+
+      const res = await fetch('/api/auth/recover-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: forgotEmail.trim(),
+          origin: window.location.origin
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Error al procesar la recuperación de contraseña.");
+      }
+
+      if (data.method === 'direct_link' && data.actionLink) {
+        setRecoveryMethod('direct_link');
+        setActionLink(data.actionLink);
+      } else {
+        setRecoveryMethod('email');
+      }
+
+      setForgotSent(true);
+    } catch (err: any) {
+      setError(err.message || "Error al solicitar el enlace de recuperación");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,20 +85,44 @@ export default function AuthModal() {
 
     try {
       if (tab === 'login') {
+        let loginEmail = identifier.trim();
+
+        // Si no tiene @, el usuario ingresó su nombre de usuario
+        if (!loginEmail.includes('@')) {
+          const res = await fetch('/api/auth/lookup-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: loginEmail })
+          });
+
+          if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || "No existe ninguna cuenta registrada con ese nombre de usuario.");
+          }
+
+          const lookupData = await res.json();
+          loginEmail = lookupData.email;
+        }
+
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: loginEmail,
           password
         });
         
-        if (signInError) throw signInError;
+        if (signInError) {
+          if (signInError.message.toLowerCase().includes('invalid login credentials')) {
+            throw new Error("Credenciales inválidas. Verifica tu correo/usuario y contraseña.");
+          }
+          throw signInError;
+        }
         
         closeAuthModal();
-      } else {
+      } else if (tab === 'signup') {
         if (username.length < 3) throw new Error("El nombre de usuario debe tener al menos 3 caracteres.");
         if (!captchaValue.isReady || !captchaValue.answer) throw new Error("Por favor completa la verificación de seguridad anti-bot.");
         
         const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
         });
 
@@ -58,7 +136,7 @@ export default function AuthModal() {
             body: JSON.stringify({
               id: data.user.id,
               email: data.user.email,
-              username: username,
+              username: username.trim(),
               captchaToken: captchaValue.token,
               captchaAnswer: captchaValue.answer,
               honeypot: captchaValue.honeypot
@@ -88,7 +166,7 @@ export default function AuthModal() {
       >
         <button 
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+          className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors cursor-pointer"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -98,94 +176,241 @@ export default function AuthModal() {
         <div className="p-6 pt-8">
           <p className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">CHITUK</p>
           <h2 className="text-2xl font-bold text-white mb-6">
-            {tab === 'login' ? 'Vuelve al archivo' : 'Crea tu cuenta'}
+            {tab === 'login' ? 'Vuelve al archivo' : tab === 'signup' ? 'Crea tu cuenta' : 'Recuperar Contraseña'}
           </h2>
 
-          <div className="flex border-b border-border-theme mb-6">
-            <button 
-              className={`flex-1 pb-3 text-sm font-medium ${tab === 'login' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
-              onClick={() => setTab('login')}
-              type="button"
-            >
-              Iniciar sesión
-            </button>
-            <button 
-              className={`flex-1 pb-3 text-sm font-medium ${tab === 'signup' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
-              onClick={() => setTab('signup')}
-              type="button"
-            >
-              Crear cuenta
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-neutral-300 font-medium">Email</label>
-              <input 
-                type="email" 
-                required 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              />
+          {tab !== 'forgot' ? (
+            <div className="flex border-b border-border-theme mb-6">
+              <button 
+                className={`flex-1 pb-3 text-sm font-medium cursor-pointer transition-colors ${tab === 'login' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
+                onClick={() => { setTab('login'); setError(''); }}
+                type="button"
+              >
+                Iniciar sesión
+              </button>
+              <button 
+                className={`flex-1 pb-3 text-sm font-medium cursor-pointer transition-colors ${tab === 'signup' ? 'text-white border-b-2 border-accent' : 'text-neutral-500 hover:text-neutral-300'}`}
+                onClick={() => { setTab('signup'); setError(''); }}
+                type="button"
+              >
+                Crear cuenta
+              </button>
             </div>
+          ) : (
+            <div className="mb-6 flex items-center justify-between border-b border-border-theme pb-3">
+              <span className="text-xs text-muted">Restablecimiento de acceso</span>
+              <button
+                type="button"
+                onClick={() => { setTab('login'); setError(''); setForgotSent(false); }}
+                className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+              >
+                ← Volver al login
+              </button>
+            </div>
+          )}
 
-            {tab === 'signup' && (
+          {tab === 'forgot' ? (
+            /* FORMULARIO RECUPERAR CONTRASEÑA */
+            forgotSent ? (
+              <div className="flex flex-col gap-4 text-center py-4">
+                {recoveryMethod === 'direct_link' ? (
+                  <>
+                    <div className="w-14 h-14 bg-accent/15 border border-accent/30 text-accent rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-white">¡Enlace Seguro Listo!</h3>
+                    <p className="text-xs text-neutral-300 leading-relaxed">
+                      Para tu comodidad inmediata (evitando esperas por límites del servidor de correo), puedes restablecer tu contraseña directamente haciendo clic aquí:
+                    </p>
+                    <div className="flex flex-col gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.location.href = actionLink;
+                        }}
+                        className="w-full py-3 bg-accent text-black rounded-xl font-bold hover:bg-yellow-500 transition-colors cursor-pointer shadow-md flex items-center justify-center gap-2"
+                      >
+                        <span>Restablecer Contraseña Ahora</span>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await navigator.clipboard.writeText(actionLink);
+                          setCopiedLink(true);
+                          setTimeout(() => setCopiedLink(false), 2500);
+                        }}
+                        className="w-full py-2 bg-card border border-neutral-800 hover:border-neutral-700 text-xs text-neutral-300 rounded-xl font-medium transition-colors cursor-pointer"
+                      >
+                        {copiedLink ? '✓ ¡Enlace copiado al portapapeles!' : 'Copiar enlace directo de recuperación'}
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setTab('login'); setForgotSent(false); }}
+                      className="mt-2 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      Regresar a Iniciar Sesión
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-white">¡Enlace enviado!</h3>
+                    <p className="text-sm text-neutral-300 leading-relaxed">
+                      Hemos enviado las instrucciones para restablecer tu contraseña a <strong className="text-accent">{forgotEmail}</strong>. Revisa tu bandeja de entrada o spam.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => { setTab('login'); setForgotSent(false); }}
+                      className="mt-2 w-full py-3 bg-accent text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors cursor-pointer"
+                    >
+                      Regresar a Iniciar Sesión
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <form onSubmit={handleForgotSubmit} className="flex flex-col gap-4">
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Ingresa tu correo electrónico o nombre de usuario registrado y te proporcionaremos acceso seguro para crear una nueva contraseña.
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm text-neutral-300 font-medium">Correo Electrónico o Usuario</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    placeholder="tu@email.com o tu_usuario"
+                    className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
+                )}
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="mt-2 w-full py-3 bg-accent text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {loading ? 'Enviando enlace...' : 'Enviar enlace de recuperación'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setTab('login'); setError(''); }}
+                  className="w-full py-2 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer text-center"
+                >
+                  Cancelar y volver
+                </button>
+              </form>
+            )
+          ) : (
+            /* FORMULARIO LOGIN / SIGNUP */
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              {tab === 'login' ? (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm text-neutral-300 font-medium">Email o Nombre de Usuario</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={identifier}
+                    onChange={e => setIdentifier(e.target.value)}
+                    placeholder="tu@email.com o tu_usuario"
+                    className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm text-neutral-300 font-medium">Email</label>
+                    <input 
+                      type="email" 
+                      required 
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="tu@email.com"
+                      className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm text-neutral-300 font-medium">Nombre de Usuario</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
+                      placeholder="Sin espacios"
+                      className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-neutral-300 font-medium">Nombre de Usuario</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm text-neutral-300 font-medium">Contraseña</label>
+                  {tab === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => { setTab('forgot'); setError(''); }}
+                      className="text-xs text-accent hover:underline cursor-pointer"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  )}
+                </div>
                 <input 
-                  type="text" 
+                  type="password" 
                   required 
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="Sin espacios"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Mínimo 8 caracteres"
                   className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
               </div>
-            )}
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-neutral-300 font-medium">Contraseña</label>
-              <input 
-                type="password" 
-                required 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Mínimo 8 caracteres"
-                className="w-full bg-card border border-neutral-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              />
-            </div>
-
-            {tab === 'signup' && (
-              <div className="flex flex-col gap-3">
-                <CaptchaWidget onChange={setCaptchaValue} compact />
-                <div className="flex items-start gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="terms" 
-                    required 
-                    className="mt-1 w-4 h-4 rounded border-neutral-700 text-accent focus:ring-accent bg-card"
-                  />
-                  <label htmlFor="terms" className="text-xs text-neutral-400">
-                    He leído y acepto los <a href="/terminos" target="_blank" className="text-accent hover:underline">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="text-accent hover:underline">Política de Privacidad</a> de Chituk.
-                  </label>
+              {tab === 'signup' && (
+                <div className="flex flex-col gap-3">
+                  <CaptchaWidget onChange={setCaptchaValue} compact />
+                  <div className="flex items-start gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="terms" 
+                      required 
+                      className="mt-1 w-4 h-4 rounded border-neutral-700 text-accent focus:ring-accent bg-card"
+                    />
+                    <label htmlFor="terms" className="text-xs text-neutral-400">
+                      He leído y acepto los <a href="/terminos" target="_blank" className="text-accent hover:underline">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="text-accent hover:underline">Política de Privacidad</a> de Chituk.
+                    </label>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {error && (
-              <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
-            )}
+              {error && (
+                <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
+              )}
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="mt-2 w-full py-3 bg-accent text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Cargando...' : tab === 'login' ? 'Entrar' : 'Registrarse'}
-            </button>
-          </form>
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="mt-2 w-full py-3 bg-accent text-black rounded-lg font-bold hover:bg-yellow-500 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {loading ? 'Cargando...' : tab === 'login' ? 'Entrar' : 'Registrarse'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

@@ -38,25 +38,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
 
   useEffect(() => {
-    // Escuchar el estado de autenticación de Supabase
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        // Traer datos adicionales de la tabla pública
-        const { data: publicUser } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (publicUser) {
-          setUser(publicUser);
-          
-          // Sincronización silenciosa con el localStorage legacy (para mantener funcional chituk-script.js)
+    let isMounted = true;
+
+    const processSession = async (session: any) => {
+      try {
+        if (session?.user) {
+          // Traer datos de la tabla pública
+          let { data: publicUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (!publicUser) {
+            // Si el usuario no tiene fila en public.users, crearla o sintetizarla
+            const defaultUsername = session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'Usuario';
+            const { data: newUser } = await supabase.from('users').insert([{
+              id: session.user.id,
+              username: defaultUsername,
+              normalized: defaultUsername.toLowerCase(),
+              role: 'user',
+              is_verified: false,
+              banned: false,
+              createdAt: new Date().toISOString()
+            }]).select().maybeSingle();
+
+            publicUser = newUser || {
+              id: session.user.id,
+              username: defaultUsername,
+              role: 'user',
+              is_verified: false,
+              banned: false
+            };
+          }
+
+          if (publicUser.banned) {
+            if (isMounted) setUser(null);
+            try {
+              document.cookie = 'sb-auth-token=; path=/; max-age=0; SameSite=Lax';
+              localStorage.removeItem('chituk-community-session-v4');
+            } catch (e) {}
+            await supabase.auth.signOut();
+            alert(`Tu cuenta ha sido suspendida por la administración.\nMotivo: ${publicUser.banReason || 'Infracción de las normas de la comunidad'}`);
+            if (isMounted) setLoading(false);
+            return;
+          }
+
+          if (isMounted) setUser(publicUser);
+
+          // Sincronización silenciosa con el localStorage legacy
           try {
+            document.cookie = 'sb-auth-token=1; path=/; max-age=604800; SameSite=Lax';
             const dbStorage = localStorage.getItem('chituk-community-v4');
             let parsedDb = dbStorage ? JSON.parse(dbStorage) : { users: [], projects: [], comments: [] };
             
-            // Upsert al usuario local
             const existingIdx = parsedDb.users.findIndex((u: any) => u.id === publicUser.id);
             if (existingIdx !== -1) {
               parsedDb.users[existingIdx] = publicUser;
@@ -66,25 +101,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             
             localStorage.setItem('chituk-community-v4', JSON.stringify(parsedDb));
             localStorage.setItem('chituk-community-session-v4', JSON.stringify({ userId: publicUser.id }));
-          } catch(e) {}
+          } catch (e) {}
         } else {
-          setUser(null);
+          if (isMounted) setUser(null);
+          try {
+            document.cookie = 'sb-auth-token=; path=/; max-age=0; SameSite=Lax';
+            localStorage.removeItem('chituk-community-session-v4');
+          } catch (e) {}
         }
-      } else {
-        setUser(null);
-        try {
-          localStorage.removeItem('chituk-community-session-v4');
-        } catch(e) {}
+      } catch (err) {
+        console.error("Error in processSession:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
+    };
+
+    // 1. Inicialización inmediata con getSession
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      processSession(session);
+    }).catch(() => {
+      if (isMounted) setLoading(false);
     });
 
+    // 2. Escuchar cambios del estado de autenticación
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      processSession(session);
+    });
+
+    // 3. Fallback timeout de seguridad para que loading NUNCA quede congelado
+    const timeout = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 2000);
+
     return () => {
+      isMounted = false;
+      clearTimeout(timeout);
       authListener.subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
+    try {
+      document.cookie = 'sb-auth-token=; path=/; max-age=0; SameSite=Lax';
+    } catch(e) {}
     await supabase.auth.signOut();
   };
 

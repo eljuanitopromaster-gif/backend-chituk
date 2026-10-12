@@ -4,33 +4,25 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // 1. Obtener la sesión o cookie de autenticación de Supabase
-    // Supabase almacena el token en cookies con prefijo "sb-"
     const hasAuthToken = request.cookies
         .getAll()
-        .some((cookie) => cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token'));
+        .some((cookie) => 
+            (cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token')) ||
+            cookie.name === 'sb-auth-token'
+        );
 
     // 2. Definir rutas públicas y privadas
     const isLoginPage = pathname === '/login';
-    const isPublicRoute =
-        pathname === '/' ||
-        pathname.startsWith('/login') ||
-        pathname.startsWith('/herramientas') ||
-        pathname.startsWith('/comunidad') ||
-        pathname.startsWith('/juegos') ||
-        pathname.startsWith('/privacidad') ||
-        pathname.startsWith('/terminos') ||
-        pathname.startsWith('/api/');
 
     const isProtectedRoute =
         pathname.startsWith('/dashboard') ||
-        pathname.startsWith('/admin') ||
-        pathname.startsWith('/publicar');
+        pathname.startsWith('/admin');
 
     // CASO 1: Usuario NO autenticado intentando entrar a ruta privada
+    // Como Chituk usa AuthModal en lugar de página /login, redirigimos a / con ?auth=login
     if (!hasAuthToken && isProtectedRoute) {
-        const redirectUrl = new URL('/login', request.url);
-        // Guardamos la ruta a la que intentaba ir para redirigirlo tras iniciar sesión
-        redirectUrl.searchParams.set('redirectTo', pathname);
+        const redirectUrl = new URL('/', request.url);
+        redirectUrl.searchParams.set('auth', 'login');
         return NextResponse.redirect(redirectUrl);
     }
 

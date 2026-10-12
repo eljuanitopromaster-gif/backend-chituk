@@ -1,5 +1,6 @@
--- Agrega la columna is_verified a la tabla users si no existe
+-- Agrega la columna is_verified y email a la tabla users si no existen
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email TEXT;
 
 -- Crea la tabla de insignias (badges) para la gamificación del Dashboard
 CREATE TABLE IF NOT EXISTS public.user_badges (
@@ -39,4 +40,25 @@ CREATE TABLE IF NOT EXISTS public.comment_likes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(comment_id, user_id)
 );
+
+-- Tabla para Ejecutores y Herramientas
+CREATE TABLE IF NOT EXISTS public.tools (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'executors',
+    platforms TEXT[] NOT NULL DEFAULT '{"windows"}',
+    access TEXT NOT NULL DEFAULT 'free',
+    price_display TEXT DEFAULT 'FREE',
+    views_display TEXT DEFAULT '0',
+    views_count INTEGER DEFAULT 0,
+    rating NUMERIC DEFAULT 5.0,
+    reviews_count INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'Actualizado',
+    description TEXT NOT NULL,
+    features TEXT[] DEFAULT '{}',
+    download_url TEXT NOT NULL,
+    image_src TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 

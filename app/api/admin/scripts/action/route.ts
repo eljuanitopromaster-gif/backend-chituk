@@ -26,7 +26,8 @@ export async function POST(request: Request) {
             .eq('id', userId)
             .single();
             
-        if (userError || !user || (user.role !== 'owner' && user.role !== 'mod')) {
+        const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
+        if (userError || !user || !allowedRoles.includes(user.role)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 

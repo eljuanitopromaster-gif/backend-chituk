@@ -1,0 +1,100 @@
+[
+  {
+    "id": "solara",
+    "name": "Solara",
+    "category": "executors",
+    "platforms": [
+      "windows"
+    ],
+    "access": "free",
+    "priceDisplay": "FREE",
+    "viewsDisplay": "136.7K",
+    "viewsCount": 136700,
+    "rating": 3.5,
+    "reviewsCount": 26,
+    "status": "Actualizado",
+    "description": "Ejecutor ligero y optimizado para Windows con inyección rápida, soporte para Luau moderno y baja tasa de caídas.",
+    "features": [
+      "Nivel de ejecución optimizado",
+      "Sin claves tediosas",
+      "Inyección rápida",
+      "Compatible con Windows 10/11"
+    ],
+    "downloadUrl": "https://solara.gg/",
+    "imageSrc": "/assets/Executors Tools/Solara.jpg"
+  },
+  {
+    "id": "xeno",
+    "name": "Xeno",
+    "category": "executors",
+    "platforms": [
+      "windows"
+    ],
+    "access": "free",
+    "priceDisplay": "FREE",
+    "viewsDisplay": "122.6K",
+    "viewsCount": 122600,
+    "rating": 3.9,
+    "reviewsCount": 35,
+    "status": "Actualizado",
+    "description": "Ejecutor de alto calibre con inyección instantánea, sidebar modular y soporte nativo para librerías avanzadas.",
+    "features": [
+      "Inyección en 0.5s",
+      "UI fluida y oscura",
+      "Soporte Luau full",
+      "Anti-ban integrado"
+    ],
+    "downloadUrl": "https://xenoexecutor.com/",
+    "imageSrc": "/assets/Executors Tools/Xeno.jpg"
+  },
+  {
+    "id": "delta",
+    "name": "Delta",
+    "category": "executors",
+    "platforms": [
+      "windows",
+      "android",
+      "mac"
+    ],
+    "access": "free",
+    "priceDisplay": "FREE",
+    "viewsDisplay": "53.3K",
+    "viewsCount": 53300,
+    "rating": 4.4,
+    "reviewsCount": 17,
+    "status": "Actualizado",
+    "description": "El ejecutor multiplataforma más confiable y extendido. Compatible con Windows y Android con bypass estable.",
+    "features": [
+      "Soporte Android y Windows",
+      "Explorador de scripts en nube",
+      "Bajo consumo de RAM",
+      "Frecuentes updates"
+    ],
+    "downloadUrl": "https://deltaexploits.net/",
+    "imageSrc": "/assets/Executors Tools/Delta.jpg"
+  },
+  {
+    "id": "aimmy",
+    "name": "Aimmy",
+    "category": "externals",
+    "platforms": [
+      "windows"
+    ],
+    "access": "free",
+    "priceDisplay": "FREE",
+    "viewsDisplay": "55.7K",
+    "viewsCount": 55700,
+    "rating": 2.6,
+    "reviewsCount": 10,
+    "status": "Actualizado",
+    "description": "Herramienta de asistencia visual por IA mediante Computer Vision ONNX. Totalmente externa y libre de inyección de memoria.",
+    "features": [
+      "100% externo sin memoria",
+      "Modelos ONNX actualizables",
+      "Cero riesgo de ban de cliente",
+      "Código abierto"
+    ],
+    "downloadUrl": "https://aimmy.dev/",
+    "imageSrc": "/assets/Executors Tools/Aimmy.jpg?v=2"
+  }
+]

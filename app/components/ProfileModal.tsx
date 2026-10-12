@@ -12,6 +12,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { user, updateUser, refreshUser } = useAuth();
   
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   useEffect(() => {
     if (user && isOpen) {
       setUsername(user.username || '');
+      setEmail(user.email || '');
       setBio(user.bio || '');
       setAvatar(user.avatar || null);
       setAvatarPreview(user.avatar || null);
@@ -127,7 +129,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         throw new Error('No hay sesión activa. Inicia sesión nuevamente.');
       }
 
-      const payload: { username?: string; bio?: string; avatar?: string | null } = {
+      const payload: { username?: string; bio?: string; avatar?: string | null; email?: string } = {
         bio: bio.trim(),
         avatar: avatar
       };
@@ -137,6 +139,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           throw new Error(`Solo puedes cambiar tu nombre de usuario cada 15 días. Próximo cambio disponible en ${remainingDays} días.`);
         }
         payload.username = username.trim();
+      }
+
+      if (email.trim().toLowerCase() !== (user.email || '').toLowerCase()) {
+        payload.email = email.trim();
       }
 
       const res = await fetch('/api/users/profile', {
@@ -322,6 +328,37 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </span>
               </p>
             )}
+          </div>
+
+          {/* Email Section (Sin límites de cambio) */}
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <label htmlFor="profile-email" className="text-sm font-semibold text-foreground">
+                Correo Electrónico
+              </label>
+              <span className="text-[11px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
+                ✓ Sin límites de cambio
+              </span>
+            </div>
+
+            <div className="relative">
+              <input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="w-full bg-card border border-border-theme focus:border-accent focus:ring-1 focus:ring-accent rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none transition-colors"
+                placeholder="tu@correo.com"
+                required
+              />
+            </div>
+
+            <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
+              <span>📧</span>
+              <span>
+                Puedes actualizar tu correo de alta en cualquier momento sin límites.
+              </span>
+            </p>
           </div>
 
           {/* Bio Section */}

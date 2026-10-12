@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { username, bio, avatar } = body;
+    const { username, bio, avatar, email } = body;
 
     // Obtener los datos actuales del usuario
     const { data: currentUser, error: userFetchError } = await supabase
@@ -129,6 +129,39 @@ export async function POST(req: Request) {
       }
 
       updatePayload.avatar = finalAvatarUrl || null;
+    }
+
+    // 4. Manejo del cambio de Email (sin límites de tiempo o frecuencia)
+    if (email !== undefined && typeof email === 'string' && email.trim() !== '' && email.trim().toLowerCase() !== (currentUser.email || '').toLowerCase()) {
+      const trimmedEmail = email.trim().toLowerCase();
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+        return NextResponse.json({ error: 'Por favor ingresa un correo electrónico válido.' }, { status: 400 });
+      }
+
+      // Verificar si el correo ya está en uso por otro usuario
+      const { data: existingEmailUser } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', trimmedEmail)
+        .neq('id', user.id)
+        .maybeSingle();
+
+      if (existingEmailUser) {
+        return NextResponse.json({ error: 'Ese correo electrónico ya está registrado con otra cuenta.' }, { status: 400 });
+      }
+
+      // Actualizar en Supabase Auth
+      const { error: authEmailError } = await supabase.auth.admin.updateUserById(
+        user.id,
+        { email: trimmedEmail, email_confirm: true }
+      );
+
+      if (authEmailError) {
+        return NextResponse.json({ error: `Error al actualizar correo: ${authEmailError.message}` }, { status: 400 });
+      }
+
+      updatePayload.email = trimmedEmail;
     }
 
     if (Object.keys(updatePayload).length === 0) {

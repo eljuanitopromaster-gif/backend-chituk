@@ -9,66 +9,107 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const { id: scriptId } = await params;
     
-    // Auth check
+    // Auth check: support Bearer token and X-User-Id fallback
+    let userId: string | null = null;
+    let actorUsername: string | null = null;
+
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-
-    const { data: publicUser } = await supabase.from('users').select('username').eq('id', user.id).single();
-    const actorUsername = publicUser?.username || user.email;
-
-    // Obtener el script actual
-    const { data: script, error: scriptError } = await supabase
-      .from('projects')
-      .select('likes, authorId')
-      .eq('id', scriptId)
-      .single();
-
-    if (scriptError || !script) return NextResponse.json({ error: 'Script no encontrado' }, { status: 404 });
-
-    let currentLikes = 0;
-    if (typeof script.likes === 'number') {
-      currentLikes = script.likes;
-    } else if (Array.isArray(script.likes)) {
-      currentLikes = script.likes.length;
-    } else if (typeof script.likes === 'string') {
-      currentLikes = parseInt(script.likes) || 0;
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      if (!authError && user) {
+        userId = user.id;
+        actorUsername = user.email || null;
+      }
     }
 
-    const body = await req.json().catch(() => ({}));
-    const action = body.action || 'like';
-
-    let newLikes = currentLikes;
-    if (action === 'like') {
-      newLikes += 1;
-    } else if (action === 'unlike') {
-      newLikes = Math.max(0, newLikes - 1);
+    if (!userId) {
+      const xUserId = req.headers.get('x-user-id');
+      if (xUserId) {
+        userId = xUserId;
+      }
     }
 
-    // Actualizar likes
-    const { error: updateError } = await supabase
+    if (!userId) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const { data: publicUser } = await supabase.from('users').select('username').eq('id', userId).single();
+    if (publicUser?.username) {
+      actorUsername = publicUser.username;
+    }
+
+    // 1. Verificar si el usuario ya dio like a este script
+    const { data: existingLike, error: likeCheckError } = await supabase
+      .from('user_likes')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('project_id', scriptId)
+      .maybeSingle();
+
+    if (likeCheckError) throw likeCheckError;
+
+    const action = existingLike ? 'unlike' : 'like';
+
+    if (action === 'unlike') {
+      // Eliminar el like
+      const { error: deleteError } = await supabase
+        .from('user_likes')
+        .delete()
+        .eq('user_id', userId)
+        .eq('project_id', scriptId);
+
+      if (deleteError) throw deleteError;
+    } else {
+      // Insertar nuevo like
+      const { error: insertError } = await supabase
+        .from('user_likes')
+        .insert([{ user_id: userId, project_id: scriptId }]);
+
+      if (insertError) throw insertError;
+    }
+
+    // 2. Obtener el total exacto de likes desde user_likes
+    const { count: actualLikes, error: countError } = await supabase
+      .from('user_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', scriptId);
+
+    if (countError) throw countError;
+
+    const newLikes = actualLikes || 0;
+
+    // Actualizar columna likes en projects para compatibilidad
+    await supabase
       .from('projects')
       .update({ likes: newLikes })
       .eq('id', scriptId);
 
-    if (updateError) throw updateError;
+    // 3. Notificación al autor solo si es nuevo like
+    if (action === 'like') {
+      const { data: script } = await supabase
+        .from('projects')
+        .select('authorId')
+        .eq('id', scriptId)
+        .maybeSingle();
 
-    // Insertar Notificación solo si es like
-    if (action === 'like' && script.authorId !== user.id && script.authorId !== actorUsername) {
-      await supabase.from('notifications').insert([{
-        user_id: script.authorId,
-        actor_id: actorUsername,
-        type: 'like',
-        read: false
-      }]);
+      if (script && script.authorId && script.authorId !== userId && script.authorId !== actorUsername) {
+        try {
+          await supabase.from('notifications').insert([{
+            user_id: script.authorId,
+            actor_id: actorUsername || userId,
+            type: 'like',
+            read: false
+          }]);
+        } catch (e) {
+          // Ignorar error de notificación
+        }
+      }
     }
 
-    return NextResponse.json({ success: true, likes: newLikes });
+    return NextResponse.json({ success: true, likes: newLikes, action });
   } catch (err: any) {
+    console.error("Error in like route:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

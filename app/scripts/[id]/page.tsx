@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth, supabase } from '../../components/AuthProvider';
 import CommentsSection from '../../components/CommentsSection';
@@ -84,6 +85,7 @@ export default function ScriptViewPage() {
   const [playing, setPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [favToast, setFavToast] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'about' | 'comments'>('about');
 
   useEffect(() => {
@@ -104,8 +106,11 @@ export default function ScriptViewPage() {
             supabase.from('user_likes').select('user_id').eq('user_id', user.id).eq('project_id', id).maybeSingle(),
             supabase.from('user_favorites').select('user_id').eq('user_id', user.id).eq('project_id', id).maybeSingle()
           ]);
-          if (likeData) setIsLiked(true);
-          if (favData) setIsFavorited(true);
+          setIsLiked(!!likeData);
+          setIsFavorited(!!favData);
+        } else {
+          setIsLiked(false);
+          setIsFavorited(false);
         }
       } catch (err: any) {
         setError(err.message);
@@ -149,18 +154,21 @@ export default function ScriptViewPage() {
 
     const previousState = isLiked;
     setIsLiked(!previousState);
-    setScript((prev: any) => ({ ...prev, likesCount: prev.likesCount + (previousState ? -1 : 1) }));
+    setScript((prev: any) => ({ ...prev, likesCount: Math.max(0, (prev.likesCount || 0) + (previousState ? -1 : 1)) }));
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) return;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-User-Id': user.id
+      };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
 
       const res = await fetch(`/api/scripts/${id}/like`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (res.ok) {
@@ -169,12 +177,12 @@ export default function ScriptViewPage() {
         setIsLiked(action === 'like');
       } else {
         setIsLiked(previousState);
-        setScript((prev: any) => ({ ...prev, likesCount: prev.likesCount + (previousState ? 1 : -1) }));
+        setScript((prev: any) => ({ ...prev, likesCount: Math.max(0, (prev.likesCount || 0) + (previousState ? 1 : -1)) }));
       }
     } catch (e) {
       console.error(e);
       setIsLiked(previousState);
-      setScript((prev: any) => ({ ...prev, likesCount: prev.likesCount + (previousState ? 1 : -1) }));
+      setScript((prev: any) => ({ ...prev, likesCount: Math.max(0, (prev.likesCount || 0) + (previousState ? 1 : -1)) }));
     }
   };
 
@@ -187,18 +195,23 @@ export default function ScriptViewPage() {
 
     const previousState = isFavorited;
     setIsFavorited(!previousState);
-    setScript((prev: any) => ({ ...prev, favorites: (prev.favorites || 0) + (previousState ? -1 : 1) }));
+    setScript((prev: any) => ({ ...prev, favorites: Math.max(0, (prev.favorites || 0) + (previousState ? -1 : 1)) }));
+    setFavToast(!previousState ? '¡Script guardado en tus Favoritos!' : 'Script eliminado de Favoritos');
+    setTimeout(() => setFavToast(null), 3500);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) return;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-User-Id': user.id
+      };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
 
       const res = await fetch(`/api/scripts/${id}/favorite`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (res.ok) {
@@ -207,12 +220,12 @@ export default function ScriptViewPage() {
         setIsFavorited(action === 'favorite');
       } else {
         setIsFavorited(previousState);
-        setScript((prev: any) => ({ ...prev, favorites: (prev.favorites || 0) + (previousState ? 1 : -1) }));
+        setScript((prev: any) => ({ ...prev, favorites: Math.max(0, (prev.favorites || 0) + (previousState ? 1 : -1)) }));
       }
     } catch (e) {
       console.error(e);
       setIsFavorited(previousState);
-      setScript((prev: any) => ({ ...prev, favorites: (prev.favorites || 0) + (previousState ? 1 : -1) }));
+      setScript((prev: any) => ({ ...prev, favorites: Math.max(0, (prev.favorites || 0) + (previousState ? 1 : -1)) }));
     }
   };
 
@@ -452,6 +465,23 @@ export default function ScriptViewPage() {
           <CommentsSection scriptId={id} scriptAuthorId={script.authorId} />
         )}
       </div>
+
+      {/* Notificación flotante de Favoritos */}
+      {favToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-card border border-border-theme shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
+          <div className="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-foreground">{favToast}</span>
+            <Link href="/favoritos" className="text-[11px] text-accent hover:underline font-semibold mt-0.5">
+              Ver colección guardada →
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
