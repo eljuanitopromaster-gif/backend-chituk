@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Chituk - Creator Platform & Script Hub
 
-## Getting Started
+Chituk es una plataforma web comunitaria diseñada para desarrolladores y creadores de contenido, permitiéndoles publicar, gestionar y monitorear el rendimiento de sus scripts y herramientas. A través de un entorno seguro y gamificado, los usuarios pueden compartir sus proyectos, interactuar con la comunidad y analizar su impacto mediante métricas en tiempo real.
 
-First, run the development server:
+## Características Principales
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Panel de Creador (Dashboard): Visualización interactiva y análisis de métricas clave como visualizaciones totales, copias de código y "me gusta" acumulados.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sistema de Gamificación: Logros e insignias dinámicas que recompensan a los usuarios por alcanzar hitos de vistas, popularidad y aportes constantes a la plataforma.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Autenticación y Seguridad Integral: Gestión de sesiones segura impulsada por Supabase, con protección de rutas privadas gestionada estrictamente desde el servidor.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Interacción Comunitaria: Ecosistema enfocado en el engagement, permitiendo a los usuarios destacar mediante sistemas de verificación y personalización de perfiles.
 
-## Learn More
+## Tecnologías Utilizadas
 
-To learn more about Next.js, take a look at the following resources:
+Framework Core: Next.js (React)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Backend y Base de Datos: Supabase (PostgreSQL, Authentication)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Visualización de Datos: Recharts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Despliegue e Infraestructura: Vercel
