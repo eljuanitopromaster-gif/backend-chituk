@@ -647,20 +647,20 @@ export default function HerramientasPage() {
       {/* ROBLOX VERSIONS MODAL                                         */}
       {/* ------------------------------------------------------------- */}
       {showVersionsModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowVersionsModal(false)}>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => setShowVersionsModal(false)}>
           <div
-            className="bg-card border border-border-theme rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col"
+            className="bg-card border border-border-theme rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col transition-colors"
             onClick={e => e.stopPropagation()}
           >
-            <div className="p-5 border-b border-border-theme bg-[#101216] flex justify-between items-center">
+            <div className="p-5 border-b border-border-theme bg-base flex justify-between items-center">
               <div>
                 <span className="text-[10px] font-bold text-accent uppercase tracking-wider">Historial de Clientes</span>
-                <h3 className="text-lg font-bold text-white">Roblox Version Hashes</h3>
+                <h3 className="text-lg font-bold text-foreground">Roblox Version Hashes</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowVersionsModal(false)}
-                className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                className="text-muted hover:text-foreground transition-colors cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -669,26 +669,26 @@ export default function HerramientasPage() {
             </div>
 
             <div className="p-5 flex flex-col gap-3.5 max-h-[70vh] overflow-y-auto">
-              <div className="p-3.5 bg-[#12141A] rounded-xl border border-neutral-800">
+              <div className="p-3.5 bg-base rounded-xl border border-border-theme">
                 <span className="text-xs font-bold text-[#00ADEF] block mb-1">Windows Player (En Vivo)</span>
                 <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">version-cec3ad5889b447cf</code>
-                <span className="text-[11px] text-neutral-400 font-mono block mt-1">Anterior: version-02c37bc51a384b8f</span>
+                <span className="text-[11px] text-muted font-mono block mt-1">Anterior: version-02c37bc51a384b8f</span>
               </div>
 
-              <div className="p-3.5 bg-[#12141A] rounded-xl border border-neutral-800">
-                <span className="text-xs font-bold text-neutral-300 block mb-1">Mac Player (En Vivo)</span>
+              <div className="p-3.5 bg-base rounded-xl border border-border-theme">
+                <span className="text-xs font-bold text-foreground block mb-1">Mac Player (En Vivo)</span>
                 <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">version-f9247f9560044102</code>
-                <span className="text-[11px] text-neutral-400 font-mono block mt-1">Anterior: version-3bc33ee7ffad426f</span>
+                <span className="text-[11px] text-muted font-mono block mt-1">Anterior: version-3bc33ee7ffad426f</span>
               </div>
 
-              <div className="p-3.5 bg-[#12141A] rounded-xl border border-neutral-800">
+              <div className="p-3.5 bg-base rounded-xl border border-border-theme">
                 <span className="text-xs font-bold text-[#22C55E] block mb-1">Android APK (Cliente)</span>
                 <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">2.658.627 (64-bit armeabi-v7a)</code>
-                <span className="text-[11px] text-neutral-400 font-mono block mt-1">Anterior: 2.657.612</span>
+                <span className="text-[11px] text-muted font-mono block mt-1">Anterior: 2.657.612</span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 bg-[#0B0D11] rounded-xl border border-neutral-800 text-xs text-neutral-300 mt-1">
-                <span className="text-neutral-400">¿Deseas avisos en vivo cuando cambien las versiones?</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 bg-base rounded-xl border border-border-theme text-xs text-foreground mt-1">
+                <span className="text-muted">¿Deseas avisos en vivo cuando cambien las versiones?</span>
                 <a
                   href="https://discord.gg/mdvByagDr3"
                   target="_blank"

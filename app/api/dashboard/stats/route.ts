@@ -19,12 +19,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Traemos el perfil público para obtener el username
+    // Traemos el perfil público para obtener detalles
     const { data: publicUser } = await supabase
       .from('users')
-      .select('username')
+      .select('username, is_verified, avatar, bio, theme')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const username = publicUser?.username;
 
@@ -60,31 +60,45 @@ export async function GET(req: Request) {
       };
     });
 
-    // BADGE ENGINE
-    // Traer insignias actuales
+    const projectsCount = (projects || []).length;
+
+    // BADGE ENGINE - Traer insignias actuales
     const { data: existingBadges } = await supabase
       .from('user_badges')
       .select('badge_name')
       .eq('user_id', user.id);
     
-    const unlockedBadges = (existingBadges || []).map(b => b.badge_name);
+    const unlockedBadges: string[] = (existingBadges || []).map(b => b.badge_name);
     const newBadgesToInsert: any[] = [];
 
-    if (totalViews >= 100000 && !unlockedBadges.includes('100k_views')) {
-      newBadgesToInsert.push({ user_id: user.id, badge_name: '100k_views' });
-      unlockedBadges.push('100k_views');
-    }
-    if (totalViews >= 1000000 && !unlockedBadges.includes('1m_views')) {
-      newBadgesToInsert.push({ user_id: user.id, badge_name: '1m_views' });
-      unlockedBadges.push('1m_views');
-    }
-    if (totalViews >= 10000000 && !unlockedBadges.includes('10m_views')) {
-      newBadgesToInsert.push({ user_id: user.id, badge_name: '10m_views' });
-      unlockedBadges.push('10m_views');
+    const badgeRules = [
+      { id: 'first_script', condition: projectsCount >= 1 },
+      { id: '5_scripts', condition: projectsCount >= 5 },
+      { id: '1k_views', condition: totalViews >= 1000 },
+      { id: '10k_views', condition: totalViews >= 10000 },
+      { id: '100k_views', condition: totalViews >= 100000 },
+      { id: '1m_views', condition: totalViews >= 1000000 },
+      { id: '10m_views', condition: totalViews >= 10000000 },
+      { id: 'first_like', condition: totalLikes >= 1 },
+      { id: '50_likes', condition: totalLikes >= 50 },
+      { id: '100_copies', condition: totalCopies >= 100 },
+      { id: 'verified_badge', condition: Boolean(publicUser?.is_verified) },
+      { id: 'customizer', condition: Boolean(publicUser?.avatar || publicUser?.bio || (publicUser?.theme && publicUser.theme !== 'predeterminado')) },
+    ];
+
+    for (const rule of badgeRules) {
+      if (rule.condition && !unlockedBadges.includes(rule.id)) {
+        newBadgesToInsert.push({ user_id: user.id, badge_name: rule.id });
+        unlockedBadges.push(rule.id);
+      }
     }
 
     if (newBadgesToInsert.length > 0) {
-      await supabase.from('user_badges').insert(newBadgesToInsert);
+      try {
+        await supabase.from('user_badges').insert(newBadgesToInsert);
+      } catch (badgeErr) {
+        console.warn("Could not persist user badge:", badgeErr);
+      }
     }
 
     return NextResponse.json({
@@ -93,6 +107,7 @@ export async function GET(req: Request) {
         views: totalViews,
         copies: totalCopies,
         likes: totalLikes,
+        projectsCount
       },
       badges: unlockedBadges,
       chartData

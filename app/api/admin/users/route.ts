@@ -19,9 +19,10 @@ export async function GET(request: Request) {
         .select('role')
         .eq('id', userId)
         .single();
-        
-    if (userError || !user || user.role !== 'owner') {
-        return NextResponse.json({ error: 'Forbidden. Owner only.' }, { status: 403 });
+
+    const allowedRoles = ['owner', 'admin', 'creator'];
+    if (userError || !user || !allowedRoles.includes(user.role)) {
+        return NextResponse.json({ error: 'Forbidden. Owner or Admin only.' }, { status: 403 });
     }
 
     // Fetch all users using service role (bypasses RLS)
@@ -50,8 +51,9 @@ export async function POST(request: Request) {
         .eq('id', userId)
         .single();
         
-    if (userError || !user || user.role !== 'owner') {
-        return NextResponse.json({ error: 'Forbidden. Owner only.' }, { status: 403 });
+    const allowedRoles = ['owner', 'admin', 'creator'];
+    if (userError || !user || !allowedRoles.includes(user.role)) {
+        return NextResponse.json({ error: 'Forbidden. Owner or Admin only.' }, { status: 403 });
     }
 
     try {

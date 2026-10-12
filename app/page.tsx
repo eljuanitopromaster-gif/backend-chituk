@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import TermsModal from './components/TermsModal';
-import Script from 'next/script';
 
 type ScriptItem = {
   id: string;
@@ -50,14 +49,14 @@ export default function ChitukPage() {
   const handleLike = async (id: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         alert("Inicia sesión para dar like");
         return;
       }
-      
+
       const token = session.access_token;
-      
+
       const likedList = JSON.parse(localStorage.getItem('user_liked_scripts') || '[]');
       const isCurrentlyLiked = likedList.includes(id);
       const action = isCurrentlyLiked ? 'unlike' : 'like';
@@ -70,11 +69,11 @@ export default function ChitukPage() {
         },
         body: JSON.stringify({ action })
       });
-      
+
       if (res.ok) {
         const { likes } = await res.json();
         setScripts(prev => prev.map(s => s.id === id ? { ...s, likesCount: likes } : s));
-        
+
         let newList;
         if (action === 'like') {
           newList = [...likedList, id];
@@ -91,7 +90,7 @@ export default function ChitukPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto w-full relative">
       <TermsModal />
-      
+
       {/* Header */}
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Descubre Scripts</h1>
@@ -106,60 +105,59 @@ export default function ChitukPage() {
           <p className="text-neutral-500 col-span-full text-center py-12">No hay scripts disponibles en este momento.</p>
         ) : (
           scripts.map(script => (
-            <div key={script.id} className="bg-[#131A15] border border-neutral-800 rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group">
-              <div className="h-40 bg-neutral-900 relative border-b border-neutral-800 flex items-center justify-center">
+            <div key={script.id} className="bg-card border border-border-theme rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group">
+              <div className="h-40 bg-base relative border-b border-border-theme flex items-center justify-center">
                 {script.image ? (
                   <img src={script.image} alt={script.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 ) : (
-                  <div className="text-neutral-700 font-mono opacity-50">&lt;/&gt;</div>
+                  <div className="text-muted/40 font-mono text-3xl">&lt;/&gt;</div>
                 )}
               </div>
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-3">
-                  <span className="text-xs font-bold px-3 py-1 bg-[#0A0F0D] border border-neutral-800 text-[#FACC15] rounded-full uppercase tracking-wider">
+                  <span className="text-xs font-bold px-3 py-1 bg-base border border-border-theme text-accent rounded-full uppercase tracking-wider">
                     {script.language || 'Luau'}
                   </span>
-                  <span className="text-xs text-neutral-500">{new Date(script.createdAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-muted">{new Date(script.createdAt).toLocaleDateString()}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{script.title}</h3>
-                
+                <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-1">{script.title}</h3>
+
                 {script.scriptMode && script.scriptMode !== 'script' && (
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {script.scriptMode.includes('no-key') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">No key</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">No key</span>
                     )}
                     {script.scriptMode.includes('mobile-friendly') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Mobile</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Mobile</span>
                     )}
                     {script.scriptMode.includes('open-source') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Open source</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Open source</span>
                     )}
                     {script.scriptMode.includes('paid') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-[#1A1A1A] border border-neutral-800 text-neutral-400 rounded-md">Paid</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Paid</span>
                     )}
                   </div>
                 )}
-                
-                <p className="text-sm text-neutral-400 mb-6 line-clamp-3 flex-1">{script.description}</p>
-                
-                <div className="flex justify-between items-center mt-auto pt-4 border-t border-neutral-800">
+
+                <p className="text-sm text-muted mb-6 line-clamp-3 flex-1">{script.description}</p>
+
+                <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-theme">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-base border border-border-theme flex items-center justify-center text-[10px] text-foreground font-bold shrink-0">
                       {(script.authorName || script.authorId).charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-xs text-neutral-400 font-medium truncate max-w-[100px]">
+                    <span className="text-xs text-muted font-medium truncate max-w-[100px]">
                       {script.authorName || script.authorId}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 shrink-0">
-                    <button 
+                    <button
                       onClick={() => handleLike(script.id)}
-                      className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                        (typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id))
-                          ? 'text-red-500' 
-                          : 'text-neutral-400 hover:text-red-500'
-                      }`}
+                      className={`flex items-center gap-1 text-xs font-bold transition-colors ${(typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id))
+                          ? 'text-red-500'
+                          : 'text-muted hover:text-red-500'
+                        }`}
                       title="Me gusta"
                     >
                       <svg className="w-4 h-4" fill={(typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id)) ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
@@ -167,9 +165,9 @@ export default function ChitukPage() {
                       </svg>
                       {script.likesCount || 0}
                     </button>
-                    <button 
+                    <button
                       onClick={() => router.push(`/scripts/${script.id}`)}
-                      className="text-xs font-bold text-white hover:text-[#FACC15] transition-colors"
+                      className="text-xs font-bold text-foreground hover:text-accent transition-colors cursor-pointer"
                     >
                       Ver Código &rarr;
                     </button>
@@ -180,24 +178,7 @@ export default function ChitukPage() {
           ))
         )}
       </div>
-      
-      {/* Script for legacy modals (Auth, Publish, etc.) */}
-      <Script src="/chituk-script.js" strategy="afterInteractive" />
-      
-      {/* Hidden container to mount legacy Modals safely so they don't break our React tree */}
-      <div id="modal-backdrop" className="backdrop">
-        <section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <header className="modal-head">
-            <div>
-              <p id="modal-kicker" className="text-xs font-bold text-[#FACC15] uppercase tracking-widest mb-1">CHITUK</p>
-              <h2 id="modal-title" className="text-2xl font-bold text-white m-0">Espacio</h2>
-            </div>
-            <button id="close-modal" className="close" type="button" aria-label="Cerrar">×</button>
-          </header>
-          <div id="modal-body" className="modal-body"></div>
-        </section>
-      </div>
-      <div id="notice" className="notice"></div>
+
     </div>
   );
 }

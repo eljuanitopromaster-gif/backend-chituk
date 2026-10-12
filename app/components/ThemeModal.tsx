@@ -46,7 +46,6 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
       localStorage.setItem('chituk_theme', id);
     }
     
-    // Si queremos que el tema se aplique globalmente, aquí se guardaría.
     if (user) {
       user.theme = id;
       setLoading(true);
@@ -72,9 +71,9 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose}>
       <div 
-        className="bg-base border border-border-theme rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-base border border-border-theme rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-colors"
         onClick={e => e.stopPropagation()}
       >
         
@@ -82,21 +81,21 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
         <div className="p-8 border-b border-border-theme relative bg-card">
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors"
+            className="absolute top-6 right-6 text-muted hover:text-foreground transition-colors cursor-pointer"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           
-          <p className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1">Apariencias</p>
-          <h2 className="text-3xl font-bold text-white tracking-tight">Temas</h2>
+          <p className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1">Personalización</p>
+          <h2 className="text-3xl font-bold text-foreground tracking-tight">Temas Visuales</h2>
         </div>
 
         {/* Body */}
         <div className="p-8 overflow-y-auto">
-          <p className="text-sm text-neutral-400 mb-8">
-            Elige un tema. Selecciona la paleta de colores que prefieras para personalizar tu experiencia.
+          <p className="text-sm text-muted mb-8">
+            Elige tu tema preferido. Cada elemento de Chituk se adapta automáticamente a tu paleta de color.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -107,28 +106,28 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
                 <button
                   key={theme.id}
                   onClick={() => handleSelectTheme(theme.id)}
-                  className={`flex flex-col items-start gap-4 p-5 rounded-xl border text-left transition-all duration-200 group ${
+                  className={`flex flex-col items-start gap-4 p-5 rounded-xl border text-left transition-all duration-200 group cursor-pointer ${
                     isActive 
-                      ? 'bg-card border-accent shadow-[0_0_15px_var(--color-accent)]' 
-                      : 'bg-card border-border-theme hover:border-neutral-600 hover:-translate-y-1'
+                      ? 'bg-card border-accent shadow-[0_0_15px_var(--color-accent)] ring-1 ring-accent' 
+                      : 'bg-card border-border-theme hover:border-accent/40 hover:-translate-y-1'
                   }`}
                 >
-                  <div className="flex justify-between items-start w-full mb-2">
+                  <div className="flex justify-between items-start w-full mb-1">
                     <div 
-                      className="w-10 h-10 rounded-full border border-white/10 shadow-inner group-hover:scale-110 transition-transform"
+                      className="w-10 h-10 rounded-full border border-border-theme shadow-inner group-hover:scale-110 transition-transform"
                       style={{ background: `linear-gradient(135deg, ${theme.color1}, ${theme.color2})` }}
                     />
                     {isActive && (
-                      <span className="text-xs font-bold text-accent bg-accent/10 px-2 py-1 rounded-md">
+                      <span className="text-xs font-bold text-accent bg-accent/15 px-2.5 py-1 rounded-md border border-accent/30">
                         Activo
                       </span>
                     )}
                   </div>
                   <div>
-                    <h3 className={`text-lg font-bold mb-1 ${isActive ? 'text-accent' : 'text-white'}`}>
+                    <h3 className={`text-base font-bold mb-1 transition-colors ${isActive ? 'text-accent' : 'text-foreground'}`}>
                       {theme.name}
                     </h3>
-                    <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">
+                    <p className="text-[10px] text-muted uppercase tracking-wider font-bold">
                       {theme.desc}
                     </p>
                   </div>

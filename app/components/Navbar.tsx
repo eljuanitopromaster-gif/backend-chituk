@@ -26,7 +26,7 @@ export default function Navbar() {
         });
         if (res.ok) {
           const data = await res.json();
-          setNotifications(data || []);
+          setNotifications(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         console.error("Error fetching notifications", err);
@@ -110,10 +110,10 @@ export default function Navbar() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <nav className="h-16 flex items-center px-6 bg-base border-b border-border-theme shrink-0">
+    <nav className="h-16 flex items-center px-6 bg-base border-b border-border-theme shrink-0 transition-colors">
       {/* Left - Logo */}
       <div className="flex-1 flex items-center">
-        <Link href="/" className="text-xl font-bold text-white flex items-center tracking-tight">
+        <Link href="/" className="text-xl font-bold text-foreground flex items-center tracking-tight transition-colors">
           Chituk<span className="text-accent">Scripts</span>
         </Link>
       </div>
@@ -122,17 +122,17 @@ export default function Navbar() {
       <div className="flex-[2] flex justify-center max-w-2xl mx-4">
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input 
             type="text" 
             placeholder="Buscar scripts, juegos..." 
-            className="w-full bg-card border border-neutral-800 text-neutral-300 rounded-md pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            className="w-full bg-card border border-border-theme text-foreground placeholder:text-muted rounded-lg pl-10 pr-10 py-2 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <span className="text-neutral-600 text-sm font-mono">/</span>
+            <span className="text-muted text-xs font-mono">/</span>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function Navbar() {
           href="https://discord.gg/mdvByagDr3"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md font-medium text-neutral-300 hover:text-white bg-card hover:bg-[#5865F2]/15 border border-neutral-800 hover:border-[#5865F2]/40 transition-all text-xs cursor-pointer group"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-muted hover:text-foreground bg-card hover:bg-card-hover border border-border-theme transition-all text-xs cursor-pointer group"
           title="Unirse a nuestro Discord"
         >
           <svg className="w-4 h-4 text-[#5865F2] fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
@@ -152,23 +152,35 @@ export default function Navbar() {
           <span className="hidden sm:inline font-semibold">Discord</span>
         </a>
 
+        {/* Theme Button */}
+        <button
+          onClick={() => document.dispatchEvent(new CustomEvent('open-theme-modal'))}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-muted hover:text-foreground bg-card hover:bg-card-hover border border-border-theme transition-all text-xs cursor-pointer group"
+          title="Cambiar tema visual (14 temas)"
+        >
+          <svg className="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.64 0 1.25.15 1.8.42A5.98 5.98 0 0113 11a5.98 5.98 0 014.2 2.42c.55-.27 1.16-.42 1.8-.42a4 4 0 014 4 4 4 0 01-4 4c-.64 0-1.25-.15-1.8-.42A5.98 5.98 0 0113 21a5.98 5.98 0 01-4.2-2.42c-.55.27-1.16.42-1.8.42z" />
+          </svg>
+          <span className="hidden sm:inline font-semibold">Temas</span>
+        </button>
+
         {!user ? (
           <>
             <button 
               onClick={() => openAuthModal('login')}
-              className="px-4 py-2 rounded-md font-medium bg-card-hover text-white hover:bg-[#2A2A2A] transition-colors text-sm border border-neutral-800 cursor-pointer"
+              className="px-3.5 py-2 rounded-lg font-medium bg-card hover:bg-card-hover text-foreground transition-colors text-sm border border-border-theme cursor-pointer"
             >
               Acceder
             </button>
             <button 
               onClick={() => openAuthModal('signup')}
-              className="px-4 py-2 rounded-md font-bold bg-accent text-black hover:bg-yellow-500 transition-colors text-sm cursor-pointer"
+              className="px-3.5 py-2 rounded-lg font-bold bg-accent text-accent-contrast hover:opacity-90 transition-opacity text-sm cursor-pointer shadow-sm"
             >
               Registrarse
             </button>
           </>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             
             {/* Bell Icon */}
             <div className="relative" ref={dropdownRef}>
@@ -179,22 +191,23 @@ export default function Navbar() {
                     markAsRead();
                   }
                 }}
-                className="relative p-2 text-neutral-400 hover:text-white transition-colors"
+                className="relative p-2 text-muted hover:text-foreground transition-colors cursor-pointer"
+                title="Notificaciones"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-[#0A0F0D]"></span>
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-base"></span>
                 )}
               </button>
 
               {/* Dropdown */}
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-84 bg-card border border-neutral-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <div className="p-3.5 border-b border-neutral-800 flex justify-between items-center bg-base">
+                <div className="absolute right-0 mt-2 w-84 bg-card border border-border-theme rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="p-3.5 border-b border-border-theme flex justify-between items-center bg-base">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-white">Notificaciones</span>
+                      <span className="font-bold text-sm text-foreground">Notificaciones</span>
                       {unreadCount > 0 && (
                         <span className="text-[11px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold">{unreadCount} nuevas</span>
                       )}
@@ -203,7 +216,7 @@ export default function Navbar() {
                       <button
                         onClick={handleClearAll}
                         disabled={clearing}
-                        className="text-xs text-neutral-400 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        className="text-xs text-muted hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
                         title="Eliminar todas las notificaciones recientes"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -213,37 +226,37 @@ export default function Navbar() {
                       </button>
                     )}
                   </div>
-                  <div className="max-h-[320px] overflow-y-auto divide-y divide-neutral-800/60">
+                  <div className="max-h-[320px] overflow-y-auto divide-y divide-border-theme/40">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center flex flex-col items-center justify-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-600">
+                        <div className="w-10 h-10 rounded-full bg-base border border-border-theme flex items-center justify-center text-muted">
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                           </svg>
                         </div>
-                        <p className="text-sm font-medium text-neutral-400">No hay notificaciones</p>
-                        <p className="text-xs text-neutral-600">Te avisaremos cuando haya actividad</p>
+                        <p className="text-sm font-medium text-foreground">No hay notificaciones</p>
+                        <p className="text-xs text-muted">Te avisaremos cuando haya actividad</p>
                       </div>
                     ) : (
                       notifications.map(n => (
-                        <div key={n.id} className={`p-3.5 text-sm flex items-start justify-between gap-2.5 hover:bg-neutral-800/40 transition-colors ${!n.read ? 'bg-card-hover' : ''}`}>
+                        <div key={n.id} className={`p-3.5 text-sm flex items-start justify-between gap-2.5 hover:bg-card-hover/50 transition-colors ${!n.read ? 'bg-card-hover/30' : ''}`}>
                           <div className="flex-1 min-w-0">
                             {n.type === 'like' && (
-                              <p className="text-neutral-300">
-                                A <span className="font-bold text-white">{n.actor_id}</span> le gustó tu script.
+                              <p className="text-muted text-xs leading-relaxed">
+                                A <span className="font-bold text-foreground">{n.actor_id}</span> le gustó tu script.
                               </p>
                             )}
                             {n.type === 'comment' && (
-                              <p className="text-neutral-300">
-                                <span className="font-bold text-white">{n.actor_id}</span> comentó en tu script.
+                              <p className="text-muted text-xs leading-relaxed">
+                                <span className="font-bold text-foreground">{n.actor_id}</span> comentó en tu script.
                               </p>
                             )}
                             {n.type === 'review_pending' && (
-                              <p className="text-neutral-300">
-                                <span className="font-bold text-white">{n.actor_id}</span> ha enviado un script para revisión.
+                              <p className="text-muted text-xs leading-relaxed">
+                                <span className="font-bold text-foreground">{n.actor_id}</span> envió un script para revisión.
                               </p>
                             )}
-                            <p className="text-xs text-neutral-500 mt-1">
+                            <p className="text-[11px] text-muted/70 mt-1">
                               {new Date(n.created_at).toLocaleDateString()}
                             </p>
                           </div>
@@ -254,7 +267,7 @@ export default function Navbar() {
                             }}
                             disabled={deletingId === n.id}
                             title="Eliminar esta notificación"
-                            className="p-1 text-neutral-500 hover:text-rose-400 hover:bg-neutral-800/80 rounded transition-colors cursor-pointer shrink-0"
+                            className="p-1 text-muted hover:text-rose-400 hover:bg-card-hover rounded transition-colors cursor-pointer shrink-0"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -265,14 +278,14 @@ export default function Navbar() {
                     )}
                   </div>
                   {notifications.length > 0 && (
-                    <div className="p-2.5 bg-neutral-950/60 border-t border-neutral-800 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-neutral-500 font-medium">
+                    <div className="p-2.5 bg-base border-t border-border-theme flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-muted font-medium">
                         {notifications.length} {notifications.length === 1 ? 'notificación' : 'notificaciones'}
                       </span>
                       <button
                         onClick={handleClearAll}
                         disabled={clearing}
-                        className="text-[11px] text-rose-400/90 hover:text-rose-300 font-medium flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                        className="text-[11px] text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
                       >
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -285,28 +298,28 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="w-px h-6 bg-neutral-800"></div>
+            <div className="w-px h-6 bg-border-theme"></div>
 
             {/* User Profile */}
             <button 
               onClick={() => document.dispatchEvent(new CustomEvent('open-profile-modal'))}
-              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-card border border-transparent hover:border-border-theme transition-all group cursor-pointer text-left"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-card border border-transparent hover:border-border-theme transition-all group cursor-pointer text-left"
               title="Editar perfil"
             >
-              <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white border border-neutral-700 overflow-hidden group-hover:border-accent transition-colors shrink-0">
+              <div className="w-7 h-7 rounded-full bg-base flex items-center justify-center text-xs font-bold text-foreground border border-border-theme overflow-hidden group-hover:border-accent transition-colors shrink-0">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.username || 'Avatar'} className="w-full h-full object-cover" />
                 ) : (
                   <span>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</span>
                 )}
               </div>
-              <span className="text-sm font-medium text-white hidden md:block group-hover:text-accent transition-colors max-w-[120px] truncate">
+              <span className="text-sm font-medium text-foreground hidden md:block group-hover:text-accent transition-colors max-w-[120px] truncate">
                 {user.username || user.email}
               </span>
             </button>
             <button 
               onClick={() => signOut()}
-              className="px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-white hover:bg-card transition-colors text-sm"
+              className="px-3 py-1.5 rounded-lg font-medium text-muted hover:text-foreground hover:bg-card transition-colors text-sm cursor-pointer"
             >
               Cerrar Sesión
             </button>

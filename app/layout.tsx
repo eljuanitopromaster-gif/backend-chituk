@@ -36,10 +36,23 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="h-full flex flex-col bg-base text-[#E2E8F0] font-sans overflow-hidden">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const savedTheme = localStorage.getItem('chituk_theme') || 'predeterminado';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="h-full flex flex-col bg-base text-foreground font-sans overflow-hidden">
         <AuthProvider>
           <Navbar />
           <div className="flex-1 flex min-h-0">

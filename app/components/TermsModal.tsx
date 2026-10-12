@@ -1,68 +1,39 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { useAuth } from './AuthProvider';
 
 export default function TermsModal() {
+  const { user, refreshUser } = useAuth();
   const [show, setShow] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Verificamos periódicamente el estado de la sesión local
-    const interval = setInterval(() => {
-        try {
-            // Intentamos leer el estado global guardado por chituk-script.js
-            // Dependiendo de la implementación de window.storage puede estar en localStorage
-            const rawStorage = localStorage.getItem('chituk') || localStorage.getItem('chituk_session');
-            
-            // También revisamos si la función currentUser existe globalmente
-            const globalCurrentUser = (window as any).currentUser;
-
-            if (globalCurrentUser) {
-                const user = globalCurrentUser();
-                if (user && user.terms_accepted === false) {
-                    setUserId(user.id);
-                    setShow(true);
-                } else {
-                    setShow(false);
-                }
-            } else if (rawStorage) {
-                const parsed = JSON.parse(rawStorage);
-                const sessionUser = parsed.session 
-                  ? (parsed.db?.users || []).find((u: any) => u.id === parsed.session.id)
-                  : null;
-                  
-                if (sessionUser && sessionUser.terms_accepted === false) {
-                    setUserId(sessionUser.id);
-                    setShow(true);
-                } else {
-                    setShow(false);
-                }
-            }
-        } catch (e) {
-            // Silently ignore parse errors
-        }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+    if (user && user.terms_accepted === false) {
+      setUserId(user.id);
+      setShow(true);
+    } else {
+      setShow(false);
+    }
+  }, [user]);
 
   const handleAccept = async () => {
     if (!userId) return;
     setLoading(true);
-    
+
     try {
       const res = await fetch('/api/users/accept-terms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: userId })
       });
-      
+
       if (res.ok) {
         setShow(false);
-        // Recargamos la página para que el script vanilla vuelva a obtener 
-        // los datos fresquecitos de la BD con el terms_accepted en true
-        window.location.reload(); 
+        if (refreshUser) {
+          await refreshUser();
+        }
       } else {
         console.error("Error al aceptar términos");
         setLoading(false);
@@ -108,7 +79,7 @@ export default function TermsModal() {
           </li>
         </ul>
       </div>
-      <button 
+      <button
         onClick={handleAccept}
         disabled={loading}
         style={{

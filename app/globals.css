@@ -6,7 +6,9 @@
   --bg-card-hover: #1A221C;
   --border-theme: #262626;
   --color-accent: #FACC15;
+  --accent-contrast: #0A0F0D;
   --text-color: #E2E8F0;
+  --text-muted: #94A3B8;
 }
 
 [data-theme="gaming"] {
@@ -15,7 +17,9 @@
   --bg-card-hover: #16243E;
   --border-theme: #1E3A5F;
   --color-accent: #0EA5E9;
+  --accent-contrast: #070B14;
   --text-color: #F0F9FF;
+  --text-muted: #7DD3FC;
 }
 
 [data-theme="papel-calido"] {
@@ -24,7 +28,9 @@
   --bg-card-hover: #EAE3D1;
   --border-theme: #D3C9B8;
   --color-accent: #C09E83;
-  --text-color: #4A4A4A;
+  --accent-contrast: #FFFFFF;
+  --text-color: #2D2825;
+  --text-muted: #78716C;
 }
 
 [data-theme="noche-tinta"] {
@@ -32,8 +38,10 @@
   --bg-card: #2B221E;
   --bg-card-hover: #3A2F2A;
   --border-theme: #4A3E38;
-  --color-accent: #8C5A41;
-  --text-color: #E2E8F0;
+  --color-accent: #C27854;
+  --accent-contrast: #FFFFFF;
+  --text-color: #F5EFEB;
+  --text-muted: #A8A29E;
 }
 
 [data-theme="bosque-suave"] {
@@ -41,8 +49,10 @@
   --bg-card: #F1F8E9;
   --bg-card-hover: #C8E6C9;
   --border-theme: #A5D6A7;
-  --color-accent: #88B289;
-  --text-color: #2E7D32;
+  --color-accent: #2E7D32;
+  --accent-contrast: #FFFFFF;
+  --text-color: #1B5E20;
+  --text-muted: #388E3C;
 }
 
 [data-theme="oceano-claro"] {
@@ -50,8 +60,10 @@
   --bg-card: #E0F7FA;
   --bg-card-hover: #B2EBF2;
   --border-theme: #80DEEA;
-  --color-accent: #80CBC4;
-  --text-color: #006064;
+  --color-accent: #00838F;
+  --accent-contrast: #FFFFFF;
+  --text-color: #004D40;
+  --text-muted: #00695C;
 }
 
 [data-theme="lavanda"] {
@@ -59,8 +71,10 @@
   --bg-card: #FCE4EC;
   --bg-card-hover: #E1BEE7;
   --border-theme: #CE93D8;
-  --color-accent: #BA68C8;
+  --color-accent: #8E24AA;
+  --accent-contrast: #FFFFFF;
   --text-color: #4A148C;
+  --text-muted: #6A1B9A;
 }
 
 [data-theme="rosa"] {
@@ -68,8 +82,10 @@
   --bg-card: #FFF0F5;
   --bg-card-hover: #F8BBD0;
   --border-theme: #F48FB1;
-  --color-accent: #F06292;
+  --color-accent: #D81B60;
+  --accent-contrast: #FFFFFF;
   --text-color: #881337;
+  --text-muted: #9D174D;
 }
 
 [data-theme="terracota"] {
@@ -77,8 +93,10 @@
   --bg-card: #FFF3E0;
   --bg-card-hover: #FFCCBC;
   --border-theme: #FFAB91;
-  --color-accent: #FF8A65;
+  --color-accent: #D84315;
+  --accent-contrast: #FFFFFF;
   --text-color: #BF360C;
+  --text-muted: #9A3412;
 }
 
 [data-theme="sol"] {
@@ -86,8 +104,10 @@
   --bg-card: #FFFDE7;
   --bg-card-hover: #FFECB3;
   --border-theme: #FFE082;
-  --color-accent: #FFD54F;
-  --text-color: #F57F17;
+  --color-accent: #B45309;
+  --accent-contrast: #FFFFFF;
+  --text-color: #451A03;
+  --text-muted: #78350F;
 }
 
 [data-theme="medianoche"] {
@@ -96,7 +116,9 @@
   --bg-card-hover: #334155;
   --border-theme: #475569;
   --color-accent: #38BDF8;
+  --accent-contrast: #0F172A;
   --text-color: #E2E8F0;
+  --text-muted: #94A3B8;
 }
 
 [data-theme="tinta"] {
@@ -104,8 +126,10 @@
   --bg-card: #27272A;
   --bg-card-hover: #3F3F46;
   --border-theme: #52525B;
-  --color-accent: #D4D4D8;
-  --text-color: #FAFAFA;
+  --color-accent: #FAFAFA;
+  --accent-contrast: #18181B;
+  --text-color: #F4F4F5;
+  --text-muted: #A1A1AA;
 }
 
 [data-theme="marea"] {
@@ -114,7 +138,9 @@
   --bg-card-hover: #047857;
   --border-theme: #059669;
   --color-accent: #34D399;
+  --accent-contrast: #064E3B;
   --text-color: #ECFDF5;
+  --text-muted: #A7F3D0;
 }
 
 [data-theme="ciruela"] {
@@ -123,7 +149,9 @@
   --bg-card-hover: #6B21A8;
   --border-theme: #7E22CE;
   --color-accent: #C084FC;
+  --accent-contrast: #3B0764;
   --text-color: #FAF5FF;
+  --text-muted: #E9D5FF;
 }
 
 [data-theme="monocromo"] {
@@ -131,8 +159,10 @@
   --bg-card: #F3F4F6;
   --bg-card-hover: #E5E7EB;
   --border-theme: #D1D5DB;
-  --color-accent: #000000;
-  --text-color: #000000;
+  --color-accent: #111827;
+  --accent-contrast: #FFFFFF;
+  --text-color: #111827;
+  --text-muted: #4B5563;
 }
 
 @theme inline {
@@ -141,7 +171,9 @@
   --color-card-hover: var(--bg-card-hover);
   --color-border-theme: var(--border-theme);
   --color-accent: var(--color-accent);
+  --color-accent-contrast: var(--accent-contrast, #000000);
   --color-foreground: var(--text-color);
+  --color-muted: var(--text-muted, #94a3b8);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
