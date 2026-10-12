@@ -116,7 +116,7 @@ const ALL_ACHIEVEMENTS: Achievement[] = [
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, openAuthModal } = useAuth();
-  
+
   const [stats, setStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [error, setError] = useState('');
@@ -124,7 +124,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/');
+      // Usa replace en lugar de push
+      router.replace('/');
       openAuthModal('login');
     }
   }, [user, authLoading, router, openAuthModal]);
@@ -141,10 +142,10 @@ export default function DashboardPage() {
             'Authorization': `Bearer ${session.access_token}`
           }
         });
-        
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch stats");
-        
+
         setStats(data);
       } catch (err: any) {
         setError(err.message);
@@ -195,7 +196,7 @@ export default function DashboardPage() {
 
       {/* Main Content: Chart + Totals */}
       <div className="flex flex-col lg:flex-row gap-6 shrink-0">
-        
+
         {/* Left Area (75%) - Chart */}
         <div className="lg:w-3/4 flex flex-col gap-6">
           <div className="bg-card border border-border-theme rounded-2xl p-6 flex flex-col shadow-xl">
@@ -208,7 +209,7 @@ export default function DashboardPage() {
                 {stats?.chartData?.length || 0} scripts
               </span>
             </div>
-            
+
             {loadingStats ? (
               <div className="h-64 flex items-center justify-center">
                 <div className="inline-block animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mb-2"></div>
@@ -232,30 +233,30 @@ export default function DashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-theme)" vertical={false} opacity={0.6} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-muted)" 
-                      fontSize={11} 
+                    <XAxis
+                      dataKey="name"
+                      stroke="var(--text-muted)"
+                      fontSize={11}
                       tickLine={false}
                       axisLine={false}
                       dy={10}
                     />
-                    <YAxis 
-                      stroke="var(--text-muted)" 
+                    <YAxis
+                      stroke="var(--text-muted)"
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
                       dx={-10}
                     />
-                    <Tooltip 
+                    <Tooltip
                       cursor={{ fill: 'var(--bg-card-hover)', opacity: 0.5 }}
                       contentStyle={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border-theme)', borderRadius: '12px', color: 'var(--text-color)' }}
                       itemStyle={{ color: 'var(--color-accent)' }}
                     />
-                    <Bar 
-                      dataKey="views" 
+                    <Bar
+                      dataKey="views"
                       name="Vistas"
-                      fill="var(--color-accent)" 
+                      fill="var(--color-accent)"
                       radius={[6, 6, 0, 0]}
                       opacity={0.9}
                     />
@@ -268,7 +269,7 @@ export default function DashboardPage() {
 
         {/* Right Area (25%) - Totals */}
         <div className="lg:w-1/4 flex flex-col gap-4 shrink-0">
-          
+
           <div className="bg-card border border-border-theme rounded-2xl p-5 shadow-xl flex items-center gap-4 group hover:border-accent/40 transition-colors">
             <div className="w-12 h-12 rounded-xl bg-base border border-border-theme flex items-center justify-center group-hover:border-accent group-hover:scale-105 transition-all shrink-0">
               <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -331,7 +332,7 @@ export default function DashboardPage() {
 
       {/* Badges & Achievements Section */}
       <div className="bg-card border border-border-theme rounded-2xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -352,8 +353,8 @@ export default function DashboardPage() {
               {unlockedCount} de {ALL_ACHIEVEMENTS.length} Desbloqueados
             </span>
             <div className="w-48 bg-base border border-border-theme h-2.5 rounded-full overflow-hidden mt-1.5 shadow-inner">
-              <div 
-                className="bg-accent h-full transition-all duration-500 rounded-full" 
+              <div
+                className="bg-accent h-full transition-all duration-500 rounded-full"
                 style={{ width: `${Math.max(5, (unlockedCount / ALL_ACHIEVEMENTS.length) * 100)}%` }}
               />
             </div>
@@ -366,11 +367,10 @@ export default function DashboardPage() {
             <button
               key={tab}
               onClick={() => setCategoryFilter(tab)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                categoryFilter === tab
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${categoryFilter === tab
                   ? 'bg-accent text-accent-contrast shadow-sm'
                   : 'bg-base text-muted hover:text-foreground hover:bg-card-hover border border-border-theme/70'
-              }`}
+                }`}
             >
               {tab}
             </button>
@@ -385,22 +385,20 @@ export default function DashboardPage() {
             return (
               <div
                 key={badge.id}
-                className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 relative overflow-hidden group ${
-                  isUnlocked
+                className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 relative overflow-hidden group ${isUnlocked
                     ? 'bg-base/90 border-accent/50 shadow-md ring-1 ring-accent/20'
                     : 'bg-base/40 border-border-theme/50 opacity-60 hover:opacity-80'
-                }`}
+                  }`}
               >
                 {/* Top info */}
                 <div className="flex items-start justify-between gap-3">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-110 ${
-                    isUnlocked
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-110 ${isUnlocked
                       ? 'bg-accent/15 border border-accent/40 text-accent shadow-sm'
                       : 'bg-card border border-border-theme text-muted grayscale'
-                  }`}>
+                    }`}>
                     {badge.icon}
                   </div>
-                  
+
                   {isUnlocked ? (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                       ✓ Desbloqueado
