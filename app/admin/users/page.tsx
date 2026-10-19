@@ -243,18 +243,18 @@ export default function UsersAdminPage() {
     <div className="max-w-6xl mx-auto flex flex-col gap-6">
       
       {/* Header and Stats */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-card border border-border-theme rounded-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-6 bg-card border border-border-theme rounded-2xl">
         <div>
           <span className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1 block">Gestión de Comunidad</span>
-          <h1 className="text-2xl font-bold text-foreground">Usuarios, Roles y Sanciones</h1>
-          <p className="text-sm text-muted mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Usuarios, Roles y Sanciones</h1>
+          <p className="text-xs sm:text-sm text-muted mt-1">
             Asigna privilegios de Dueño, Administrador, Moderador, verifica perfiles o gestiona suspensiones.
           </p>
         </div>
 
         {/* Filter and Search */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative min-w-[200px]">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
+          <div className="relative w-full sm:w-auto flex-1 min-w-[180px]">
             <input 
               type="text"
               placeholder="Buscar por usuario o email..."

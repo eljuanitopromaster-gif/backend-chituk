@@ -104,31 +104,31 @@ export default function AdminQueuePage() {
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-card border border-border-theme rounded-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-6 bg-card border border-border-theme rounded-2xl">
         <div>
           <span className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1 block">Moderación</span>
-          <h1 className="text-2xl font-bold text-foreground">Cola de Aprobación de Scripts</h1>
-          <p className="text-sm text-muted mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Cola de Aprobación de Scripts</h1>
+          <p className="text-xs sm:text-sm text-muted mt-1">
             Revisa, aprueba o rechaza los scripts enviados por la comunidad.
           </p>
         </div>
-        <span className="px-3 py-1.5 rounded-lg bg-base border border-border-theme text-xs font-bold text-accent">
+        <span className="px-3 py-1.5 rounded-lg bg-base border border-border-theme text-xs font-bold text-accent shrink-0">
           {scripts.length} {scripts.length === 1 ? 'pendiente' : 'pendientes'}
         </span>
       </div>
       
       {scripts.length === 0 ? (
-        <div className="p-12 bg-card border border-border-theme rounded-2xl text-center text-muted">
+        <div className="p-8 sm:p-12 bg-card border border-border-theme rounded-2xl text-center text-muted">
           <svg className="w-12 h-12 mx-auto mb-3 text-muted/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="font-semibold text-foreground">¡Todo al día!</p>
-          <p className="text-sm text-muted mt-1">No hay scripts pendientes por revisar en este momento.</p>
+          <p className="text-xs sm:text-sm text-muted mt-1">No hay scripts pendientes por revisar en este momento.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
           {scripts.map(script => (
-            <div key={script.id} className="bg-card border border-border-theme rounded-2xl p-6 flex flex-col gap-4 shadow-sm">
+            <div key={script.id} className="bg-card border border-border-theme rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm">
               <div className="flex justify-between items-start gap-4 flex-col sm:flex-row">
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-foreground">{script.title}</h2>

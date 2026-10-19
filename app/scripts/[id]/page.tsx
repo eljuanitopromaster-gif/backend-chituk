@@ -247,13 +247,13 @@ export default function ScriptViewPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto w-full text-white min-h-screen">
-      <button onClick={() => router.back()} className="text-sm text-neutral-500 hover:text-white transition-colors mb-6 flex items-center gap-1">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full text-white min-h-screen">
+      <button onClick={() => router.back()} className="text-sm text-neutral-500 hover:text-white transition-colors mb-4 sm:mb-6 flex items-center gap-1">
         &larr; Volver
       </button>
 
       {/* TOP SECTION */}
-      <div className="flex flex-col md:flex-row gap-8 mb-10">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8 md:mb-10">
         {/* Left: Image Container */}
         <div className="w-full md:w-[55%] lg:w-[60%] relative rounded-xl overflow-hidden aspect-video bg-neutral-900 shadow-2xl">
           {script.image ? (
@@ -291,10 +291,10 @@ export default function ScriptViewPage() {
              <div className="w-5 h-5 bg-neutral-800 rounded"></div>
              {script.description?.split('\n')[0] || 'Juego no especificado'}
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight">
              {script.title}
           </h1>
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-6 sm:mb-8">
              <span className="text-neutral-400 text-sm">por</span>
              <div className="flex items-center gap-2">
                <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white shrink-0 overflow-hidden border border-neutral-700">
@@ -309,7 +309,7 @@ export default function ScriptViewPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
              <button 
                 onClick={handleCopy} 
                 className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white font-bold py-3.5 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
@@ -468,7 +468,7 @@ export default function ScriptViewPage() {
 
       {/* Notificación flotante de Favoritos */}
       {favToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-card border border-border-theme shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 bg-card border border-border-theme shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
           <div className="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center shrink-0">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />

@@ -184,29 +184,29 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-[1400px] mx-auto w-full relative flex flex-col gap-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1400px] mx-auto w-full relative flex flex-col gap-6 md:gap-8">
       {/* Header */}
       <header className="shrink-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Creator Dashboard</span>
           <span className="text-xs text-muted">• Métricas en Vivo</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Bienvenido, {user.username || user.email}</h1>
-        <p className="text-muted text-sm">Rendimiento global de tus scripts y estado de logros comunitarios.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Bienvenido, {user.username || user.email}</h1>
+        <p className="text-muted text-xs sm:text-sm">Rendimiento global de tus scripts y estado de logros comunitarios.</p>
       </header>
 
       {/* Main Content: Chart + Totals */}
       <div className="flex flex-col lg:flex-row gap-6 shrink-0">
 
         {/* Left Area (75%) - Chart */}
-        <div className="lg:w-3/4 flex flex-col gap-6">
-          <div className="bg-card border border-border-theme rounded-2xl p-6 flex flex-col shadow-xl">
-            <div className="flex items-center justify-between mb-6">
+        <div className="w-full lg:w-3/4 flex flex-col gap-6">
+          <div className="bg-card border border-border-theme rounded-2xl p-4 sm:p-6 flex flex-col shadow-xl">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div>
-                <h2 className="text-lg font-bold text-foreground">Visualizaciones de Scripts</h2>
+                <h2 className="text-base sm:text-lg font-bold text-foreground">Visualizaciones de Scripts</h2>
                 <p className="text-xs text-muted mt-0.5">Vistas por cada proyecto que has publicado</p>
               </div>
-              <span className="px-2.5 py-1 bg-base border border-border-theme rounded-lg text-xs font-bold text-accent">
+              <span className="px-2.5 py-1 bg-base border border-border-theme rounded-lg text-xs font-bold text-accent shrink-0">
                 {stats?.chartData?.length || 0} scripts
               </span>
             </div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="h-72 w-full">
+              <div className="w-full h-64 sm:h-72 min-h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-theme)" vertical={false} opacity={0.6} />
@@ -269,7 +269,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Area (25%) - Totals */}
-        <div className="lg:w-1/4 flex flex-col gap-4 shrink-0">
+        <div className="w-full lg:w-1/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 shrink-0">
 
           <div className="bg-card border border-border-theme rounded-2xl p-5 shadow-xl flex items-center gap-4 group hover:border-accent/40 transition-colors">
             <div className="w-12 h-12 rounded-xl bg-base border border-border-theme flex items-center justify-center group-hover:border-accent group-hover:scale-105 transition-all shrink-0">
@@ -352,7 +352,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Badges & Achievements Section */}
-      <div className="bg-card border border-border-theme rounded-2xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
+      <div className="bg-card border border-border-theme rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl flex flex-col gap-6">
 
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -361,19 +361,19 @@ export default function DashboardPage() {
               <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
-              <h2 className="text-xl font-bold text-foreground">Tus Logros e Insignias</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">Tus Logros e Insignias</h2>
             </div>
-            <p className="text-sm text-muted">
+            <p className="text-xs sm:text-sm text-muted">
               Desbloquea insignias exclusivas alcanzando hitos con tus publicaciones y en la comunidad.
             </p>
           </div>
 
           {/* Progress Counter */}
-          <div className="flex flex-col items-start md:items-end">
-            <span className="text-sm font-bold text-accent">
+          <div className="flex flex-col items-start md:items-end w-full sm:w-auto">
+            <span className="text-xs sm:text-sm font-bold text-accent">
               {unlockedCount} de {ALL_ACHIEVEMENTS.length} Desbloqueados
             </span>
-            <div className="w-48 bg-base border border-border-theme h-2.5 rounded-full overflow-hidden mt-1.5 shadow-inner">
+            <div className="w-full sm:w-48 bg-base border border-border-theme h-2.5 rounded-full overflow-hidden mt-1.5 shadow-inner">
               <div
                 className="bg-accent h-full transition-all duration-500 rounded-full"
                 style={{ width: `${Math.max(5, (unlockedCount / ALL_ACHIEVEMENTS.length) * 100)}%` }}
@@ -383,7 +383,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border-theme/60">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border-theme/60 w-full no-scrollbar">
           {['Todos', 'Desbloqueados', 'Pendientes', 'Creador', 'Vistas', 'Comunidad', 'Popularidad', 'Especial'].map(tab => (
             <button
               key={tab}
@@ -399,7 +399,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Badges Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filteredAchievements.map(badge => {
             const isUnlocked = unlockedSet.has(badge.id);
 

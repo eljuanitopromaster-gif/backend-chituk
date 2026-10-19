@@ -164,25 +164,25 @@ export default function PublicarPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl mx-auto w-full relative h-full flex flex-col">
-      <header className="mb-8 shrink-0">
-        <p className="text-sm font-bold text-accent uppercase tracking-widest mb-1">Contribuir</p>
-        <h1 className="text-3xl font-bold text-white mb-2">Publicar un Script</h1>
-        <p className="text-neutral-400">Envía tu script para revisión. Una vez aprobado, aparecerá en el feed público.</p>
+    <div className="p-4 sm:p-6 md:p-8 max-w-3xl mx-auto w-full relative min-h-full flex flex-col">
+      <header className="mb-6 sm:mb-8 shrink-0">
+        <p className="text-xs sm:text-sm font-bold text-accent uppercase tracking-widest mb-1">Contribuir</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Publicar un Script</h1>
+        <p className="text-neutral-400 text-xs sm:text-sm">Envía tu script para revisión. Una vez aprobado, aparecerá en el feed público.</p>
       </header>
 
       {success ? (
-        <div className="bg-card border border-accent/50 rounded-xl p-8 text-center flex flex-col items-center">
+        <div className="bg-card border border-accent/50 rounded-xl p-6 sm:p-8 text-center flex flex-col items-center">
           <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Script enviado a revisión</h2>
-          <p className="text-neutral-400">Tu script ha sido enviado y está en la cola de moderación. Te redirigiremos al inicio...</p>
+          <p className="text-neutral-400 text-sm">Tu script ha sido enviado y está en la cola de moderación. Te redirigiremos al inicio...</p>
         </div>
       ) : (
-        <div className="bg-base border border-neutral-800 rounded-xl p-6 shadow-xl flex-1 overflow-y-auto">
+        <div className="bg-base border border-neutral-800 rounded-xl p-4 sm:p-6 shadow-xl flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             
             {error && (

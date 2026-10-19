@@ -391,10 +391,10 @@ export default function AdminHerramientasPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           <button
             onClick={() => setCategoryFilter('all')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               categoryFilter === 'all'
                 ? 'bg-accent text-accent-contrast'
                 : 'bg-base text-muted hover:text-foreground border border-border-theme'
@@ -404,7 +404,7 @@ export default function AdminHerramientasPage() {
           </button>
           <button
             onClick={() => setCategoryFilter('executors')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               categoryFilter === 'executors'
                 ? 'bg-accent text-accent-contrast'
                 : 'bg-base text-muted hover:text-foreground border border-border-theme'
@@ -414,7 +414,7 @@ export default function AdminHerramientasPage() {
           </button>
           <button
             onClick={() => setCategoryFilter('externals')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               categoryFilter === 'externals'
                 ? 'bg-accent text-accent-contrast'
                 : 'bg-base text-muted hover:text-foreground border border-border-theme'
@@ -433,7 +433,7 @@ export default function AdminHerramientasPage() {
           No se encontraron programas con los filtros seleccionados.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTools.map(tool => (
             <div
               key={tool.id}

@@ -376,16 +376,16 @@ export default function HerramientasPage() {
   );
 
   return (
-    <div className="p-6 md:p-10 max-w-[1520px] mx-auto w-full relative min-h-screen">
+    <div className="p-4 sm:p-6 md:p-10 max-w-[1520px] mx-auto w-full relative min-h-screen">
 
       {/* ------------------------------------------------------------- */}
       {/* HEADER ROW: TITLE & ROBLOX VERSIONS WIDGET                     */}
       {/* ------------------------------------------------------------- */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 sm:mb-10">
 
         {/* Title and Subtitle */}
         <div className="flex-1 max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
             Ejecutores, Externales, Herramientas y Más de <span className="text-accent">Roblox</span>
           </h1>
           <p className="text-sm md:text-base leading-relaxed" style={{ color: '#D1D5DB' }}>
@@ -410,7 +410,7 @@ export default function HerramientasPage() {
         </div>
 
         {/* ROBLOX VERSIONS WIDGET */}
-        <div className="bg-[#101216]/90 border border-neutral-800/80 rounded-xl p-4 shadow-xl backdrop-blur-md w-full sm:w-auto sm:min-w-[440px] shrink-0">
+        <div className="bg-[#101216]/90 border border-neutral-800/80 rounded-xl p-4 shadow-xl backdrop-blur-md w-full xl:w-auto xl:min-w-[440px] shrink-0">
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-[11px] font-bold text-accent uppercase tracking-wider">
               VERSIONES DE ROBLOX

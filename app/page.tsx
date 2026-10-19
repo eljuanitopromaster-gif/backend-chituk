@@ -88,21 +88,21 @@ export default function ChitukPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full relative">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full relative">
       <TermsModal />
 
       {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Descubre Scripts</h1>
-        <p className="text-neutral-400">Explora la colección de scripts para la comunidad.</p>
+      <header className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Descubre Scripts</h1>
+        <p className="text-muted text-sm md:text-base">Explora la colección de scripts para la comunidad.</p>
       </header>
 
       {/* Feed */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {loading ? (
-          <p className="text-neutral-500 col-span-full text-center py-12">Cargando scripts del servidor...</p>
+          <p className="text-muted col-span-full text-center py-12">Cargando scripts del servidor...</p>
         ) : scripts.length === 0 ? (
-          <p className="text-neutral-500 col-span-full text-center py-12">No hay scripts disponibles en este momento.</p>
+          <p className="text-muted col-span-full text-center py-12">No hay scripts disponibles en este momento.</p>
         ) : (
           scripts.map(script => (
             <div key={script.id} className="bg-card border border-border-theme rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group">
@@ -113,7 +113,7 @@ export default function ChitukPage() {
                   <div className="text-muted/40 font-mono text-3xl">&lt;/&gt;</div>
                 )}
               </div>
-              <div className="p-6 flex flex-col flex-1">
+              <div className="p-4 md:p-6 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-xs font-bold px-3 py-1 bg-base border border-border-theme text-accent rounded-full uppercase tracking-wider">
                     {script.language || 'Luau'}

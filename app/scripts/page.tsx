@@ -104,30 +104,30 @@ export default function ScriptsCatalogPage() {
   const availableLanguages = Array.from(new Set(scripts.map(s => s.language).filter(Boolean)));
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full relative">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full relative">
       {/* Header */}
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <header className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
             <span className="text-accent">&lt;/&gt;</span> Catálogo de Scripts
           </h1>
-          <p className="text-neutral-400">Encuentra y utiliza scripts compartidos por la comunidad.</p>
+          <p className="text-muted text-sm sm:text-base">Encuentra y utiliza scripts compartidos por la comunidad.</p>
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <input
             type="text"
             placeholder="Buscar por título o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 bg-card border border-neutral-800 rounded-lg text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-accent"
+            className="w-full sm:w-64 px-4 py-2 bg-card border border-border-theme rounded-lg text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
           />
 
           <select
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="px-3 py-2 bg-card border border-neutral-800 rounded-lg text-sm text-neutral-300 focus:outline-none focus:border-accent"
+            className="w-full sm:w-auto px-3 py-2 bg-card border border-border-theme rounded-lg text-sm text-foreground focus:outline-none focus:border-accent cursor-pointer"
           >
             <option value="all">Todos los lenguajes</option>
             {availableLanguages.map(lang => (
@@ -138,13 +138,13 @@ export default function ScriptsCatalogPage() {
       </header>
 
       {/* Feed */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {loading ? (
-          <p className="text-neutral-500 col-span-full text-center py-12">Cargando scripts del servidor...</p>
+          <p className="text-muted col-span-full text-center py-12">Cargando scripts del servidor...</p>
         ) : filteredScripts.length === 0 ? (
-          <div className="col-span-full text-center py-16 bg-card border border-neutral-800 rounded-xl p-8">
-            <p className="text-neutral-400 text-lg mb-2">No se encontraron scripts.</p>
-            <p className="text-neutral-500 text-sm">Intenta con otro término de búsqueda o publica el primero.</p>
+          <div className="col-span-full text-center py-16 bg-card border border-border-theme rounded-xl p-8">
+            <p className="text-muted text-lg mb-2">No se encontraron scripts.</p>
+            <p className="text-muted/70 text-sm">Intenta con otro término de búsqueda o publica el primero.</p>
           </div>
         ) : (
           filteredScripts.map(script => (
@@ -156,7 +156,7 @@ export default function ScriptsCatalogPage() {
                   <div className="text-muted/40 font-mono text-3xl">&lt;/&gt;</div>
                 )}
               </div>
-              <div className="p-6 flex flex-col flex-1">
+              <div className="p-4 sm:p-6 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-xs font-bold px-3 py-1 bg-base border border-border-theme text-accent rounded-full uppercase tracking-wider">
                     {script.language || 'Luau'}

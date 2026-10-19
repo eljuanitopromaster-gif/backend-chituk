@@ -130,33 +130,33 @@ export default function JuegosPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full relative">
-      <header className="mb-10">
-        <p className="text-sm font-bold text-accent uppercase tracking-widest mb-1">Directorios</p>
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">Explorar por Juego</h1>
-        <p className="text-neutral-400 text-lg">Encuentra scripts específicos para tus juegos favoritos en Roblox.</p>
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full relative">
+      <header className="mb-6 sm:mb-10">
+        <p className="text-xs sm:text-sm font-bold text-accent uppercase tracking-widest mb-1">Directorios</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-tight">Explorar por Juego</h1>
+        <p className="text-muted text-sm sm:text-base md:text-lg">Encuentra scripts específicos para tus juegos favoritos en Roblox.</p>
       </header>
 
       {/* Grid of Games */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {BASE_GAMES.map((game) => {
           const scriptCount = counts[game.id] || 0;
           return (
             <Link 
               key={game.id} 
               href={`/scripts?search=${encodeURIComponent(game.name)}`}
-              className="group relative bg-card border border-neutral-800 rounded-2xl p-6 shadow-xl hover:shadow-accent/5 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
+              className="group relative bg-card border border-border-theme rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-accent/5 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
             >
               {/* Background Gradient Effect */}
               <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
               
               {/* Content */}
               <div className="relative z-10 flex flex-col items-center">
-                <div className="w-16 h-16 bg-base border border-neutral-800 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-base border border-border-theme rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                   {game.icon}
                 </div>
-                <h2 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-neutral-700/50 rounded-full text-xs font-bold text-neutral-300">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-border-theme rounded-full text-xs font-bold text-muted">
                   <div className={`w-1.5 h-1.5 rounded-full ${scriptCount > 0 ? 'bg-[#22C55E]' : 'bg-neutral-500'}`}></div>
                   {scriptCount} Scripts disponibles
                 </span>
@@ -167,12 +167,12 @@ export default function JuegosPage() {
       </div>
       
       {/* Search Hint or Missing Game */}
-      <div className="mt-16 flex flex-col items-center justify-center text-center p-8 bg-neutral-900/30 border border-neutral-800/50 rounded-2xl border-dashed">
-        <svg className="w-8 h-8 text-neutral-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="mt-10 sm:mt-16 flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-card/40 border border-border-theme/70 rounded-2xl border-dashed">
+        <svg className="w-8 h-8 text-muted mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <h3 className="text-white font-bold text-lg mb-1">¿No encuentras tu juego?</h3>
-        <p className="text-sm text-neutral-400 max-w-md">
+        <h3 className="text-foreground font-bold text-base sm:text-lg mb-1">¿No encuentras tu juego?</h3>
+        <p className="text-xs sm:text-sm text-muted max-w-md">
           Usa la barra de búsqueda en la parte superior para buscar cualquier juego por su ID o nombre, o solicita a los publicadores en nuestra comunidad.
         </p>
       </div>

@@ -8,10 +8,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6">
       
       {/* Admin Subnav Tabs */}
-      <div className="flex items-center gap-2 border-b border-border-theme pb-4">
+      <div className="flex items-center gap-2 border-b border-border-theme pb-4 overflow-x-auto no-scrollbar">
         <Link
           href="/admin/queue"
           className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${

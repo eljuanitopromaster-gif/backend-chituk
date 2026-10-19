@@ -137,16 +137,16 @@ export default function FavoritosPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6 sm:gap-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-theme pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-theme pb-4 sm:pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Colección Personal</span>
             <span className="text-xs text-muted">• {favorites.length} guardados</span>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Mis Scripts Favoritos</h1>
-          <p className="text-sm text-muted mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Mis Scripts Favoritos</h1>
+          <p className="text-xs sm:text-sm text-muted mt-1">
             Accede rápidamente a tus scripts guardados, copia su código o explóralos en la comunidad.
           </p>
         </div>
@@ -172,19 +172,19 @@ export default function FavoritosPage() {
 
       {/* Contenido */}
       {loading ? (
-        <div className="p-16 flex flex-col items-center justify-center gap-3">
+        <div className="p-12 sm:p-16 flex flex-col items-center justify-center gap-3">
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
           <p className="text-sm text-muted">Cargando colección...</p>
         </div>
       ) : favorites.length === 0 ? (
-        <div className="p-12 text-center bg-card border border-border-theme rounded-2xl flex flex-col items-center gap-4 max-w-lg mx-auto">
+        <div className="p-6 sm:p-12 text-center bg-card border border-border-theme rounded-2xl flex flex-col items-center gap-4 max-w-lg mx-auto">
           <div className="w-16 h-16 rounded-full bg-base border border-border-theme flex items-center justify-center text-muted">
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-foreground">Aún no tienes favoritos guardados</h3>
-          <p className="text-sm text-muted leading-relaxed">
+          <h3 className="text-lg sm:text-xl font-bold text-foreground">Aún no tienes favoritos guardados</h3>
+          <p className="text-xs sm:text-sm text-muted leading-relaxed">
             Cuando encuentres un script útil en la biblioteca, dale clic al ícono de Favoritos para tenerlo guardado aquí.
           </p>
           <Link
@@ -195,15 +195,15 @@ export default function FavoritosPage() {
           </Link>
         </div>
       ) : filteredFavorites.length === 0 ? (
-        <div className="p-12 text-center text-muted">
+        <div className="p-12 text-center text-muted text-sm">
           No se encontraron favoritos que coincidan con &ldquo;{search}&rdquo;.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredFavorites.map(script => (
             <div
               key={script.id}
-              className="bg-card border border-border-theme hover:border-accent/50 rounded-2xl p-5 shadow-lg flex flex-col justify-between gap-4 transition-all group relative overflow-hidden"
+              className="bg-card border border-border-theme hover:border-accent/50 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between gap-4 transition-all group relative overflow-hidden"
             >
               <div className="flex flex-col gap-3">
                 {/* Cabecera de la tarjeta */}
