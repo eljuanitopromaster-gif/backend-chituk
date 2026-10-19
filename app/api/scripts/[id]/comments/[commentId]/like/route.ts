@@ -51,7 +51,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       .maybeSingle();
 
     if (!checkErr) {
-      let action: 'like' | 'unlike' = existingLike ? 'unlike' : 'like';
+      const action: 'like' | 'unlike' = existingLike ? 'unlike' : 'like';
 
       if (action === 'unlike') {
         await supabase

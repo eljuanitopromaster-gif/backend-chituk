@@ -36,8 +36,8 @@ export async function GET(request: Request) {
     }
 
     // Fetch auth users to merge email
-    let emailMap: Record<string, string> = {};
-    let missingAuthUsers: any[] = [];
+    const emailMap: Record<string, string> = {};
+    const missingAuthUsers: any[] = [];
 
     try {
         const { data: authData, error: authError } = await supabase.auth.admin.listUsers({ perPage: 1000 });

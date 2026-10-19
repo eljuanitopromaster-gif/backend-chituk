@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           try {
             document.cookie = 'sb-auth-token=1; path=/; max-age=604800; SameSite=Lax';
             const dbStorage = localStorage.getItem('chituk-community-v4');
-            let parsedDb = dbStorage ? JSON.parse(dbStorage) : { users: [], projects: [], comments: [] };
+            const parsedDb = dbStorage ? JSON.parse(dbStorage) : { users: [], projects: [], comments: [] };
             
             const existingIdx = parsedDb.users.findIndex((u: any) => u.id === publicUser.id);
             if (existingIdx !== -1) {

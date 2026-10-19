@@ -52,7 +52,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
 
   const fetchComments = async () => {
     try {
-      let headers: Record<string, string> = {};
+      const headers: Record<string, string> = {};
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;

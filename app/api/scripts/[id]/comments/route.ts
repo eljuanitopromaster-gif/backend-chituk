@@ -68,7 +68,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     if (!supaErr && supaComments) {
       // Supabase table exists!
       const userIds = [...new Set(supaComments.map((c: any) => c.user_id))];
-      let usersMap: Record<string, { username: string; avatar: string | null; role: string }> = {};
+      const usersMap: Record<string, { username: string; avatar: string | null; role: string }> = {};
       
       if (userIds.length > 0) {
         const { data: usersData } = await supabase
@@ -83,7 +83,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
 
       // Check user liked comments
-      let userLikedCommentIds = new Set<string>();
+      const userLikedCommentIds = new Set<string>();
       if (currentUserId) {
         const { data: likesData } = await supabase
           .from('comment_likes')

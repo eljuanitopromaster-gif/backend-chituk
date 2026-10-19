@@ -57,7 +57,7 @@ export async function GET(req: Request) {
 
     // 3. Obtener nombres de autores
     const authorIds = [...new Set(projects.map(p => p.authorId).filter(Boolean))];
-    let userMap: Record<string, string> = {};
+    const userMap: Record<string, string> = {};
 
     if (authorIds.length > 0) {
       const { data: authors } = await supabase
