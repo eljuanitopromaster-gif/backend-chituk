@@ -110,16 +110,26 @@ export default function Navbar() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <nav className="h-16 flex items-center px-6 bg-base border-b border-border-theme shrink-0 transition-colors">
-      {/* Left - Logo */}
-      <div className="flex-1 flex items-center">
-        <Link href="/" className="text-xl font-bold text-foreground flex items-center tracking-tight transition-colors">
+    <nav className="h-16 flex items-center px-3 sm:px-6 bg-base border-b border-border-theme shrink-0 transition-colors">
+      {/* Left - Hamburger (mobile) & Logo */}
+      <div className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={() => document.dispatchEvent(new CustomEvent('toggle-mobile-menu'))}
+          className="md:hidden p-1.5 -ml-1 text-muted hover:text-foreground hover:bg-card rounded-lg transition-colors cursor-pointer"
+          aria-label="Abrir menú"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <Link href="/" className="text-lg sm:text-xl font-bold text-foreground flex items-center tracking-tight transition-colors shrink-0">
           Chituk<span className="text-accent">Scripts</span>
         </Link>
       </div>
 
       {/* Center - Search Bar */}
-      <div className="flex-[2] flex justify-center max-w-2xl mx-4">
+      <div className="hidden md:flex flex-[2] justify-center max-w-2xl mx-4">
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +148,7 @@ export default function Navbar() {
       </div>
 
       {/* Right - Auth Buttons & Discord */}
-      <div className="flex-1 flex items-center justify-end gap-2.5">
+      <div className="flex-1 flex items-center justify-end gap-1.5 sm:gap-2.5">
         <a
           href="https://discord.gg/mdvByagDr3"
           target="_blank"
@@ -165,22 +175,22 @@ export default function Navbar() {
         </button>
 
         {!user ? (
-          <>
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button 
               onClick={() => openAuthModal('login')}
-              className="px-3.5 py-2 rounded-lg font-medium bg-card hover:bg-card-hover text-foreground transition-colors text-sm border border-border-theme cursor-pointer"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg font-medium bg-card hover:bg-card-hover text-foreground transition-colors text-xs sm:text-sm border border-border-theme cursor-pointer"
             >
               Acceder
             </button>
             <button 
               onClick={() => openAuthModal('signup')}
-              className="px-3.5 py-2 rounded-lg font-bold bg-accent text-accent-contrast hover:opacity-90 transition-opacity text-sm cursor-pointer shadow-sm"
+              className="hidden sm:block px-3.5 py-2 rounded-lg font-bold bg-accent text-accent-contrast hover:opacity-90 transition-opacity text-sm cursor-pointer shadow-sm"
             >
               Registrarse
             </button>
-          </>
+          </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             
             {/* Bell Icon */}
             <div className="relative" ref={dropdownRef}>
@@ -191,7 +201,7 @@ export default function Navbar() {
                     markAsRead();
                   }
                 }}
-                className="relative p-2 text-muted hover:text-foreground transition-colors cursor-pointer"
+                className="relative p-1.5 sm:p-2 text-muted hover:text-foreground transition-colors cursor-pointer"
                 title="Notificaciones"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,7 +214,7 @@ export default function Navbar() {
 
               {/* Dropdown */}
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-84 bg-card border border-border-theme rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-72 sm:w-84 max-w-[calc(100vw-2rem)] bg-card border border-border-theme rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
                   <div className="p-3.5 border-b border-border-theme flex justify-between items-center bg-base">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-foreground">Notificaciones</span>
@@ -319,7 +329,7 @@ export default function Navbar() {
             </button>
             <button 
               onClick={() => signOut()}
-              className="px-3 py-1.5 rounded-lg font-medium text-muted hover:text-foreground hover:bg-card transition-colors text-sm cursor-pointer"
+              className="hidden sm:block px-3 py-1.5 rounded-lg font-medium text-muted hover:text-foreground hover:bg-card transition-colors text-sm cursor-pointer"
             >
               Cerrar Sesión
             </button>

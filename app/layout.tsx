@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import BottomNav from "./components/BottomNav";
 import PageTransition from "./components/PageTransition";
 
 export const metadata: Metadata = {
@@ -57,12 +58,13 @@ export default function RootLayout({
           <Navbar />
           <div className="flex-1 flex min-h-0">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto relative w-full">
+            <main className="flex-1 overflow-y-auto relative w-full pb-16 md:pb-0">
               <PageTransition>
                 {children}
               </PageTransition>
             </main>
           </div>
+          <BottomNav />
           <AuthModal />
           <ThemeModalWrapper />
           <ProfileModalWrapper />

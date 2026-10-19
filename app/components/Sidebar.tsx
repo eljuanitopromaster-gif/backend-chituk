@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from './AuthProvider';
@@ -8,8 +8,30 @@ import { useAuth } from './AuthProvider';
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, signOut, openAuthModal } = useAuth();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
+
+  useEffect(() => {
+    const handleOpen = () => setIsMobileOpen(true);
+    const handleClose = () => setIsMobileOpen(false);
+    const handleToggle = () => setIsMobileOpen(prev => !prev);
+
+    document.addEventListener('open-mobile-menu', handleOpen);
+    document.addEventListener('close-mobile-menu', handleClose);
+    document.addEventListener('toggle-mobile-menu', handleToggle);
+
+    return () => {
+      document.removeEventListener('open-mobile-menu', handleOpen);
+      document.removeEventListener('close-mobile-menu', handleClose);
+      document.removeEventListener('toggle-mobile-menu', handleToggle);
+    };
+  }, []);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   const navLinkClass = (path: string) => {
     const isActive = pathname === path;
@@ -20,68 +42,74 @@ export default function Sidebar() {
     }`;
   };
 
-  return (
-    <aside className="flex w-[260px] bg-base border-r border-border-theme flex-col h-full shrink-0 transition-colors">
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
-        <Link href="/" className={navLinkClass('/')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          Inicio
-        </Link>
-        <Link href="/scripts" className={navLinkClass('/scripts')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
-          Scripts
-        </Link>
-        <Link href="/juegos" className={navLinkClass('/juegos')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Juegos
-        </Link>
-        <Link href="/favoritos" className={navLinkClass('/favoritos')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
-          Favoritos
-        </Link>
-        {user && (
-          <Link 
-            href="/publicar" 
-            className="mt-2 flex justify-center items-center gap-2 px-4 py-2.5 bg-accent text-accent-contrast rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
-          >
+  const renderNavLinks = (onItemClick?: () => void) => (
+    <>
+      <div className="flex-1 overflow-y-auto py-4 flex flex-col">
+        {/* Navigation */}
+        <div className="flex flex-col gap-1 px-3">
+          <Link href="/" onClick={onItemClick} className={navLinkClass('/')}>
             <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            Publicar Script
+            Inicio
           </Link>
-        )}
-        <Link href="/herramientas" className={navLinkClass('/herramientas')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Ejecutores y Herramientas
-        </Link>
-        <Link href="/comunidad" className={navLinkClass('/comunidad')}>
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          Comunidad
-        </Link>
-        <button
-          onClick={() => document.dispatchEvent(new CustomEvent('open-theme-modal'))}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-muted hover:text-foreground hover:bg-card-hover text-left cursor-pointer w-full"
-        >
-          <svg className="w-5 h-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.64 0 1.25.15 1.8.42A5.98 5.98 0 0113 11a5.98 5.98 0 014.2 2.42c.55-.27 1.16-.42 1.8-.42a4 4 0 014 4 4 4 0 01-4 4c-.64 0-1.25-.15-1.8-.42A5.98 5.98 0 0113 21a5.98 5.98 0 01-4.2-2.42c-.55.27-1.16.42-1.8.42z" />
-          </svg>
-          Temas y Apariencia
-        </button>
+          <Link href="/scripts" onClick={onItemClick} className={navLinkClass('/scripts')}>
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            Scripts
+          </Link>
+          <Link href="/juegos" onClick={onItemClick} className={navLinkClass('/juegos')}>
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Juegos
+          </Link>
+          <Link href="/favoritos" onClick={onItemClick} className={navLinkClass('/favoritos')}>
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            Favoritos
+          </Link>
+          {user && (
+            <Link 
+              href="/publicar" 
+              onClick={onItemClick}
+              className="mt-2 flex justify-center items-center gap-2 px-4 py-2.5 bg-accent text-accent-contrast rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
+            >
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Publicar Script
+            </Link>
+          )}
+          <Link href="/herramientas" onClick={onItemClick} className={navLinkClass('/herramientas')}>
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Ejecutores y Herramientas
+          </Link>
+          <Link href="/comunidad" onClick={onItemClick} className={navLinkClass('/comunidad')}>
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Comunidad
+          </Link>
+          <button
+            onClick={() => {
+              if (onItemClick) onItemClick();
+              document.dispatchEvent(new CustomEvent('open-theme-modal'));
+            }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-muted hover:text-foreground hover:bg-card-hover text-left cursor-pointer w-full"
+          >
+            <svg className="w-5 h-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.64 0 1.25.15 1.8.42A5.98 5.98 0 0113 11a5.98 5.98 0 014.2 2.42c.55-.27 1.16-.42 1.8-.42a4 4 0 014 4 4 4 0 01-4 4c-.64 0-1.25-.15-1.8-.42A5.98 5.98 0 0113 21a5.98 5.98 0 01-4.2-2.42c-.55.27-1.16.42-1.8.42z" />
+            </svg>
+            Temas y Apariencia
+          </button>
+        </div>
 
         {/* ADMIN SECTION */}
         {isAdmin && (
@@ -89,34 +117,27 @@ export default function Sidebar() {
             <div className="mt-8 mb-2 px-3">
               <p className="text-[10px] font-bold tracking-widest text-muted uppercase">Administración</p>
             </div>
-            <Link 
-              href="/admin/queue" 
-              className={navLinkClass('/admin/queue')}
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Cola de Scripts
-            </Link>
-            <Link 
-              href="/admin/users" 
-              className={navLinkClass('/admin/users')}
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              Usuarios y Roles
-            </Link>
-            <Link 
-              href="/admin/herramientas" 
-              className={navLinkClass('/admin/herramientas')}
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Gestionar Herramientas
-            </Link>
+            <div className="flex flex-col gap-1 px-3">
+              <Link href="/admin/queue" onClick={onItemClick} className={navLinkClass('/admin/queue')}>
+                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Cola de Scripts
+              </Link>
+              <Link href="/admin/users" onClick={onItemClick} className={navLinkClass('/admin/users')}>
+                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Usuarios y Roles
+              </Link>
+              <Link href="/admin/herramientas" onClick={onItemClick} className={navLinkClass('/admin/herramientas')}>
+                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Gestionar Herramientas
+              </Link>
+            </div>
           </>
         )}
 
@@ -127,13 +148,13 @@ export default function Sidebar() {
 
         {user && (
           <div className="flex flex-col gap-1 px-3 mb-2">
-            <Link href="/dashboard" className={navLinkClass('/dashboard')}>
+            <Link href="/dashboard" onClick={onItemClick} className={navLinkClass('/dashboard')}>
               <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               Dashboard
             </Link>
-            <Link href="/favoritos" className={navLinkClass('/favoritos')}>
+            <Link href="/favoritos" onClick={onItemClick} className={navLinkClass('/favoritos')}>
               <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
@@ -145,7 +166,10 @@ export default function Sidebar() {
         {!user ? (
           <div className="flex flex-col gap-2 px-3 mt-1">
             <button
-              onClick={() => openAuthModal('login')}
+              onClick={() => {
+                if (onItemClick) onItemClick();
+                openAuthModal('login');
+              }}
               className="flex items-center gap-3 px-4 py-2.5 bg-card text-foreground rounded-lg text-sm font-medium hover:bg-card-hover transition-colors border border-border-theme cursor-pointer"
             >
               <svg className="w-5 h-5 text-muted pointer-events-none shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,7 +178,10 @@ export default function Sidebar() {
               Acceder
             </button>
             <button
-              onClick={() => openAuthModal('signup')}
+              onClick={() => {
+                if (onItemClick) onItemClick();
+                openAuthModal('signup');
+              }}
               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-accent-contrast rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
             >
               <svg className="w-5 h-5 pointer-events-none shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,7 +193,10 @@ export default function Sidebar() {
         ) : (
           <div className="flex flex-col gap-2 px-3 mt-1">
             <button
-              onClick={() => document.dispatchEvent(new CustomEvent('open-profile-modal'))}
+              onClick={() => {
+                if (onItemClick) onItemClick();
+                document.dispatchEvent(new CustomEvent('open-profile-modal'));
+              }}
               className="flex items-center gap-3 px-3.5 py-2.5 bg-card text-foreground rounded-lg text-sm font-medium border border-border-theme hover:border-accent hover:bg-card-hover transition-all cursor-pointer text-left group"
               title="Haz clic para personalizar tu perfil"
             >
@@ -183,7 +213,10 @@ export default function Sidebar() {
               </svg>
             </button>
             <button
-              onClick={() => signOut()}
+              onClick={() => {
+                if (onItemClick) onItemClick();
+                signOut();
+              }}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-card text-muted rounded-lg text-sm font-medium hover:text-foreground hover:bg-card-hover border border-border-theme transition-colors cursor-pointer"
             >
               Cerrar Sesión
@@ -195,11 +228,11 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-border-theme/60 shrink-0 bg-base z-10">
         <div className="flex items-center gap-3 text-xs text-muted mb-1.5 flex-wrap">
-          <Link href="/terminos" className="hover:text-foreground transition-colors cursor-pointer font-medium">
+          <Link href="/terminos" onClick={onItemClick} className="hover:text-foreground transition-colors cursor-pointer font-medium">
             Términos
           </Link>
           <span className="text-border-theme select-none">•</span>
-          <Link href="/privacidad" className="hover:text-foreground transition-colors cursor-pointer font-medium">
+          <Link href="/privacidad" onClick={onItemClick} className="hover:text-foreground transition-colors cursor-pointer font-medium">
             Privacidad
           </Link>
           <span className="text-border-theme select-none">•</span>
@@ -218,6 +251,54 @@ export default function Sidebar() {
         </div>
         <p className="text-[11px] text-muted/70">© 2026 Chituk</p>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar - Exact original markup, visible on md: and above */}
+      <aside className="hidden md:flex w-[260px] bg-base border-r border-border-theme flex-col h-full shrink-0 transition-colors">
+        {renderNavLinks()}
+      </aside>
+
+      {/* Mobile Drawer - Visible only on mobile when opened */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileOpen(false)}
+            aria-label="Cerrar menú"
+          />
+
+          {/* Drawer Sheet */}
+          <aside className="relative w-[280px] max-w-[85vw] bg-base border-r border-border-theme h-full flex flex-col z-10 shadow-2xl overflow-hidden">
+            {/* Drawer Header */}
+            <div className="h-16 px-4 flex items-center justify-between border-b border-border-theme shrink-0 bg-card/60">
+              <Link 
+                href="/" 
+                onClick={() => setIsMobileOpen(false)}
+                className="text-lg font-bold text-foreground flex items-center tracking-tight"
+              >
+                Chituk<span className="text-accent">Scripts</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-card border border-border-theme transition-colors cursor-pointer"
+                aria-label="Cerrar menú"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content with onClick handler */}
+            {renderNavLinks(() => setIsMobileOpen(false))}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
