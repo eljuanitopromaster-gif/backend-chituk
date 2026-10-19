@@ -219,8 +219,6 @@ body {
 .tab { background: transparent; border: none; color: #737373; cursor: pointer; padding: 0 16px 12px; border-bottom: 3px solid transparent; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; }
 .tab.active { border-bottom-color: #FACC15; color: #FACC15; }
 
-.hidden { display: none !important; }
-
 /* Page Navigation Transition */
 @keyframes pageSlideIn {
   0% {

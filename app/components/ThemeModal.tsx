@@ -124,7 +124,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
                     )}
                   </div>
                   <div>
-                    <h3 className={`text-base font-bold mb-1 transition-colors ${isActive ? 'text-accent' : 'text-foreground'}`}>
+                    <h3 className="text-base font-bold mb-1 text-foreground transition-colors">
                       {theme.name}
                     </h3>
                     <p className="text-[10px] text-muted uppercase tracking-wider font-bold">
