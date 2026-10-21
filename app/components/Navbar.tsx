@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth, supabase } from './AuthProvider';
 
 export default function Navbar() {
-  const { user, signOut, openAuthModal } = useAuth();
+  const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -164,7 +164,13 @@ export default function Navbar() {
 
         {/* Theme Button */}
         <button
-          onClick={() => document.dispatchEvent(new CustomEvent('open-theme-modal'))}
+          onClick={() => {
+            if (openThemeModal) openThemeModal();
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('open-theme-modal'));
+              document.dispatchEvent(new CustomEvent('open-theme-modal'));
+            }
+          }}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-muted hover:text-foreground bg-card hover:bg-card-hover border border-border-theme transition-all text-xs cursor-pointer group"
           title="Cambiar tema visual (14 temas)"
         >
@@ -312,7 +318,13 @@ export default function Navbar() {
 
             {/* User Profile */}
             <button 
-              onClick={() => document.dispatchEvent(new CustomEvent('open-profile-modal'))}
+              onClick={() => {
+                if (openProfileModal) openProfileModal();
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('open-profile-modal'));
+                  document.dispatchEvent(new CustomEvent('open-profile-modal'));
+                }
+              }}
               className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-card border border-transparent hover:border-border-theme transition-all group cursor-pointer text-left"
               title="Editar perfil"
             >

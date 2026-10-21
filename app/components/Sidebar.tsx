@@ -7,7 +7,7 @@ import { useAuth } from './AuthProvider';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, signOut, openAuthModal } = useAuth();
+  const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
@@ -100,7 +100,11 @@ export default function Sidebar() {
           <button
             onClick={() => {
               if (onItemClick) onItemClick();
-              document.dispatchEvent(new CustomEvent('open-theme-modal'));
+              if (openThemeModal) openThemeModal();
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('open-theme-modal'));
+                document.dispatchEvent(new CustomEvent('open-theme-modal'));
+              }
             }}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-muted hover:text-foreground hover:bg-card-hover text-left cursor-pointer w-full"
           >
@@ -195,7 +199,11 @@ export default function Sidebar() {
             <button
               onClick={() => {
                 if (onItemClick) onItemClick();
-                document.dispatchEvent(new CustomEvent('open-profile-modal'));
+                if (openProfileModal) openProfileModal();
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('open-profile-modal'));
+                  document.dispatchEvent(new CustomEvent('open-profile-modal'));
+                }
               }}
               className="flex items-center gap-3 px-3.5 py-2.5 bg-card text-foreground rounded-lg text-sm font-medium border border-border-theme hover:border-accent hover:bg-card-hover transition-all cursor-pointer text-left group"
               title="Haz clic para personalizar tu perfil"

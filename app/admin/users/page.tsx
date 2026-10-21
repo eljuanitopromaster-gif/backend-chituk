@@ -11,7 +11,8 @@ interface UserData {
   is_verified: boolean;
   theme: string;
   avatar?: string;
-  created_at: string;
+  created_at?: string;
+  createdAt?: string;
   banned?: boolean;
   banReason?: string | null;
 }
@@ -214,6 +215,21 @@ export default function UsersAdminPage() {
     }
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Sin fecha';
+    try {
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return 'Sin fecha';
+      return d.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Sin fecha';
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="p-12 text-center text-muted flex flex-col items-center justify-center gap-3">
@@ -297,6 +313,7 @@ export default function UsersAdminPage() {
               <tr className="bg-base/70 border-b border-border-theme">
                 <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest">Usuario</th>
                 <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest">Email</th>
+                <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest">Fecha Creación</th>
                 <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest">Rol Actual</th>
                 <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest">Asignar Rol</th>
                 <th className="py-4 px-6 text-xs font-bold text-muted uppercase tracking-widest text-center">Verificación</th>
@@ -306,14 +323,14 @@ export default function UsersAdminPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-muted">
+                  <td colSpan={7} className="py-16 text-center text-muted">
                     <div className="inline-block animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mb-3"></div>
                     <p className="font-medium">Cargando usuarios del sistema...</p>
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-muted font-medium">
+                  <td colSpan={7} className="py-16 text-center text-muted font-medium">
                     {search || roleFilter !== 'all' ? 'No se encontraron usuarios con esos filtros.' : 'No hay usuarios registrados.'}
                   </td>
                 </tr>
@@ -382,6 +399,20 @@ export default function UsersAdminPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                           </svg>
                         </button>
+                      </div>
+                    </td>
+
+                    {/* Fecha de Creación */}
+                    <td className="py-4 px-6 text-xs text-muted whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground/90 font-mono text-xs">
+                          {formatDate(u.createdAt || u.created_at)}
+                        </span>
+                        {u.createdAt || u.created_at ? (
+                          <span className="text-[10px] text-muted font-mono">
+                            {new Date(u.createdAt || u.created_at || '').toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
 

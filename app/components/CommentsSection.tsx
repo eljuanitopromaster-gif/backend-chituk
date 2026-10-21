@@ -215,7 +215,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
   };
 
   return (
-    <section className="mt-14 pt-10 border-t border-neutral-800/80 w-full" id="seccion-comentarios">
+    <section className="mt-14 pt-10 border-t border-border-theme w-full" id="seccion-comentarios">
       {/* Header Row: Title, Counter & Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-3">
@@ -226,14 +226,14 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+              <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
                 Opiniones y Comentarios
               </h3>
-              <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700">
+              <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-base text-muted border border-border-theme">
                 {comments.length}
               </span>
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               Comparte tu experiencia, reporta bugs o apoya opiniones útiles de otros usuarios.
             </p>
           </div>
@@ -241,14 +241,14 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
 
         {/* Sorting controls */}
         {comments.length > 1 && (
-          <div className="flex items-center bg-[#12141A] p-1 rounded-lg border border-neutral-800 text-xs">
+          <div className="flex items-center bg-base p-1 rounded-lg border border-border-theme text-xs">
             <button
               type="button"
               onClick={() => setSortBy('likes')}
               className={`px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
                 sortBy === 'likes'
                   ? 'bg-card text-accent shadow-sm'
-                  : 'text-neutral-400 hover:text-white'
+                  : 'text-muted hover:text-foreground'
               }`}
             >
               Más útiles
@@ -259,7 +259,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
               className={`px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
                 sortBy === 'newest'
                   ? 'bg-card text-accent shadow-sm'
-                  : 'text-neutral-400 hover:text-white'
+                  : 'text-muted hover:text-foreground'
               }`}
             >
               Más recientes
@@ -269,19 +269,19 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
       </div>
 
       {/* Input / Post Form */}
-      <div className="bg-card border border-neutral-800 rounded-2xl p-5 mb-10 shadow-lg">
+      <div className="bg-card border border-border-theme rounded-2xl p-5 mb-10 shadow-lg">
         {user ? (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white border border-neutral-700 overflow-hidden shrink-0">
+              <div className="w-8 h-8 rounded-full bg-base flex items-center justify-center text-xs font-bold text-foreground border border-border-theme overflow-hidden shrink-0">
                 {user.avatar ? (
                   <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <span>{(user.username || user.email || '?').charAt(0).toUpperCase()}</span>
                 )}
               </div>
-              <span className="text-sm font-semibold text-neutral-200">
-                Opinar como <span className="text-white font-bold">{user.username || user.email}</span>
+              <span className="text-sm font-semibold text-foreground">
+                Opinar como <span className="text-foreground font-bold">{user.username || user.email}</span>
               </span>
             </div>
 
@@ -292,9 +292,9 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                 placeholder="¿Te sirvió el script? Deja tu opinión, consejos o dudas para la comunidad..."
                 rows={3}
                 maxLength={1000}
-                className="w-full bg-[#0E1015] border border-neutral-800 rounded-xl p-3.5 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y min-h-[90px]"
+                className="w-full bg-base border border-border-theme rounded-xl p-3.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y min-h-[90px]"
               />
-              <div className="text-[11px] text-neutral-500 text-right mt-1">
+              <div className="text-[11px] text-muted text-right mt-1">
                 {newComment.length} / 1000
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
             )}
 
             <div className="flex justify-between items-center pt-1">
-              <span className="text-xs text-neutral-500 flex items-center gap-1.5 hidden sm:inline-flex">
+              <span className="text-xs text-muted flex items-center gap-1.5 hidden sm:inline-flex">
                 <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -316,7 +316,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
               <button
                 type="submit"
                 disabled={submitting || !newComment.trim()}
-                className="px-5 py-2.5 bg-accent hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold text-sm rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer ml-auto active:scale-95"
+                className="px-5 py-2.5 bg-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-accent-contrast font-bold text-sm rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer ml-auto active:scale-95"
               >
                 {submitting ? (
                   <>
@@ -340,20 +340,20 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
         ) : (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 text-center sm:text-left">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-neutral-800/80 border border-neutral-700/60 flex items-center justify-center text-neutral-400 shrink-0">
+              <div className="w-11 h-11 rounded-full bg-base border border-border-theme flex items-center justify-center text-muted shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white">¿Quieres dar tu opinión sobre este script?</h4>
-                <p className="text-xs text-neutral-400">Inicia sesión o regístrate para comentar y dar like a las opiniones de otros.</p>
+                <h4 className="text-sm font-bold text-foreground">¿Quieres dar tu opinión sobre este script?</h4>
+                <p className="text-xs text-muted">Inicia sesión o regístrate para comentar y dar like a las opiniones de otros.</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => openAuthModal('login')}
-              className="px-5 py-2.5 bg-accent text-black font-bold text-sm rounded-xl hover:bg-yellow-500 transition-colors cursor-pointer shrink-0 shadow-md"
+              className="px-5 py-2.5 bg-accent text-accent-contrast font-bold text-sm rounded-xl hover:opacity-90 transition-opacity cursor-pointer shrink-0 shadow-md"
             >
               Iniciar Sesión
             </button>
@@ -364,18 +364,18 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
       {/* Comments List */}
       <div className="flex flex-col gap-4">
         {loading ? (
-          <div className="py-12 text-center text-neutral-500 text-sm animate-pulse">
+          <div className="py-12 text-center text-muted text-sm animate-pulse">
             Cargando opiniones de la comunidad...
           </div>
         ) : comments.length === 0 ? (
-          <div className="py-12 px-4 text-center bg-card/50 border border-neutral-800/60 rounded-2xl flex flex-col items-center">
-            <div className="w-14 h-14 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-600 mb-3">
+          <div className="py-12 px-4 text-center bg-card border border-border-theme rounded-2xl flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-base border border-border-theme flex items-center justify-center text-muted mb-3">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
-            <h4 className="text-base font-bold text-white mb-1">Aún no hay comentarios</h4>
-            <p className="text-xs text-neutral-400 max-w-sm mb-4">
+            <h4 className="text-base font-bold text-foreground mb-1">Aún no hay comentarios</h4>
+            <p className="text-xs text-muted max-w-sm mb-4">
               ¡Sé el primero en compartir si te funcionó este script o qué tal te pareció!
             </p>
             {!user && (
@@ -397,13 +397,13 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
             return (
               <article
                 key={comment.id}
-                className="bg-card border border-neutral-800/90 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 hover:border-neutral-700/60 transition-colors shadow-sm"
+                className="bg-card border border-border-theme rounded-2xl p-4 sm:p-5 flex flex-col gap-3 hover:border-accent/40 transition-colors shadow-sm"
               >
                 {/* Comment Header */}
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex items-center gap-2.5">
                     {/* User Avatar */}
-                    <div className="w-9 h-9 rounded-full bg-neutral-800 border border-neutral-700 overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-base border border-border-theme overflow-hidden flex items-center justify-center text-xs font-bold text-foreground shrink-0">
                       {comment.authorAvatar ? (
                         <img src={comment.authorAvatar} alt={comment.authorName} className="w-full h-full object-cover" />
                       ) : (
@@ -413,7 +413,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
 
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold text-white hover:text-accent transition-colors">
+                        <span className="text-sm font-bold text-foreground hover:text-accent transition-colors">
                           {comment.authorName}
                         </span>
 
@@ -429,7 +429,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-neutral-500">
+                      <span className="text-[11px] text-muted">
                         {timeAgo(comment.createdAt)}
                       </span>
                     </div>
@@ -441,7 +441,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                       type="button"
                       disabled={deletingId === comment.id}
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="text-neutral-500 hover:text-red-400 p-1 rounded-md transition-colors text-xs"
+                      className="text-muted hover:text-red-400 p-1 rounded-md transition-colors text-xs"
                       title="Eliminar comentario"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -452,19 +452,19 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                 </div>
 
                 {/* Comment Content / Opinion */}
-                <div className="text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap pl-11">
+                <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap pl-11">
                   {comment.content}
                 </div>
 
                 {/* Comment Footer: Helpful / Likes Action */}
-                <div className="flex items-center justify-between pl-11 pt-2 border-t border-neutral-800/40">
+                <div className="flex items-center justify-between pl-11 pt-2 border-t border-border-theme">
                   <button
                     type="button"
                     onClick={() => handleLikeComment(comment.id)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       comment.isLiked
                         ? 'bg-accent/15 text-accent border border-accent/40 shadow-sm'
-                        : 'text-neutral-400 hover:text-white bg-card-hover border border-neutral-800 hover:border-neutral-700'
+                        : 'text-muted hover:text-foreground bg-card-hover border border-border-theme hover:border-accent/40'
                     }`}
                     title={comment.isLiked ? 'Quitar like' : 'Me parece útil esta opinión'}
                   >
@@ -485,14 +485,14 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                       {comment.isLiked ? 'Útil' : '¿Te pareció útil?'}
                     </span>
                     {comment.likesCount > 0 && (
-                      <span className="ml-0.5 px-1.5 py-0.2 bg-black/40 rounded-full font-bold">
+                      <span className="ml-0.5 px-1.5 py-0.2 bg-base/60 text-foreground rounded-full font-bold">
                         {comment.likesCount}
                       </span>
                     )}
                   </button>
 
                   {comment.likesCount > 0 && (
-                    <span className="text-[11px] text-neutral-500">
+                    <span className="text-[11px] text-muted">
                       {comment.likesCount === 1 ? '1 persona de acuerdo' : `${comment.likesCount} personas de acuerdo`}
                     </span>
                   )}

@@ -28,15 +28,15 @@ export async function GET(request: Request) {
     // Fetch all users using service role (bypasses RLS)
     const { data: publicUsers, error } = await supabase
         .from('users')
-        .select('*')
-        .order('createdAt', { ascending: false });
+        .select('*');
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Fetch auth users to merge email
+    // Fetch auth users to merge email and creation date
     const emailMap: Record<string, string> = {};
+    const createdMap: Record<string, string> = {};
     const missingAuthUsers: any[] = [];
 
     try {
@@ -45,8 +45,9 @@ export async function GET(request: Request) {
             const existingIds = new Set((publicUsers || []).map(u => u.id));
 
             authData.users.forEach(au => {
-                if (au.id && au.email) {
-                    emailMap[au.id] = au.email;
+                if (au.id) {
+                    if (au.email) emailMap[au.id] = au.email;
+                    if (au.created_at) createdMap[au.id] = au.created_at;
                 }
                 if (!existingIds.has(au.id)) {
                     missingAuthUsers.push({
@@ -57,21 +58,33 @@ export async function GET(request: Request) {
                         is_verified: false,
                         banned: !!au.banned_until,
                         createdAt: au.created_at,
+                        created_at: au.created_at,
                         avatar: au.user_metadata?.avatar || null
                     });
                 }
             });
         }
     } catch (authErr) {
-        console.warn("Could not fetch auth emails:", authErr);
+        console.warn("Could not fetch auth emails/dates:", authErr);
     }
 
-    const enrichedUsers = (publicUsers || []).map(u => ({
-        ...u,
-        email: u.email || emailMap[u.id] || null
-    }));
+    const enrichedUsers = (publicUsers || []).map(u => {
+        const creationDate = u.createdAt || u.created_at || createdMap[u.id] || null;
+        return {
+            ...u,
+            email: u.email || emailMap[u.id] || null,
+            createdAt: creationDate,
+            created_at: creationDate
+        };
+    });
 
-    return NextResponse.json([...enrichedUsers, ...missingAuthUsers]);
+    const allUsers = [...enrichedUsers, ...missingAuthUsers].sort((a, b) => {
+        const timeA = new Date(a.createdAt || a.created_at || 0).getTime();
+        const timeB = new Date(b.createdAt || b.created_at || 0).getTime();
+        return timeB - timeA;
+    });
+
+    return NextResponse.json(allUsers);
 }
 
 export async function POST(request: Request) {

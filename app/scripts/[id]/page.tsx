@@ -231,80 +231,80 @@ export default function ScriptViewPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full p-8 text-white min-h-screen">
-        <p className="text-neutral-500 animate-pulse text-lg">Cargando script...</p>
+      <div className="flex items-center justify-center h-full p-8 text-foreground min-h-screen">
+        <p className="text-muted animate-pulse text-lg">Cargando script...</p>
       </div>
     );
   }
 
   if (error || !script) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 gap-4 text-white min-h-screen">
+      <div className="flex flex-col items-center justify-center h-full p-8 gap-4 text-foreground min-h-screen">
         <p className="text-red-400 text-lg">{error || 'Script no encontrado'}</p>
-        <button onClick={() => router.push('/')} className="text-neutral-400 hover:text-white transition-colors underline">Volver al inicio</button>
+        <button onClick={() => router.push('/')} className="text-muted hover:text-foreground transition-colors underline">Volver al inicio</button>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full text-white min-h-screen">
-      <button onClick={() => router.back()} className="text-sm text-neutral-500 hover:text-white transition-colors mb-4 sm:mb-6 flex items-center gap-1">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full text-foreground min-h-screen">
+      <button onClick={() => router.back()} className="text-sm text-muted hover:text-foreground transition-colors mb-4 sm:mb-6 flex items-center gap-1">
         &larr; Volver
       </button>
 
       {/* TOP SECTION */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8 md:mb-10">
         {/* Left: Image Container */}
-        <div className="w-full md:w-[55%] lg:w-[60%] relative rounded-xl overflow-hidden aspect-video bg-neutral-900 shadow-2xl">
+        <div className="w-full md:w-[55%] lg:w-[60%] relative rounded-xl overflow-hidden aspect-video bg-card border border-border-theme shadow-2xl">
           {script.image ? (
             <img src={script.image} className="w-full h-full object-cover" alt="Portada del Script" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-neutral-700 font-mono text-5xl">
+            <div className="w-full h-full bg-gradient-to-br from-card to-card-hover flex items-center justify-center text-muted font-mono text-5xl">
               &lt;/&gt;
             </div>
           )}
           
           {/* Badges */}
           {script.is_mobile_friendly && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 text-[#0EA5E9] font-bold text-xs bg-black/60 px-2 py-1 rounded">
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 text-cyan-400 font-bold text-xs bg-black/60 px-2 py-1 rounded">
                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                </svg>
                PARA MÓVIL
             </div>
           )}
-          <div className="absolute bottom-4 left-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1.5">
+          <div className="absolute bottom-4 left-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold text-white flex items-center gap-1.5">
              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
              </svg>
              {script.views || 0}
           </div>
-          <div className="absolute bottom-4 right-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold">
+          <div className="absolute bottom-4 right-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold text-white">
              {timeAgo(script.createdAt)}
           </div>
         </div>
 
         {/* Right: Info & Actions */}
         <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col justify-center">
-          <div className="flex items-center gap-2 text-xs font-bold text-neutral-400 mb-3">
-             <div className="w-5 h-5 bg-neutral-800 rounded"></div>
+          <div className="flex items-center gap-2 text-xs font-bold text-muted mb-3">
+             <div className="w-5 h-5 bg-card border border-border-theme rounded"></div>
              {script.description?.split('\n')[0] || 'Juego no especificado'}
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight text-foreground">
              {script.title}
           </h1>
           <div className="flex items-center gap-2 mb-6 sm:mb-8">
-             <span className="text-neutral-400 text-sm">por</span>
+             <span className="text-muted text-sm">por</span>
              <div className="flex items-center gap-2">
-               <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] text-white shrink-0 overflow-hidden border border-neutral-700">
+               <div className="w-6 h-6 rounded-full bg-card flex items-center justify-center text-[10px] text-foreground shrink-0 overflow-hidden border border-border-theme">
                  {script.authorAvatar ? (
                    <img src={script.authorAvatar} alt={script.authorName || 'Avatar'} className="w-full h-full object-cover" />
                  ) : (
                    <span>{(script.authorName || script.authorId || '?').charAt(0).toUpperCase()}</span>
                  )}
                </div>
-               <span className="font-bold text-white text-sm">{script.authorName || script.authorId}</span>
+               <span className="font-bold text-foreground text-sm">{script.authorName || script.authorId}</span>
              </div>
           </div>
 
@@ -334,25 +334,25 @@ export default function ScriptViewPage() {
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {script.scriptMode?.includes('no-key') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card-hover text-neutral-400 font-bold text-xs rounded-md border border-neutral-800">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 Sin key
               </div>
             )}
             {script.is_mobile_friendly && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card-hover text-neutral-400 font-bold text-xs rounded-md border border-neutral-800">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                 Para móvil
               </div>
             )}
             {script.scriptMode?.includes('open-source') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card-hover text-neutral-400 font-bold text-xs rounded-md border border-neutral-800">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
                 Código abierto
               </div>
             )}
             {script.scriptMode?.includes('paid') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card-hover text-neutral-400 font-bold text-xs rounded-md border border-neutral-800">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 De pago
               </div>
@@ -360,9 +360,9 @@ export default function ScriptViewPage() {
           </div>
 
           {/* Stats row */}
-          <div className="flex items-center gap-6 sm:gap-8 text-neutral-400 text-xs font-bold mt-2 flex-wrap">
+          <div className="flex items-center gap-6 sm:gap-8 text-muted text-xs font-bold mt-2 flex-wrap">
              <button onClick={handleFavorite} className={`flex items-center gap-2 transition-colors cursor-pointer ${
-               isFavorited ? 'text-yellow-500' : 'hover:text-white'
+               isFavorited ? 'text-accent' : 'hover:text-foreground'
              }`}>
                 <svg className="w-4 h-4" fill={isFavorited ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -370,7 +370,7 @@ export default function ScriptViewPage() {
                 {script.favorites || 0} FAVORITOS
              </button>
              <button onClick={handleLike} className={`flex items-center gap-2 transition-colors cursor-pointer ${
-               isLiked ? 'text-red-500' : 'hover:text-white'
+               isLiked ? 'text-red-500' : 'hover:text-foreground'
              }`}>
                 <svg className="w-4 h-4" fill={isLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -395,14 +395,14 @@ export default function ScriptViewPage() {
       </div>
 
       {/* TABS SECTION */}
-      <div className="flex justify-between items-end border-b border-neutral-800 mb-8 pt-4">
+      <div className="flex justify-between items-end border-b border-border-theme mb-8 pt-4">
         <div className="flex gap-8">
           <button 
             onClick={() => setActiveTab('about')}
             className={`font-bold text-lg pb-3 px-1 transition-colors cursor-pointer ${
               activeTab === 'about'
-                ? 'text-white border-b-[3px] border-accent'
-                : 'text-neutral-400 hover:text-white border-b-[3px] border-transparent'
+                ? 'text-foreground border-b-[3px] border-accent'
+                : 'text-muted hover:text-foreground border-b-[3px] border-transparent'
             }`}
           >
             Acerca del Script
@@ -411,14 +411,14 @@ export default function ScriptViewPage() {
             onClick={() => setActiveTab('comments')}
             className={`font-bold text-lg pb-3 px-1 transition-colors cursor-pointer flex items-center gap-2 ${
               activeTab === 'comments'
-                ? 'text-white border-b-[3px] border-accent'
-                : 'text-neutral-400 hover:text-white border-b-[3px] border-transparent'
+                ? 'text-foreground border-b-[3px] border-accent'
+                : 'text-muted hover:text-foreground border-b-[3px] border-transparent'
             }`}
           >
             Opiniones y Comentarios
           </button>
         </div>
-        <button className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm font-bold pb-3 transition-colors cursor-pointer">
+        <button className="text-muted hover:text-foreground flex items-center gap-2 text-sm font-bold pb-3 transition-colors cursor-pointer">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
           </svg>
@@ -430,20 +430,20 @@ export default function ScriptViewPage() {
       <div className="max-w-5xl">
         {activeTab === 'about' ? (
           <>
-            <h2 className="text-2xl font-bold mb-4">Descripción</h2>
-            <div className="text-neutral-300 mb-12 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Descripción</h2>
+            <div className="text-foreground mb-12 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
               {script.description || 'Sin descripción disponible.'}
             </div>
 
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Código del Script</h2>
+              <h2 className="text-2xl font-bold text-foreground">Código del Script</h2>
             </div>
             
-            <div className="relative bg-card-hover border border-neutral-800/50 rounded-xl overflow-hidden group mb-10 shadow-xl">
+            <div className="relative bg-card border border-border-theme rounded-2xl overflow-hidden group mb-10 shadow-xl">
               <div className="absolute top-3 right-3 flex gap-2">
                 <button 
                     onClick={handleCopy} 
-                    className="bg-[#2A2A2A] hover:bg-[#3A3A3A] text-neutral-300 text-xs font-bold px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border border-neutral-700/50 cursor-pointer"
+                    className="bg-base hover:bg-card-hover text-foreground text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors border border-border-theme cursor-pointer"
                 >
                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -452,7 +452,7 @@ export default function ScriptViewPage() {
                 </button>
               </div>
               <div className="p-6 pt-16 overflow-x-auto min-h-[150px]">
-                <pre className="text-sm font-mono text-neutral-400">
+                <pre className="text-sm font-mono text-muted">
                   {script.script}
                 </pre>
               </div>

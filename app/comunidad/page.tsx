@@ -17,26 +17,26 @@ export default function ComunidadPage() {
       <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-full text-xs font-bold text-[#5865F2] uppercase tracking-wider mb-4">
         Servidor Oficial
       </div>
-      <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+      <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4 tracking-tight">
         Comunidad Oficial de <span className="text-accent">Chituk</span>
       </h1>
-      <p className="text-neutral-400 text-base md:text-lg mb-8 leading-relaxed max-w-xl">
+      <p className="text-muted text-base md:text-lg mb-8 leading-relaxed max-w-xl">
         Únete a nuestro Discord oficial. Discute sobre scripts, ejecutores, obtén soporte directo de los administradores y la manada, comparte tus creaciones y entérate de las últimas actualizaciones antes que nadie.
       </p>
 
       {/* Highlights / Features Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-xl mb-9 text-left">
-        <div className="p-3.5 bg-card border border-neutral-800 rounded-xl">
+        <div className="p-3.5 bg-card border border-border-theme rounded-xl">
           <div className="text-accent font-bold text-sm mb-0.5">Soporte 24/7</div>
-          <div className="text-neutral-400 text-xs">Ayuda para configurar ejecutores y solucionar errores.</div>
+          <div className="text-muted text-xs">Ayuda para configurar ejecutores y solucionar errores.</div>
         </div>
-        <div className="p-3.5 bg-card border border-neutral-800 rounded-xl">
+        <div className="p-3.5 bg-card border border-border-theme rounded-xl">
           <div className="text-[#00ADEF] font-bold text-sm mb-0.5">Updates en Vivo</div>
-          <div className="text-neutral-400 text-xs">Notificaciones cuando Roblox actualiza sus versiones.</div>
+          <div className="text-muted text-xs">Notificaciones cuando Roblox actualiza sus versiones.</div>
         </div>
-        <div className="p-3.5 bg-card border border-neutral-800 rounded-xl">
+        <div className="p-3.5 bg-card border border-border-theme rounded-xl">
           <div className="text-[#22C55E] font-bold text-sm mb-0.5">Scripts Exclusivos</div>
-          <div className="text-neutral-400 text-xs">Canales dedicados a compartir y testear nuevos scripts.</div>
+          <div className="text-muted text-xs">Canales dedicados a compartir y testear nuevos scripts.</div>
         </div>
       </div>
       
@@ -53,10 +53,10 @@ export default function ComunidadPage() {
         Unirse a Discord Oficial
       </a>
       
-      <div className="mt-12 border-t border-neutral-800/50 pt-6 w-full max-w-md">
-        <p className="text-neutral-500 text-xs">
+      <div className="mt-12 border-t border-border-theme pt-6 w-full max-w-md">
+        <p className="text-muted text-xs">
           Enlace permanente:{' '}
-          <span className="font-mono text-neutral-400 select-all">discord.gg/mdvByagDr3</span>
+          <span className="font-mono text-foreground select-all">discord.gg/mdvByagDr3</span>
         </p>
       </div>
     </div>

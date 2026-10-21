@@ -48,7 +48,9 @@ export async function GET() {
           status: t.status || 'Actualizado',
           description: t.description || '',
           features: t.features || [],
-          downloadUrl: t.download_url || t.downloadUrl || '',
+          downloadUrl: t.download_url || t.downloadUrl || t.download_link || t.downloadLink || t.url || '',
+          downloadLink: t.download_link || t.downloadLink || t.download_url || t.downloadUrl || t.url || '',
+          url: t.url || t.download_link || t.downloadLink || t.download_url || t.downloadUrl || '',
           imageSrc: t.image_src || t.imageSrc || undefined
         }));
         return NextResponse.json({ tools: formatted });

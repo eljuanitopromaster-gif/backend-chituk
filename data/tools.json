@@ -21,6 +21,8 @@
       "Compatible con Windows 10/11"
     ],
     "downloadUrl": "https://solara.gg/",
+    "downloadLink": "https://solara.gg/",
+    "url": "https://solara.gg/",
     "imageSrc": "/assets/Executors Tools/Solara.jpg"
   },
   {
@@ -45,6 +47,8 @@
       "Anti-ban integrado"
     ],
     "downloadUrl": "https://xenoexecutor.com/",
+    "downloadLink": "https://xenoexecutor.com/",
+    "url": "https://xenoexecutor.com/",
     "imageSrc": "/assets/Executors Tools/Xeno.jpg"
   },
   {
@@ -71,6 +75,8 @@
       "Frecuentes updates"
     ],
     "downloadUrl": "https://deltaexploits.net/",
+    "downloadLink": "https://deltaexploits.net/",
+    "url": "https://deltaexploits.net/",
     "imageSrc": "/assets/Executors Tools/Delta.jpg"
   },
   {
@@ -95,6 +101,8 @@
       "Código abierto"
     ],
     "downloadUrl": "https://aimmy.dev/",
+    "downloadLink": "https://aimmy.dev/",
+    "url": "https://aimmy.dev/",
     "imageSrc": "/assets/Executors Tools/Aimmy.jpg?v=2"
   }
 ]
