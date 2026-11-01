@@ -203,15 +203,15 @@ export default function UsersAdminPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'owner':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">Dueño</span>;
+        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-warning/15 text-warning border border-warning/35">Dueño</span>;
       case 'admin':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-rose-500/15 text-rose-400 border border-rose-500/30">Admin</span>;
+        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-danger/15 text-danger border border-danger/35">Admin</span>;
       case 'mod':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Mod</span>;
+        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-success/15 text-success border border-success/35">Mod</span>;
       case 'creator':
-        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/30">Creador</span>;
+        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-purple-theme/15 text-purple-theme border border-purple-theme/35">Creador</span>;
       default:
-        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-neutral-500/15 text-muted border border-border-theme">Usuario</span>;
+        return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-base text-foreground border border-border-theme">Usuario</span>;
     }
   };
 
@@ -242,7 +242,7 @@ export default function UsersAdminPage() {
   if (!user || !canManage) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-card border border-border-theme rounded-2xl text-center max-w-lg mx-auto mt-8">
-        <div className="w-14 h-14 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-4">
+        <div className="w-14 h-14 rounded-full bg-danger/10 border border-danger/25 flex items-center justify-center text-danger mb-4">
           <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-10V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3m12 4v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8a2 2 0 012-2h12a2 2 0 012 2z" />
           </svg>
@@ -339,7 +339,7 @@ export default function UsersAdminPage() {
                   <tr 
                     key={u.id} 
                     className={`border-b border-border-theme/40 transition-colors ${
-                      u.banned ? 'bg-rose-500/5 hover:bg-rose-500/10' : 'hover:bg-card-hover/40'
+                      u.banned ? 'bg-danger/5 hover:bg-danger/10' : 'hover:bg-card-hover/40'
                     }`}
                   >
                     
@@ -347,7 +347,7 @@ export default function UsersAdminPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full bg-base flex items-center justify-center text-xs font-bold overflow-hidden border shrink-0 ${
-                          u.banned ? 'border-rose-500 text-rose-400' : 'border-border-theme text-foreground'
+                          u.banned ? 'border-danger text-danger' : 'border-border-theme text-foreground'
                         }`}>
                           {u.avatar ? (
                             <img src={u.avatar} alt={u.username || 'Avatar'} className="w-full h-full object-cover" />
@@ -357,12 +357,12 @@ export default function UsersAdminPage() {
                         </div>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className={`font-semibold text-sm ${u.banned ? 'line-through text-rose-300' : 'text-foreground'}`}>
+                            <span className={`font-semibold text-sm ${u.banned ? 'line-through text-danger' : 'text-foreground'}`}>
                               {u.username || 'Sin Nombre'}
                             </span>
                             {u.is_verified && (
                               <span title="Verificado" className="inline-flex items-center">
-                                <svg className="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                                <svg className="w-4 h-4 text-info" viewBox="0 0 24 24" fill="currentColor">
                                   <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                                 </svg>
                               </span>
@@ -370,7 +370,7 @@ export default function UsersAdminPage() {
                             {u.banned && (
                               <span 
                                 title={`Motivo: ${u.banReason || 'Infracción de normas'}`}
-                                className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                                className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-danger/15 text-danger border border-danger/35"
                               >
                                 🚫 BANEADO
                               </span>
@@ -385,9 +385,9 @@ export default function UsersAdminPage() {
                     <td className="py-4 px-6 text-sm">
                       <div className="flex items-center gap-2 group/email">
                         {u.email ? (
-                          <span className="text-foreground/90 font-mono text-xs select-all">{u.email}</span>
+                          <span className="text-foreground font-mono text-xs select-all">{u.email}</span>
                         ) : (
-                          <span className="text-muted/60 text-xs italic">Sin email (Legacy)</span>
+                          <span className="text-muted text-xs italic">Sin email (Legacy)</span>
                         )}
                         <button
                           type="button"
@@ -405,7 +405,7 @@ export default function UsersAdminPage() {
                     {/* Fecha de Creación */}
                     <td className="py-4 px-6 text-xs text-muted whitespace-nowrap">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-foreground/90 font-mono text-xs">
+                        <span className="font-semibold text-foreground font-mono text-xs">
                           {formatDate(u.createdAt || u.created_at)}
                         </span>
                         {u.createdAt || u.created_at ? (
@@ -448,7 +448,7 @@ export default function UsersAdminPage() {
                           u.banned
                             ? 'opacity-40 cursor-not-allowed bg-base border border-border-theme text-muted'
                             : u.is_verified 
-                              ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/40 shadow-sm cursor-pointer' 
+                              ? 'bg-info/15 text-info hover:bg-info/25 border border-info/35 shadow-sm cursor-pointer' 
                               : 'bg-base text-muted hover:text-foreground hover:bg-card-hover border border-border-theme cursor-pointer'
                         }`}
                       >
@@ -465,8 +465,8 @@ export default function UsersAdminPage() {
                           onClick={() => handleToggleBan(u.id, !!u.banned, u.username || 'usuario', u.role || 'user')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm ${
                             u.banned
-                              ? 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30'
-                              : 'bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 border border-rose-500/30'
+                              ? 'bg-success/15 text-success hover:bg-success/25 border border-success/35'
+                              : 'bg-danger/15 text-danger hover:bg-danger/25 border border-danger/35'
                           }`}
                           title={u.banned ? 'Hacer clic para restaurar acceso' : 'Hacer clic para suspender al usuario'}
                         >

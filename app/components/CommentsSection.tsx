@@ -303,7 +303,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
             <CaptchaWidget key={captchaKey} onChange={setCaptchaValue} compact />
 
             {errorMessage && (
-              <p className="text-xs text-red-400 font-medium">{errorMessage}</p>
+              <p className="text-xs text-danger font-medium">{errorMessage}</p>
             )}
 
             <div className="flex justify-between items-center pt-1">
@@ -424,7 +424,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                           </span>
                         )}
                         {comment.authorRole && ['admin', 'owner', 'creator', 'mod'].includes(comment.authorRole) && !isAuthor && (
-                          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[#00ADEF]/15 text-[#00ADEF] border border-[#00ADEF]/40 uppercase tracking-wider">
+                          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-info/15 text-info border border-info/40 uppercase tracking-wider">
                             Staff
                           </span>
                         )}
@@ -441,7 +441,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                       type="button"
                       disabled={deletingId === comment.id}
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="text-muted hover:text-red-400 p-1 rounded-md transition-colors text-xs"
+                      className="text-muted hover:text-danger p-1 rounded-md transition-colors text-xs"
                       title="Eliminar comentario"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -485,7 +485,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                       {comment.isLiked ? 'Útil' : '¿Te pareció útil?'}
                     </span>
                     {comment.likesCount > 0 && (
-                      <span className="ml-0.5 px-1.5 py-0.2 bg-base/60 text-foreground rounded-full font-bold">
+                      <span className="ml-0.5 px-1.5 py-0.2 bg-base text-foreground rounded-full font-bold">
                         {comment.likesCount}
                       </span>
                     )}

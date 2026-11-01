@@ -326,7 +326,7 @@ export default function AuthModal() {
                   </>
                 ) : (
                   <>
-                    <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 bg-success/15 border border-success/30 text-success rounded-full flex items-center justify-center mx-auto">
                       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
@@ -363,7 +363,7 @@ export default function AuthModal() {
                 </div>
 
                 {error && (
-                  <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
+                  <p className="text-danger text-sm bg-danger/10 p-3 rounded-lg border border-danger/25">{error}</p>
                 )}
 
                 <button 
@@ -466,7 +466,7 @@ export default function AuthModal() {
               )}
 
               {error && (
-                <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>
+                <p className="text-danger text-sm bg-danger/10 p-3 rounded-lg border border-danger/25">{error}</p>
               )}
 
               <button 

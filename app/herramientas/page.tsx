@@ -7,89 +7,89 @@ import ExecutorModal, { ToolItem } from '../components/ExecutorModal';
 export type { ToolItem };
 
 const DEFAULT_TOOLS: ToolItem[] = [
-    // -------------------------------------------------------------
-    // EXECUTORS (Utilizando las portadas de assets/Executors Tools)
-    // -------------------------------------------------------------
-    {
-      id: 'solara',
-      name: 'Solara',
-      category: 'executors',
-      platforms: ['windows'],
-      access: 'free',
-      priceDisplay: 'FREE',
-      viewsDisplay: '136.7K',
-      viewsCount: 136700,
-      rating: 3.5,
-      reviewsCount: 26,
-      status: 'Actualizado',
-      description: 'Ejecutor ligero y optimizado para Windows con inyección rápida, soporte para Luau moderno y baja tasa de caídas.',
-      features: ['Nivel de ejecución optimizado', 'Sin claves tediosas', 'Inyección rápida', 'Compatible con Windows 10/11'],
-      downloadUrl: 'https://solara.gg/',
-      downloadLink: 'https://solara.gg/',
-      url: 'https://solara.gg/',
-      imageSrc: '/assets/Executors Tools/Solara.jpg'
-    },
-    {
-      id: 'xeno',
-      name: 'Xeno',
-      category: 'executors',
-      platforms: ['windows'],
-      access: 'free',
-      priceDisplay: 'FREE',
-      viewsDisplay: '122.6K',
-      viewsCount: 122600,
-      rating: 3.9,
-      reviewsCount: 35,
-      status: 'Actualizado',
-      description: 'Ejecutor de alto calibre con inyección instantánea, sidebar modular y soporte nativo para librerías avanzadas.',
-      features: ['Inyección en 0.5s', 'UI fluida y oscura', 'Soporte Luau full', 'Anti-ban integrado'],
-      downloadUrl: 'https://xenoexecutor.com/',
-      downloadLink: 'https://xenoexecutor.com/',
-      url: 'https://xenoexecutor.com/',
-      imageSrc: '/assets/Executors Tools/Xeno.jpg'
-    },
-    {
-      id: 'delta',
-      name: 'Delta',
-      category: 'executors',
-      platforms: ['windows', 'android', 'mac'],
-      access: 'free',
-      priceDisplay: 'FREE',
-      viewsDisplay: '53.3K',
-      viewsCount: 53300,
-      rating: 4.4,
-      reviewsCount: 17,
-      status: 'Actualizado',
-      description: 'El ejecutor multiplataforma más confiable y extendido. Compatible con Windows y Android con bypass estable.',
-      features: ['Soporte Android y Windows', 'Explorador de scripts en nube', 'Bajo consumo de RAM', 'Frecuentes updates'],
-      downloadUrl: 'https://deltaexploits.net/',
-      downloadLink: 'https://deltaexploits.net/',
-      url: 'https://deltaexploits.net/',
-      imageSrc: '/assets/Executors Tools/Delta.jpg'
-    },
+  // -------------------------------------------------------------
+  // EXECUTORS (Utilizando las portadas de assets/Executors Tools)
+  // -------------------------------------------------------------
+  {
+    id: 'solara',
+    name: 'Solara',
+    category: 'executors',
+    platforms: ['windows'],
+    access: 'free',
+    priceDisplay: 'FREE',
+    viewsDisplay: '136.7K',
+    viewsCount: 136700,
+    rating: 3.5,
+    reviewsCount: 26,
+    status: 'Actualizado',
+    description: 'Ejecutor ligero y optimizado para Windows con inyección rápida, soporte para Luau moderno y baja tasa de caídas.',
+    features: ['Nivel de ejecución optimizado', 'Sin claves tediosas', 'Inyección rápida', 'Compatible con Windows 10/11'],
+    downloadUrl: 'https://solara.gg/',
+    downloadLink: 'https://solara.gg/',
+    url: 'https://solara.gg/',
+    imageSrc: '/assets/Executors Tools/Solara.jpg'
+  },
+  {
+    id: 'xeno',
+    name: 'Xeno',
+    category: 'executors',
+    platforms: ['windows'],
+    access: 'free',
+    priceDisplay: 'FREE',
+    viewsDisplay: '122.6K',
+    viewsCount: 122600,
+    rating: 3.9,
+    reviewsCount: 35,
+    status: 'Actualizado',
+    description: 'Ejecutor de alto calibre con inyección instantánea, sidebar modular y soporte nativo para librerías avanzadas.',
+    features: ['Inyección en 0.5s', 'UI fluida y oscura', 'Soporte Luau full', 'Anti-ban integrado'],
+    downloadUrl: 'https://xenoexecutor.com/',
+    downloadLink: 'https://xenoexecutor.com/',
+    url: 'https://xenoexecutor.com/',
+    imageSrc: '/assets/Executors Tools/Xeno.jpg'
+  },
+  {
+    id: 'delta',
+    name: 'Delta',
+    category: 'executors',
+    platforms: ['windows', 'android', 'mac'],
+    access: 'free',
+    priceDisplay: 'FREE',
+    viewsDisplay: '53.3K',
+    viewsCount: 53300,
+    rating: 4.4,
+    reviewsCount: 17,
+    status: 'Actualizado',
+    description: 'El ejecutor multiplataforma más confiable y extendido. Compatible con Windows y Android con bypass estable.',
+    features: ['Soporte Android y Windows', 'Explorador de scripts en nube', 'Bajo consumo de RAM', 'Frecuentes updates'],
+    downloadUrl: 'https://deltaexploits.net/',
+    downloadLink: 'https://deltaexploits.net/',
+    url: 'https://deltaexploits.net/',
+    imageSrc: '/assets/Executors Tools/Delta.jpg'
+  },
 
-    // -------------------------------------------------------------
-    // EXTERNALS
-    // -------------------------------------------------------------
-    {
-      id: 'aimmy',
-      name: 'Aimmy',
-      category: 'externals',
-      platforms: ['windows'],
-      access: 'free',
-      priceDisplay: 'FREE',
-      viewsDisplay: '55.7K',
-      viewsCount: 55700,
-      rating: 2.6,
-      reviewsCount: 10,
-      status: 'Actualizado',
-      description: 'Herramienta de asistencia visual por IA mediante Computer Vision ONNX. Totalmente externa y libre de inyección de memoria.',
-      features: ['100% externo sin memoria', 'Modelos ONNX actualizables', 'Cero riesgo de ban de cliente', 'Código abierto'],
-      downloadUrl: 'https://aimmy.dev/',
-      downloadLink: 'https://aimmy.dev/',
-      url: 'https://aimmy.dev/',
-      imageSrc: '/assets/Executors Tools/Aimmy.jpg?v=2'
-    }
+  // -------------------------------------------------------------
+  // EXTERNALS
+  // -------------------------------------------------------------
+  {
+    id: 'aimmy',
+    name: 'Aimmy',
+    category: 'externals',
+    platforms: ['windows'],
+    access: 'free',
+    priceDisplay: 'FREE',
+    viewsDisplay: '55.7K',
+    viewsCount: 55700,
+    rating: 2.6,
+    reviewsCount: 10,
+    status: 'Actualizado',
+    description: 'Herramienta de asistencia visual por IA mediante Computer Vision ONNX. Totalmente externa y libre de inyección de memoria.',
+    features: ['100% externo sin memoria', 'Modelos ONNX actualizables', 'Cero riesgo de ban de cliente', 'Código abierto'],
+    downloadUrl: 'https://aimmy.dev/',
+    downloadLink: 'https://aimmy.dev/',
+    url: 'https://aimmy.dev/',
+    imageSrc: '/assets/Executors Tools/Aimmy.jpg?v=2'
+  }
 ];
 
 export default function HerramientasPage() {
@@ -180,8 +180,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setPlatform('all')}
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${platform === 'all'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           Todos
@@ -189,8 +189,8 @@ export default function HerramientasPage() {
         <button
           type="button"
           onClick={() => setPlatform('windows')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${platform === 'windows' ? 'bg-card-hover border border-border-theme' : 'hover:bg-card-hover/50'
-            } text-[#00ADEF]`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer text-info ${platform === 'windows' ? 'bg-info/15 border border-info shadow-sm' : 'border border-transparent hover:bg-card-hover'
+            }`}
         >
           <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
             <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.8" />
@@ -200,8 +200,8 @@ export default function HerramientasPage() {
         <button
           type="button"
           onClick={() => setPlatform('android')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${platform === 'android' ? 'bg-card-hover border border-border-theme' : 'hover:bg-card-hover/50'
-            } text-[#22C55E]`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer text-success ${platform === 'android' ? 'bg-success/15 border border-success shadow-sm' : 'border border-transparent hover:bg-card-hover'
+            }`}
         >
           <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
             <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-1.0004 0-.5518.4482-.9997.9993-.9997.5519 0 .9994.4479.9994.9997 0 .5518-.4475 1.0004-.9994 1.0004m-11.046 0c-.5511 0-.9993-.4486-.9993-1.0004 0-.5518.4482-.9997.9993-.9997.5519 0 .9994.4479.9994.9997 0 .5518-.4475 1.0004-.9994 1.0004m11.4045-6.02l1.996-3.4563a.4158.4158 0 00-.1523-.5675.4165.4165 0 00-.5684.1523l-2.0223 3.503C15.5898 8.4045 13.8553 8.082 12 8.082c-1.8554 0-3.5898.3225-5.1345.8709L4.8432 5.45c-.1318-.2284-.4247-.3066-.5684-.1523a.4158.4158 0 00-.1523.5675l1.996 3.4563C2.688 11.285 0 14.859 0 18.995h24c0-4.136-2.688-7.71-6.1185-9.6736" />
@@ -217,8 +217,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setAccess('all')}
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${access === 'all'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           Todos
@@ -227,8 +227,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setAccess('free')}
           className={`px-2 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${access === 'free'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           Gratis
@@ -237,8 +237,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setAccess('paid')}
           className={`px-2 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${access === 'paid'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           De Pago
@@ -252,8 +252,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setSort('views')}
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${sort === 'views'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           Más Vistos
@@ -262,8 +262,8 @@ export default function HerramientasPage() {
           type="button"
           onClick={() => setSort('rating')}
           className={`px-2 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${sort === 'rating'
-            ? 'bg-card-hover text-accent border border-border-theme font-bold shadow-sm'
-            : 'text-muted hover:text-foreground'
+            ? 'bg-accent text-accent-contrast border border-accent font-bold shadow-sm'
+            : 'text-muted hover:text-foreground hover:bg-card-hover border border-transparent'
             }`}
         >
           Mejor Calificados
@@ -276,7 +276,7 @@ export default function HerramientasPage() {
     <div
       key={tool.id}
       onClick={() => setSelectedTool(tool)}
-      className="bg-card border border-border-theme hover:border-neutral-700/80 rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-1 shadow-md flex flex-col group cursor-pointer"
+      className="bg-card border border-border-theme hover:border-accent/60 rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-1 shadow-md flex flex-col group cursor-pointer"
     >
       {/* Thumbnail / Portada */}
       <div className="aspect-[16/9] w-full bg-[#08090C] relative overflow-hidden">
@@ -306,21 +306,21 @@ export default function HerramientasPage() {
             <div className="flex items-center gap-1 ml-0.5">
               {tool.platforms.includes('windows') && (
                 <span title="Windows">
-                  <svg className="w-3.5 h-3.5 text-[#00ADEF] fill-current" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-info fill-current" viewBox="0 0 24 24">
                     <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.8" />
                   </svg>
                 </span>
               )}
               {tool.platforms.includes('android') && (
                 <span title="Android">
-                  <svg className="w-3.5 h-3.5 text-[#22C55E] fill-current" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-success fill-current" viewBox="0 0 24 24">
                     <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-1.0004 0-.5518.4482-.9997.9993-.9997.5519 0 .9994.4479.9994.9997 0 .5518-.4475 1.0004-.9994 1.0004m-11.046 0c-.5511 0-.9993-.4486-.9993-1.0004 0-.5518.4482-.9997.9993-.9997.5519 0 .9994.4479.9994.9997 0 .5518-.4475 1.0004-.9994 1.0004m11.4045-6.02l1.996-3.4563a.4158.4158 0 00-.1523-.5675.4165.4165 0 00-.5684.1523l-2.0223 3.503C15.5898 8.4045 13.8553 8.082 12 8.082c-1.8554 0-3.5898.3225-5.1345.8709L4.8432 5.45c-.1318-.2284-.4247-.3066-.5684-.1523a.4158.4158 0 00-.1523.5675l1.996 3.4563C2.688 11.285 0 14.859 0 18.995h24c0-4.136-2.688-7.71-6.1185-9.6736" />
                   </svg>
                 </span>
               )}
               {tool.platforms.includes('mac') && (
                 <span title="Mac">
-                  <svg className="w-3.5 h-3.5 text-muted fill-current" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-foreground fill-current" viewBox="0 0 24 24">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.85-.92.04-2.06.62-2.73 1.41-.58.67-1.1 1.74-1.01 2.79 1.03.08 2.11-.6 2.73-1.35z" />
                   </svg>
                 </span>
@@ -331,11 +331,11 @@ export default function HerramientasPage() {
           {/* Price */}
           <div>
             {tool.access === 'free' ? (
-              <span className="text-xs font-bold text-[#22C55E] tracking-wider">
+              <span className="text-xs font-bold text-success tracking-wider">
                 GRATIS
               </span>
             ) : (
-              <span className="text-xs font-semibold text-[#EF4444] tracking-tight">
+              <span className="text-xs font-semibold text-danger tracking-tight">
                 {tool.priceDisplay}
               </span>
             )}
@@ -355,7 +355,7 @@ export default function HerramientasPage() {
 
           {/* Rating */}
           <div className="flex items-center gap-1">
-            <svg className="w-3 h-3 text-[#FACC15] fill-current" viewBox="0 0 20 20">
+            <svg className="w-3 h-3 text-warning fill-current" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
             <span className="font-bold text-foreground">{tool.rating.toFixed(1)}</span>
@@ -379,7 +379,7 @@ export default function HerramientasPage() {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight mb-2">
             Ejecutores, Externales, Herramientas y Más de <span className="text-accent">Roblox</span>
           </h1>
-          <p className="text-sm md:text-base leading-relaxed text-muted">
+          <p className="text-sm md:text-base leading-relaxed text-foreground">
             Explora la colección de ejecutores, herramientas externas, utilidades y más verificadas y aprobadas por Chituk. Encuentra la herramienta perfecta para correr{' '}
             <Link href="/" className="text-accent underline font-semibold transition-colors">
               scripts de roblox
@@ -419,7 +419,7 @@ export default function HerramientasPage() {
             {/* Windows Player */}
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-0.5">
-                <svg className="w-3.5 h-3.5 text-[#00ADEF] fill-current" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 text-info fill-current" viewBox="0 0 24 24">
                   <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.8" />
                 </svg>
                 Windows Player
@@ -427,7 +427,7 @@ export default function HerramientasPage() {
               <button
                 type="button"
                 onClick={() => copyHash('version-cec3ad5889b447cf')}
-                className="text-xs font-mono text-[#22C55E] font-medium truncate hover:underline text-left transition-colors cursor-pointer"
+                className="text-xs font-mono text-success font-medium truncate hover:underline text-left transition-colors cursor-pointer"
                 title="Click para copiar"
               >
                 {copiedHash === 'version-cec3ad5889b447cf' ? '✓ Copiado' : 'version-cec3ad5889b447cf'}
@@ -440,7 +440,7 @@ export default function HerramientasPage() {
             {/* Mac Player */}
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-0.5">
-                <svg className="w-3.5 h-3.5 text-muted fill-current" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 text-foreground fill-current" viewBox="0 0 24 24">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.85-.92.04-2.06.62-2.73 1.41-.58.67-1.1 1.74-1.01 2.79 1.03.08 2.11-.6 2.73-1.35z" />
                 </svg>
                 Mac Player
@@ -448,7 +448,7 @@ export default function HerramientasPage() {
               <button
                 type="button"
                 onClick={() => copyHash('version-f9247f9560044102')}
-                className="text-xs font-mono text-[#22C55E] font-medium truncate hover:underline text-left transition-colors cursor-pointer"
+                className="text-xs font-mono text-success font-medium truncate hover:underline text-left transition-colors cursor-pointer"
                 title="Click para copiar"
               >
                 {copiedHash === 'version-f9247f9560044102' ? '✓ Copiado' : 'version-f9247f9560044102'}
@@ -556,20 +556,20 @@ export default function HerramientasPage() {
 
             <div className="p-5 flex flex-col gap-3.5 max-h-[70vh] overflow-y-auto">
               <div className="p-3.5 bg-base rounded-xl border border-border-theme">
-                <span className="text-xs font-bold text-[#00ADEF] block mb-1">Windows Player (En Vivo)</span>
-                <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">version-cec3ad5889b447cf</code>
+                <span className="text-xs font-bold text-info block mb-1">Windows Player (En Vivo)</span>
+                <code className="text-xs font-mono text-success block break-all font-semibold">version-cec3ad5889b447cf</code>
                 <span className="text-[11px] text-muted font-mono block mt-1">Anterior: version-02c37bc51a384b8f</span>
               </div>
 
               <div className="p-3.5 bg-base rounded-xl border border-border-theme">
                 <span className="text-xs font-bold text-foreground block mb-1">Mac Player (En Vivo)</span>
-                <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">version-f9247f9560044102</code>
+                <code className="text-xs font-mono text-success block break-all font-semibold">version-f9247f9560044102</code>
                 <span className="text-[11px] text-muted font-mono block mt-1">Anterior: version-3bc33ee7ffad426f</span>
               </div>
 
               <div className="p-3.5 bg-base rounded-xl border border-border-theme">
-                <span className="text-xs font-bold text-[#22C55E] block mb-1">Android APK (Cliente)</span>
-                <code className="text-xs font-mono text-[#22C55E] block break-all font-semibold">2.658.627 (64-bit armeabi-v7a)</code>
+                <span className="text-xs font-bold text-success block mb-1">Android APK (Cliente)</span>
+                <code className="text-xs font-mono text-success block break-all font-semibold">2.658.627 (64-bit armeabi-v7a)</code>
                 <span className="text-[11px] text-muted font-mono block mt-1">Anterior: 2.657.612</span>
               </div>
 

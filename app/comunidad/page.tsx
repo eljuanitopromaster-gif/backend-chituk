@@ -14,7 +14,7 @@ export default function ComunidadPage() {
       </div>
       
       {/* Content */}
-      <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-full text-xs font-bold text-[#5865F2] uppercase tracking-wider mb-4">
+      <div className="inline-flex items-center gap-2 px-3 py-1 bg-discord/15 border border-discord/35 rounded-full text-xs font-bold text-discord uppercase tracking-wider mb-4">
         Servidor Oficial
       </div>
       <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4 tracking-tight">
@@ -31,11 +31,11 @@ export default function ComunidadPage() {
           <div className="text-muted text-xs">Ayuda para configurar ejecutores y solucionar errores.</div>
         </div>
         <div className="p-3.5 bg-card border border-border-theme rounded-xl">
-          <div className="text-[#00ADEF] font-bold text-sm mb-0.5">Updates en Vivo</div>
+          <div className="text-info font-bold text-sm mb-0.5">Updates en Vivo</div>
           <div className="text-muted text-xs">Notificaciones cuando Roblox actualiza sus versiones.</div>
         </div>
         <div className="p-3.5 bg-card border border-border-theme rounded-xl">
-          <div className="text-[#22C55E] font-bold text-sm mb-0.5">Scripts Exclusivos</div>
+          <div className="text-success font-bold text-sm mb-0.5">Scripts Exclusivos</div>
           <div className="text-muted text-xs">Canales dedicados a compartir y testear nuevos scripts.</div>
         </div>
       </div>

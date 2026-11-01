@@ -217,11 +217,11 @@ export default function DashboardPage() {
               </div>
             ) : error ? (
               <div className="h-64 flex items-center justify-center">
-                <p className="text-rose-400 text-sm">{error}</p>
+                <p className="text-danger text-sm font-medium">{error}</p>
               </div>
             ) : !stats?.chartData || stats.chartData.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-border-theme/60 rounded-xl p-6 text-center">
-                <svg className="w-12 h-12 text-muted/50 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-border-theme rounded-xl p-6 text-center">
+                <svg className="w-12 h-12 text-muted mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>
                 <p className="text-foreground font-semibold">Aún no tienes scripts publicados</p>
@@ -333,7 +333,7 @@ export default function DashboardPage() {
             className="bg-card border border-border-theme rounded-2xl p-4 shadow-xl flex items-center justify-between group hover:border-accent/40 transition-colors cursor-pointer mt-1"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-base border border-border-theme flex items-center justify-center group-hover:border-accent text-yellow-500 group-hover:scale-105 transition-all shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-base border border-border-theme flex items-center justify-center group-hover:border-accent text-warning group-hover:scale-105 transition-all shrink-0">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
@@ -407,8 +407,8 @@ export default function DashboardPage() {
               <div
                 key={badge.id}
                 className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 relative overflow-hidden group ${isUnlocked
-                    ? 'bg-base/90 border-accent/50 shadow-md ring-1 ring-accent/20'
-                    : 'bg-base/40 border-border-theme/50 opacity-60 hover:opacity-80'
+                    ? 'bg-base border-accent/60 shadow-md ring-1 ring-accent/25'
+                    : 'bg-base border-border-theme hover:border-accent/30'
                   }`}
               >
                 {/* Top info */}
@@ -421,11 +421,11 @@ export default function DashboardPage() {
                   </div>
 
                   {isUnlocked ? (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/15 text-success border border-success/35">
                       ✓ Desbloqueado
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-base border border-border-theme text-muted">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-card border border-border-theme text-muted">
                       🔒 Bloqueado
                     </span>
                   )}
@@ -434,7 +434,7 @@ export default function DashboardPage() {
                 {/* Content */}
                 <div>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <h3 className={`font-bold text-sm ${isUnlocked ? 'text-foreground' : 'text-muted'}`}>
+                    <h3 className={`font-bold text-sm ${isUnlocked ? 'text-foreground' : 'text-foreground'}`}>
                       {badge.title}
                     </h3>
                   </div>
@@ -444,9 +444,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Requirement Footnote */}
-                <div className="pt-2.5 border-t border-border-theme/40 flex items-center justify-between text-[11px]">
-                  <span className="text-muted/80 font-mono">Meta:</span>
-                  <span className={`font-semibold ${isUnlocked ? 'text-accent' : 'text-muted'}`}>
+                <div className="pt-2.5 border-t border-border-theme flex items-center justify-between text-[11px]">
+                  <span className="text-muted font-mono">Meta:</span>
+                  <span className={`font-semibold ${isUnlocked ? 'text-accent' : 'text-foreground'}`}>
                     {badge.requirement}
                   </span>
                 </div>

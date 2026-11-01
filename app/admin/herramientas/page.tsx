@@ -280,8 +280,8 @@ export default function AdminHerramientasPage() {
 
   if (!canManage) {
     return (
-      <div className="p-8 bg-card border border-red-500/30 rounded-2xl text-center max-w-xl mx-auto my-12">
-        <h2 className="text-xl font-bold text-red-400 mb-2">Acceso Restringido</h2>
+      <div className="p-8 bg-card border border-danger/30 rounded-2xl text-center max-w-xl mx-auto my-12">
+        <h2 className="text-xl font-bold text-danger mb-2">Acceso Restringido</h2>
         <p className="text-muted text-sm">
           Esta sección está reservada exclusivamente para Owners, Creadores y Administradores de Chituk.
         </p>
@@ -322,16 +322,16 @@ export default function AdminHerramientasPage() {
       {/* Feedback Alert */}
       {feedbackMsg && (
         <div
-          className={`p-4 rounded-xl text-sm flex items-center justify-between border ${
+          className={`p-4 rounded-xl text-sm font-medium flex items-center justify-between border ${
             feedbackMsg.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
+              ? 'bg-success/10 border-success/30 text-success'
+              : 'bg-danger/10 border-danger/30 text-danger'
           }`}
         >
           <span>{feedbackMsg.text}</span>
           <button
             onClick={() => setFeedbackMsg(null)}
-            className="text-xs opacity-75 hover:opacity-100 uppercase font-bold ml-4"
+            className="text-xs opacity-80 hover:opacity-100 uppercase font-bold ml-4"
           >
             Cerrar
           </button>
@@ -351,7 +351,7 @@ export default function AdminHerramientasPage() {
         </div>
 
         <div className="p-4 bg-card border border-border-theme rounded-2xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold text-xl">
+          <div className="w-12 h-12 rounded-xl bg-info/15 text-info flex items-center justify-center font-bold text-xl">
             💻
           </div>
           <div>
@@ -361,7 +361,7 @@ export default function AdminHerramientasPage() {
         </div>
 
         <div className="p-4 bg-card border border-border-theme rounded-2xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center font-bold text-xl">
+          <div className="w-12 h-12 rounded-xl bg-purple-theme/15 text-purple-theme flex items-center justify-center font-bold text-xl">
             🛠️
           </div>
           <div>
@@ -387,7 +387,7 @@ export default function AdminHerramientasPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, plataforma o descripción..."
-            className="w-full bg-base border border-border-theme text-foreground rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-accent"
+            className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -498,7 +498,7 @@ export default function AdminHerramientasPage() {
                     {tool.features.slice(0, 3).map((feat, idx) => (
                       <span
                         key={idx}
-                        className="text-[10px] px-2 py-0.5 bg-neutral-800/60 rounded text-neutral-300 border border-neutral-700/50"
+                        className="text-[10px] px-2 py-0.5 bg-base rounded text-foreground font-medium border border-border-theme"
                       >
                         ✓ {feat}
                       </span>
@@ -536,7 +536,7 @@ export default function AdminHerramientasPage() {
                   <button
                     disabled={deletingId === tool.id}
                     onClick={() => handleDeleteTool(tool.id, tool.name)}
-                    className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg text-xs font-semibold hover:bg-red-500/20 transition-colors cursor-pointer disabled:opacity-50"
+                    className="px-3 py-1.5 bg-danger/10 border border-danger/30 text-danger rounded-lg text-xs font-semibold hover:bg-danger/20 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {deletingId === tool.id ? '...' : 'Eliminar'}
                   </button>
@@ -583,7 +583,7 @@ export default function AdminHerramientasPage() {
                     value={formName}
                     onChange={e => setFormName(e.target.value)}
                     placeholder="Ej. Solara, Delta, Arceus X"
-                    className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>
 
@@ -674,7 +674,7 @@ export default function AdminHerramientasPage() {
                     value={formPriceDisplay}
                     onChange={e => setFormPriceDisplay(e.target.value)}
                     placeholder="FREE o $9.99/mes"
-                    className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -691,7 +691,7 @@ export default function AdminHerramientasPage() {
                     value={formDownloadUrl}
                     onChange={e => setFormDownloadUrl(e.target.value)}
                     placeholder="https://deltaexploits.net/"
-                    className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>
 
@@ -704,7 +704,7 @@ export default function AdminHerramientasPage() {
                     value={formImageSrc}
                     onChange={e => setFormImageSrc(e.target.value)}
                     placeholder="/assets/Executors Tools/Solara.jpg o https://..."
-                    className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -720,7 +720,7 @@ export default function AdminHerramientasPage() {
                   value={formDescription}
                   onChange={e => setFormDescription(e.target.value)}
                   placeholder="Explica qué hace este ejecutor o herramienta, compatibilidad y detalles clave..."
-                  className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent resize-y"
+                  className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent resize-y"
                 ></textarea>
               </div>
 
@@ -734,7 +734,7 @@ export default function AdminHerramientasPage() {
                   value={formFeatures}
                   onChange={e => setFormFeatures(e.target.value)}
                   placeholder="Inyección en 0.5s&#10;Anti-ban integrado&#10;Soporte Luau full"
-                  className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent resize-y font-mono text-xs"
+                  className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent resize-y font-mono text-xs"
                 ></textarea>
               </div>
 
@@ -749,7 +749,7 @@ export default function AdminHerramientasPage() {
                     value={formViewsDisplay}
                     onChange={e => setFormViewsDisplay(e.target.value)}
                     placeholder="Ej. 136.7K"
-                    className="w-full bg-base border border-border-theme text-foreground rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>
 

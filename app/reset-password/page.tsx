@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
 
         {success ? (
           <div className="flex flex-col gap-4 text-center py-4">
-            <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-14 h-14 bg-success/15 border border-success/30 text-success rounded-full flex items-center justify-center mx-auto">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
           </div>
         ) : hasSession === false ? (
           <div className="flex flex-col gap-4 text-center py-4">
-            <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-14 h-14 bg-warning/15 border border-warning/30 text-warning rounded-full flex items-center justify-center mx-auto">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -173,7 +173,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
-                className="w-full bg-base border border-border-theme text-foreground rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
             </div>
 
@@ -185,12 +185,12 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder="Repite la contraseña"
-                className="w-full bg-base border border-border-theme text-foreground rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl">
+              <div className="p-3 bg-danger/10 border border-danger/25 text-danger font-medium text-xs rounded-xl">
                 {error}
               </div>
             )}

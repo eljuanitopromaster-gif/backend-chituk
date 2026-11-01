@@ -50,8 +50,8 @@ export default function TermsModal() {
     <div style={{
       position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: '#0A0F0D', // Temática selva: oscuro
-      color: '#fff',
+      backgroundColor: 'var(--bg-base)', // Temática selva: oscuro
+      color: 'var(--text-color)',
       zIndex: 999999, // Bloquea todo
       display: 'flex',
       flexDirection: 'column',
@@ -60,10 +60,10 @@ export default function TermsModal() {
       padding: '20px',
       textAlign: 'center'
     }}>
-      <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: '#FACC15', fontWeight: 'bold' }}>
+      <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>
         🌴 Reglas de la Jungla (Términos de Uso)
       </h2>
-      <div style={{ maxWidth: '650px', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2.5rem', color: '#E2E8F0', textAlign: 'left' }}>
+      <div style={{ maxWidth: '650px', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2.5rem', color: 'var(--text-color)', textAlign: 'left' }}>
         <p style={{ marginBottom: '1rem', textAlign: 'center' }}>
           Bienvenido a Chituk. Antes de explorar, debes aceptar nuestras condiciones:
         </p>
@@ -83,8 +83,8 @@ export default function TermsModal() {
         onClick={handleAccept}
         disabled={loading}
         style={{
-          backgroundColor: '#FACC15', // Color banana
-          color: '#0A0F0D',
+          backgroundColor: 'var(--color-accent)', // Color banana
+          color: 'var(--accent-contrast)',
           border: 'none',
           padding: '16px 32px',
           fontSize: '1.2rem',
@@ -93,7 +93,7 @@ export default function TermsModal() {
           cursor: loading ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s ease',
           opacity: loading ? 0.7 : 1,
-          boxShadow: '0 4px 15px rgba(250, 204, 21, 0.3)'
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
         }}
       >
         {loading ? 'Actualizando...' : 'Aceptar y Continuar'}

@@ -136,7 +136,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
                   key={theme.id}
                   type="button"
                   onClick={() => handleSelectTheme(theme.id)}
-                  className={`flex flex-col items-start gap-3.5 p-4 sm:p-4.5 rounded-xl border text-left transition-all duration-150 group cursor-pointer ${
+                  className={`flex flex-col items-start gap-3.5 p-4 sm:p-4.5 rounded-xl border text-left text-foreground transition-all duration-150 group cursor-pointer ${
                     isActive 
                       ? 'bg-card border-accent shadow-[0_0_18px_var(--color-accent)] ring-2 ring-accent' 
                       : 'bg-card border-border-theme hover:border-accent/50 hover:bg-card-hover hover:-translate-y-0.5'
@@ -155,7 +155,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
                         Activo
                       </span>
                     ) : (
-                      <span className="text-[11px] font-medium text-muted/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[11px] font-semibold text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                         Activar
                       </span>
                     )}
@@ -175,7 +175,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 border-t border-border-theme bg-card/80 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-t border-border-theme bg-card flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2.5 text-xs text-muted w-full sm:w-auto">
             <span className="font-medium">Tema actual:</span>
             <span className="font-bold text-accent px-2 py-0.5 rounded bg-accent/10 border border-accent/20">
@@ -187,7 +187,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold text-muted hover:text-foreground hover:bg-card border border-border-theme transition-colors cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold text-muted hover:text-foreground hover:bg-card-hover border border-border-theme transition-colors cursor-pointer"
             >
               Cerrar
             </button>

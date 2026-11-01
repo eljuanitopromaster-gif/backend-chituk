@@ -135,7 +135,7 @@ export default function CaptchaWidget({ onChange, compact = false, className = '
             <button
               type="button"
               onClick={loadCaptcha}
-              className="text-xs text-rose-400 hover:underline cursor-pointer shrink-0"
+              className="text-xs text-danger hover:underline cursor-pointer shrink-0 font-semibold"
             >
               Reintentar
             </button>
@@ -203,8 +203,8 @@ export default function CaptchaWidget({ onChange, compact = false, className = '
               Generando seguridad...
             </div>
           ) : fetchError ? (
-            <div className="w-[190px] h-[50px] bg-base rounded-lg border border-rose-500/30 flex flex-col items-center justify-center p-2 text-center">
-              <span className="text-[10px] text-rose-400 leading-tight mb-1">{fetchError}</span>
+            <div className="w-[190px] h-[50px] bg-base rounded-lg border border-danger/35 flex flex-col items-center justify-center p-2 text-center">
+              <span className="text-[10px] text-danger leading-tight mb-1">{fetchError}</span>
               <button
                 type="button"
                 onClick={loadCaptcha}

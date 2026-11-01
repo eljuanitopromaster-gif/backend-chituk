@@ -203,7 +203,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         <form onSubmit={handleSave} className="p-6 overflow-y-auto flex flex-col gap-6">
           
           {error && (
-            <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm rounded-xl flex items-start gap-3">
+            <div className="p-3.5 bg-danger/10 border border-danger/30 text-danger text-sm rounded-xl flex items-start gap-3">
               <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -212,7 +212,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           )}
 
           {success && (
-            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-xl flex items-center gap-3">
+            <div className="p-3.5 bg-success/10 border border-success/30 text-success text-sm rounded-xl flex items-center gap-3">
               <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -270,7 +270,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   <button
                     type="button"
                     onClick={handleRemoveAvatar}
-                    className="px-3 py-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold text-danger hover:opacity-80 transition-opacity cursor-pointer"
                   >
                     Quitar
                   </button>
@@ -286,7 +286,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 Nombre de usuario
               </label>
               {isUsernameCooldown && (
-                <span className="text-[11px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30 flex items-center gap-1">
+                <span className="text-[11px] font-bold text-warning bg-warning/15 px-2 py-0.5 rounded border border-warning/35 flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
@@ -305,7 +305,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 maxLength={30}
                 className={`w-full bg-card border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none transition-colors ${
                   isUsernameCooldown
-                    ? 'border-border-theme/40 bg-base/50 text-muted cursor-not-allowed'
+                    ? 'border-border-theme bg-base text-muted cursor-not-allowed'
                     : 'border-border-theme focus:border-accent focus:ring-1 focus:ring-accent'
                 }`}
                 placeholder="Tu nombre de usuario"
@@ -314,7 +314,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             </div>
 
             {isUsernameCooldown ? (
-              <p className="text-xs text-amber-400/90 flex items-center gap-1.5 mt-0.5">
+              <p className="text-xs text-warning flex items-center gap-1.5 mt-0.5">
                 <span>⏱️</span>
                 <span>
                   Solo puedes cambiar tu nombre de usuario cada 15 días. Podrás volver a cambiarlo el <strong>{nextAvailableDate}</strong>.
@@ -336,7 +336,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <label htmlFor="profile-email" className="text-sm font-semibold text-foreground">
                 Correo Electrónico
               </label>
-              <span className="text-[11px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
+              <span className="text-[11px] font-bold text-success bg-success/15 px-2 py-0.5 rounded border border-success/35 flex items-center gap-1">
                 ✓ Sin límites de cambio
               </span>
             </div>
@@ -378,7 +378,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               onChange={e => setBio(e.target.value)}
               maxLength={300}
               rows={3}
-              className="w-full bg-card border border-border-theme rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
+              className="w-full bg-card text-foreground placeholder:text-muted border border-border-theme rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
               placeholder="Cuéntale a la comunidad sobre ti, tus creaciones o tus redes..."
             />
           </div>

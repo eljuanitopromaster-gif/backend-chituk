@@ -96,7 +96,7 @@ export default function AdminQueuePage() {
 
   if (error) {
     return (
-      <div className="p-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl max-w-lg mx-auto">
+      <div className="p-6 bg-danger/10 border border-danger/30 text-danger font-medium rounded-xl max-w-lg mx-auto">
         {error}
       </div>
     );
@@ -119,7 +119,7 @@ export default function AdminQueuePage() {
       
       {scripts.length === 0 ? (
         <div className="p-8 sm:p-12 bg-card border border-border-theme rounded-2xl text-center text-muted">
-          <svg className="w-12 h-12 mx-auto mb-3 text-muted/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-12 h-12 mx-auto mb-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="font-semibold text-foreground">¡Todo al día!</p>
@@ -143,7 +143,7 @@ export default function AdminQueuePage() {
                   </button>
                   <button 
                     onClick={() => handleAction(script.id, 'reject')}
-                    className="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-rose-500/20 transition-colors cursor-pointer"
+                    className="bg-danger/10 text-danger border border-danger/30 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-danger/20 transition-colors cursor-pointer"
                   >
                     Rechazar
                   </button>
@@ -157,7 +157,7 @@ export default function AdminQueuePage() {
               </div>
               
               {script.description && (
-                <p className="text-foreground/90 text-sm">{script.description}</p>
+                <p className="text-foreground text-sm">{script.description}</p>
               )}
               
               <div className="bg-base rounded-xl border border-border-theme p-4 max-h-64 overflow-y-auto">

@@ -11,6 +11,7 @@ export interface GameOption {
   placeId: string;
   universeId?: string;
   icon: string;
+  image?: string;
   category: string;
 }
 
@@ -49,17 +50,17 @@ interface SubmitScriptFormProps {
 
 // Lista de juegos populares precargados para el buscador rápido de Roblox
 const POPULAR_ROBLOX_GAMES: GameOption[] = [
-  { id: '2753915549', name: 'Blox Fruits', placeId: '2753915549', icon: '🍇', category: 'Anime / RPG' },
-  { id: '2788229376', name: 'Da Hood', placeId: '2788229376', icon: '👊', category: 'PVP / Ciudad' },
-  { id: '13772394625', name: 'Blade Ball', placeId: '13772394625', icon: '⚔️', category: 'Acción / Minijuego' },
-  { id: '8737899170', name: 'Pet Simulator 99', placeId: '8737899170', icon: '🐱', category: 'Colección / Granja' },
+  { id: '2753915549', name: 'Blox Fruits', placeId: '2753915549', icon: '🍇', image: '/games/bloxfruits.png', category: 'Anime / RPG' },
+  { id: '2788229376', name: 'Da Hood', placeId: '2788229376', icon: '👊', image: '/games/dahood.png', category: 'PVP / Ciudad' },
+  { id: '13772394625', name: 'Blade Ball', placeId: '13772394625', icon: '⚔️', image: '/games/bladeball.png', category: 'Acción / Minijuego' },
+  { id: '8737899170', name: 'Pet Simulator 99', placeId: '8737899170', icon: '🐱', image: '/games/petsimulator99.png', category: 'Colección / Granja' },
   { id: '16732694052', name: 'Fisch', placeId: '16732694052', icon: '🎣', category: 'Aventura / Pesca' },
   { id: '6516141723', name: 'Doors [Floor 2]', placeId: '6516141723', icon: '👁️', category: 'Terror / Escape' },
-  { id: '286090429', name: 'Arsenal', placeId: '286090429', icon: '🔫', category: 'FPS / Disparos' },
+  { id: '286090429', name: 'Arsenal', placeId: '286090429', icon: '🔫', image: '/games/arsenal.png', category: 'FPS / Disparos' },
   { id: '17625359962', name: 'Rivals', placeId: '17625359962', icon: '🎯', category: 'FPS Competitivo' },
-  { id: '4924922222', name: 'Brookhaven RP', placeId: '4924922222', icon: '🏠', category: 'Roleplay' },
-  { id: '92898409', name: 'Adopt Me!', placeId: '92898409', icon: '🐶', category: 'Roleplay / Mascotas' },
-  { id: '142823291', name: 'Murder Mystery 2', placeId: '142823291', icon: '🔪', category: 'Supervivencia' },
+  { id: '4924922222', name: 'Brookhaven RP', placeId: '4924922222', icon: '🏠', image: '/games/brookhaven.png', category: 'Roleplay' },
+  { id: '92898409', name: 'Adopt Me!', placeId: '92898409', icon: '🐶', image: '/games/adoptme.png', category: 'Roleplay / Mascotas' },
+  { id: '142823291', name: 'Murder Mystery 2', placeId: '142823291', icon: '🔪', image: '/games/mm2.png', category: 'Supervivencia' },
   { id: '15532962292', name: "Sol's RNG", placeId: '15532962292', icon: '🎲', category: 'RNG / Auras' },
 ];
 
@@ -381,7 +382,7 @@ export default function SubmitScriptForm({
 
       {/* Alerta de Error si existe */}
       {formError && (
-        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-3 backdrop-blur-md">
+        <div className="p-4 rounded-2xl bg-danger/10 border border-danger/30 text-danger text-sm flex items-center gap-3 backdrop-blur-md">
           <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -424,7 +425,7 @@ export default function SubmitScriptForm({
                   {targetType === 'universal' ? 'Universal' : selectedGame?.name || 'Roblox'}
                 </span>
                 {properties.mobileFriendly && (
-                  <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/40 backdrop-blur-md shadow-md">
+                  <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-card/95 text-info border border-info/40 backdrop-blur-md shadow-md">
                     📱 Mobile
                   </span>
                 )}
@@ -442,21 +443,21 @@ export default function SubmitScriptForm({
               {/* Badges de propiedades adaptables */}
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {properties.keySystem && (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-warning/15 text-warning border border-warning/35">
                     🔑 Key System
                   </span>
                 )}
                 {properties.paid ? (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-success/15 text-success border border-success/35">
                     💎 Paid
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-accent/20 text-accent border border-accent/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-accent/15 text-accent border border-accent/35">
                     Gratis
                   </span>
                 )}
                 {properties.openSource && (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-theme/15 text-purple-theme border border-purple-theme/35">
                     🔓 Open Source
                   </span>
                 )}
@@ -507,7 +508,7 @@ export default function SubmitScriptForm({
               onClick={() => setTargetType('specific')}
               className={`relative cursor-pointer rounded-2xl p-5 border-2 transition-all duration-200 flex items-start gap-4 ${targetType === 'specific'
                   ? 'border-accent bg-accent/10 shadow-[0_0_20px_var(--color-accent)]'
-                  : 'border-border-theme bg-base/60 hover:bg-card-hover hover:border-border-theme'
+                  : 'border-border-theme bg-base hover:bg-card-hover hover:border-border-theme'
                 }`}
             >
               <div
@@ -526,7 +527,7 @@ export default function SubmitScriptForm({
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${targetType === 'specific'
                         ? 'border-accent bg-accent text-accent-contrast'
-                        : 'border-muted/50'
+                        : 'border-muted'
                       }`}
                   >
                     {targetType === 'specific' && (
@@ -545,7 +546,7 @@ export default function SubmitScriptForm({
               onClick={() => setTargetType('universal')}
               className={`relative cursor-pointer rounded-2xl p-5 border-2 transition-all duration-200 flex items-start gap-4 ${targetType === 'universal'
                   ? 'border-accent bg-accent/10 shadow-[0_0_20px_var(--color-accent)]'
-                  : 'border-border-theme bg-base/60 hover:bg-card-hover hover:border-border-theme'
+                  : 'border-border-theme bg-base hover:bg-card-hover hover:border-border-theme'
                 }`}
             >
               <div
@@ -564,7 +565,7 @@ export default function SubmitScriptForm({
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${targetType === 'universal'
                         ? 'border-accent bg-accent text-accent-contrast'
-                        : 'border-muted/50'
+                        : 'border-muted'
                       }`}
                   >
                     {targetType === 'universal' && (
@@ -603,7 +604,7 @@ export default function SubmitScriptForm({
                       setIsGameDropdownOpen(true);
                     }}
                     placeholder="Buscar por nombre (ej: Blox Fruits) o pegar Place ID..."
-                    className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-10 py-3.5 text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+                    className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-10 py-3.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                   />
                   {gameSearchQuery && (
                     <button
@@ -634,7 +635,11 @@ export default function SubmitScriptForm({
                             }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-2xl">{game.icon}</span>
+                            {game.image ? (
+                              <img src={game.image} alt={game.name} className="w-8 h-8 rounded-lg object-cover shrink-0 border border-border-theme/40" />
+                            ) : (
+                              <span className="text-2xl">{game.icon}</span>
+                            )}
                             <div>
                               <p className="font-bold text-sm text-foreground">{game.name}</p>
                               <p className="text-[11px] text-muted">{game.category}</p>
@@ -678,12 +683,17 @@ export default function SubmitScriptForm({
                     key={game.id}
                     type="button"
                     onClick={() => setSelectedGame(game)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${selectedGame?.placeId === game.placeId
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${selectedGame?.placeId === game.placeId
                         ? 'bg-accent text-accent-contrast font-bold shadow-sm'
                         : 'bg-base text-muted hover:text-foreground border border-border-theme hover:border-accent/40'
                       }`}
                   >
-                    {game.icon} {game.name}
+                    {game.image ? (
+                      <img src={game.image} alt="" className="w-3.5 h-3.5 rounded-full object-cover inline-block" />
+                    ) : (
+                      <span>{game.icon}</span>
+                    )}
+                    {game.name}
                   </button>
                 ))}
               </div>
@@ -692,8 +702,12 @@ export default function SubmitScriptForm({
               {selectedGame && (
                 <div className="mt-3 p-4 rounded-2xl bg-base border border-border-theme flex items-center justify-between gap-4 shadow-sm">
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <div className="w-12 h-12 rounded-xl bg-card border border-border-theme flex items-center justify-center text-2xl shrink-0 shadow-inner">
-                      {selectedGame.icon}
+                    <div className="w-12 h-12 rounded-xl bg-card border border-border-theme flex items-center justify-center text-2xl shrink-0 shadow-inner overflow-hidden">
+                      {selectedGame.image ? (
+                        <img src={selectedGame.image} alt={selectedGame.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{selectedGame.icon}</span>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -758,7 +772,7 @@ export default function SubmitScriptForm({
                   Título del Script <span className="text-accent">*</span>
                 </label>
                 <span
-                  className={`text-xs font-mono ${title.length > 70 ? 'text-amber-500 font-bold' : 'text-muted'
+                  className={`text-xs font-mono ${title.length > 70 ? 'text-warning font-bold' : 'text-muted'
                     }`}
                 >
                   {title.length}/80
@@ -771,7 +785,7 @@ export default function SubmitScriptForm({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ej. [V4 OP] Blox Fruits Auto Farm, Auto Chest & Fast Attack Hub"
-                className="w-full bg-base border border-border-theme rounded-2xl px-4 py-3.5 text-sm sm:text-base text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all font-medium"
+                className="w-full bg-base border border-border-theme rounded-2xl px-4 py-3.5 text-sm sm:text-base text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all font-medium"
               />
               <p className="text-[11px] text-muted">
                 Tip: Incluye palabras clave como [OP], [Keyless], la versión o las funciones más destacadas.
@@ -791,7 +805,7 @@ export default function SubmitScriptForm({
                   <button
                     type="button"
                     onClick={() => setThumbnailUrl(null)}
-                    className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-danger hover:opacity-80 transition-opacity cursor-pointer"
                   >
                     Eliminar imagen
                   </button>
@@ -971,7 +985,7 @@ export default function SubmitScriptForm({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe cómo funciona el script, requisitos de ejecución (ej. Delta, Codex, Hydrogen, Wave), características principales y precauciones..."
-                  className="w-full bg-transparent p-4 text-sm text-foreground placeholder:text-muted/60 focus:outline-none resize-y min-h-[120px] font-sans leading-relaxed"
+                  className="w-full bg-base text-foreground placeholder:text-muted p-4 text-sm focus:outline-none resize-y min-h-[120px] font-sans leading-relaxed"
                 />
               </div>
             </div>
@@ -1028,7 +1042,7 @@ export default function SubmitScriptForm({
                       <button
                         type="button"
                         onClick={() => setScriptLua('')}
-                        className="px-2.5 py-1.5 rounded-lg bg-card hover:bg-red-500/20 text-muted hover:text-red-400 text-xs font-mono transition-colors border border-border-theme cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-lg bg-card hover:bg-danger/15 text-muted hover:text-danger text-xs font-mono transition-colors border border-border-theme cursor-pointer"
                       >
                         Limpiar
                       </button>
@@ -1044,7 +1058,7 @@ export default function SubmitScriptForm({
                   value={scriptLua}
                   onChange={(e) => setScriptLua(e.target.value)}
                   placeholder={`-- Pega aquí el script o cargador loadstring de tu script\nloadstring(game:HttpGet("https://raw.githubusercontent.com/..."))()`}
-                  className="w-full bg-[#060908] p-4 font-mono text-xs sm:text-sm text-emerald-400 placeholder:text-neutral-500 focus:outline-none resize-y min-h-[200px] leading-relaxed selection:bg-accent/30 selection:text-white"
+                  className="w-full bg-[#060908] p-4 font-mono text-xs sm:text-sm text-emerald-400 placeholder:text-slate-400 focus:outline-none resize-y min-h-[200px] leading-relaxed selection:bg-accent/30 selection:text-white"
                   spellCheck="false"
                   autoCapitalize="none"
                   autoComplete="off"
@@ -1079,7 +1093,7 @@ export default function SubmitScriptForm({
                     value={creditsText}
                     onChange={(e) => setCreditsText(e.target.value)}
                     placeholder="Ej. Créditos de UI Library a Shlex / Código base por DevX..."
-                    className="w-full bg-card border border-border-theme rounded-xl px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                    className="w-full bg-card border border-border-theme rounded-xl px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                 </div>
               )}
@@ -1109,15 +1123,15 @@ export default function SubmitScriptForm({
             <div
               onClick={() => toggleProperty('keySystem')}
               className={`cursor-pointer rounded-2xl p-4 border-2 transition-all duration-200 select-none flex flex-col justify-between gap-3 ${properties.keySystem
-                  ? 'border-amber-500 bg-amber-500/15 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                  : 'border-border-theme bg-base/60 hover:bg-card-hover'
+                  ? 'border-warning bg-warning/15 shadow-sm'
+                  : 'border-border-theme bg-base hover:bg-card-hover'
                 }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">🔑</span>
                 <span
                   className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${properties.keySystem
-                      ? 'bg-amber-500/25 text-amber-700 dark:text-amber-400 border border-amber-500/40'
+                      ? 'bg-warning/20 text-warning border border-warning/40'
                       : 'bg-card text-muted border border-border-theme'
                     }`}
                 >
@@ -1134,15 +1148,15 @@ export default function SubmitScriptForm({
             <div
               onClick={() => toggleProperty('mobileFriendly')}
               className={`cursor-pointer rounded-2xl p-4 border-2 transition-all duration-200 select-none flex flex-col justify-between gap-3 ${properties.mobileFriendly
-                  ? 'border-cyan-500 bg-cyan-500/15 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
-                  : 'border-border-theme bg-base/60 hover:bg-card-hover'
+                  ? 'border-info bg-info/15 shadow-sm'
+                  : 'border-border-theme bg-base hover:bg-card-hover'
                 }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">📱</span>
                 <span
                   className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${properties.mobileFriendly
-                      ? 'bg-cyan-500/25 text-cyan-700 dark:text-cyan-400 border border-cyan-500/40'
+                      ? 'bg-info/20 text-info border border-info/40'
                       : 'bg-card text-muted border border-border-theme'
                     }`}
                 >
@@ -1159,15 +1173,15 @@ export default function SubmitScriptForm({
             <div
               onClick={() => toggleProperty('openSource')}
               className={`cursor-pointer rounded-2xl p-4 border-2 transition-all duration-200 select-none flex flex-col justify-between gap-3 ${properties.openSource
-                  ? 'border-indigo-500 bg-indigo-500/15 shadow-[0_0_15px_rgba(99,102,241,0.15)]'
-                  : 'border-border-theme bg-base/60 hover:bg-card-hover'
+                  ? 'border-purple-theme bg-purple-theme/15 shadow-sm'
+                  : 'border-border-theme bg-base hover:bg-card-hover'
                 }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-2xl">🔓</span>
                 <span
                   className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${properties.openSource
-                      ? 'bg-indigo-500/25 text-indigo-700 dark:text-indigo-400 border border-indigo-500/40'
+                      ? 'bg-purple-theme/20 text-purple-theme border border-purple-theme/40'
                       : 'bg-card text-muted border border-border-theme'
                     }`}
                 >
@@ -1200,7 +1214,7 @@ export default function SubmitScriptForm({
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="hover:text-red-500 transition-colors ml-0.5 cursor-pointer"
+                    className="hover:text-danger transition-colors ml-0.5 cursor-pointer"
                   >
                     ✕
                   </button>
@@ -1213,7 +1227,7 @@ export default function SubmitScriptForm({
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 placeholder={tags.length === 0 ? 'Escribe una etiqueta y presiona Enter...' : 'Agregar tag...'}
-                className="flex-1 min-w-[140px] bg-transparent text-sm text-foreground placeholder:text-muted/60 focus:outline-none px-2 py-1"
+                className="flex-1 min-w-[140px] bg-transparent text-sm text-foreground placeholder:text-muted focus:outline-none px-2 py-1"
               />
             </div>
 
@@ -1251,7 +1265,7 @@ export default function SubmitScriptForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Discord */}
               <div className="relative flex items-center">
-                <span className="absolute left-4 text-[#5865F2]">
+                <span className="absolute left-4 text-discord">
                   <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
                   </svg>
@@ -1261,7 +1275,7 @@ export default function SubmitScriptForm({
                   value={links.discord}
                   onChange={(e) => setLinks({ ...links, discord: e.target.value })}
                   placeholder="https://discord.gg/tu-servidor"
-                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2]"
+                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-discord focus:ring-1 focus:ring-discord"
                 />
               </div>
 
@@ -1277,7 +1291,7 @@ export default function SubmitScriptForm({
                   value={links.youtube}
                   onChange={(e) => setLinks({ ...links, youtube: e.target.value })}
                   placeholder="https://youtube.com/watch?v=..."
-                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000]"
+                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000]"
                 />
               </div>
 
@@ -1293,7 +1307,7 @@ export default function SubmitScriptForm({
                   value={links.roblox}
                   onChange={(e) => setLinks({ ...links, roblox: e.target.value })}
                   placeholder="https://roblox.com/groups/... o perfil"
-                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                 />
               </div>
 
@@ -1309,7 +1323,7 @@ export default function SubmitScriptForm({
                   value={links.website}
                   onChange={(e) => setLinks({ ...links, website: e.target.value })}
                   placeholder="https://tu-sitio-o-documentacion.com"
-                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                  className="w-full bg-base border border-border-theme rounded-2xl pl-12 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                 />
               </div>
             </div>

@@ -8,7 +8,7 @@ export default function TerminosPage() {
         <h1 className="text-3xl font-bold text-foreground">Términos de Servicio</h1>
       </div>
       
-      <div className="bg-card border border-border-theme rounded-2xl p-8 text-foreground/90 leading-relaxed space-y-6 shadow-xl">
+      <div className="bg-card border border-border-theme rounded-2xl p-8 text-foreground leading-relaxed space-y-6 shadow-xl">
         <section>
           <h2 className="text-xl font-bold text-accent mb-2">1. Aceptación de los Términos</h2>
           <p className="text-sm text-muted leading-relaxed">

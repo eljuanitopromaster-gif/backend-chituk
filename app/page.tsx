@@ -106,11 +106,11 @@ export default function ChitukPage() {
         ) : (
           scripts.map(script => (
             <div key={script.id} className="bg-card border border-border-theme rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group">
-              <div className="h-40 bg-base relative border-b border-border-theme flex items-center justify-center">
+              <div className="h-40 bg-base relative border-b border-border-theme flex items-center justify-center overflow-hidden">
                 {script.image ? (
-                  <img src={script.image} alt={script.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <img src={script.image} alt={script.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
-                  <div className="text-muted/40 font-mono text-3xl">&lt;/&gt;</div>
+                  <div className="text-muted font-mono text-3xl">&lt;/&gt;</div>
                 )}
               </div>
               <div className="p-4 md:p-6 flex flex-col flex-1">
@@ -125,16 +125,16 @@ export default function ChitukPage() {
                 {script.scriptMode && script.scriptMode !== 'script' && (
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {script.scriptMode.includes('no-key') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">No key</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">No key</span>
                     )}
                     {script.scriptMode.includes('mobile-friendly') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Mobile</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Mobile</span>
                     )}
                     {script.scriptMode.includes('open-source') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Open source</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Open source</span>
                     )}
                     {script.scriptMode.includes('paid') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Paid</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Paid</span>
                     )}
                   </div>
                 )}
@@ -146,7 +146,7 @@ export default function ChitukPage() {
                     <div className="w-6 h-6 rounded-full bg-base border border-border-theme flex items-center justify-center text-[10px] text-foreground font-bold shrink-0">
                       {(script.authorName || script.authorId).charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-xs text-muted font-medium truncate max-w-[100px]">
+                    <span className="text-xs text-foreground font-medium truncate max-w-[100px]">
                       {script.authorName || script.authorId}
                     </span>
                   </div>
@@ -155,8 +155,8 @@ export default function ChitukPage() {
                     <button
                       onClick={() => handleLike(script.id)}
                       className={`flex items-center gap-1 text-xs font-bold transition-colors ${(typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id))
-                          ? 'text-red-500'
-                          : 'text-muted hover:text-red-500'
+                          ? 'text-danger'
+                          : 'text-muted hover:text-danger'
                         }`}
                       title="Me gusta"
                     >

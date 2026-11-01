@@ -9,7 +9,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+
   const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
 
   useEffect(() => {
@@ -35,11 +35,10 @@ export default function Sidebar() {
 
   const navLinkClass = (path: string) => {
     const isActive = pathname === path;
-    return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-      isActive
-        ? 'bg-card text-accent font-semibold shadow-sm border border-border-theme'
+    return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
+        ? 'bg-accent/15 text-accent font-bold shadow-sm border border-accent/40'
         : 'text-muted hover:text-foreground hover:bg-card-hover'
-    }`;
+      }`;
   };
 
   const renderNavLinks = (onItemClick?: () => void) => (
@@ -73,8 +72,8 @@ export default function Sidebar() {
             Favoritos
           </Link>
           {user && (
-            <Link 
-              href="/publicar" 
+            <Link
+              href="/publicar"
               onClick={onItemClick}
               className="mt-2 flex justify-center items-center gap-2 px-4 py-2.5 bg-accent text-accent-contrast rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
             >
@@ -89,7 +88,7 @@ export default function Sidebar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            Ejecutores y Herramientas
+            Herramientas
           </Link>
           <Link href="/comunidad" onClick={onItemClick} className={navLinkClass('/comunidad')}>
             <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -239,25 +238,25 @@ export default function Sidebar() {
           <Link href="/terminos" onClick={onItemClick} className="hover:text-foreground transition-colors cursor-pointer font-medium">
             Términos
           </Link>
-          <span className="text-border-theme select-none">•</span>
+          <span className="text-muted select-none">•</span>
           <Link href="/privacidad" onClick={onItemClick} className="hover:text-foreground transition-colors cursor-pointer font-medium">
             Privacidad
           </Link>
-          <span className="text-border-theme select-none">•</span>
+          <span className="text-muted select-none">•</span>
           <a
             href="https://discord.gg/mdvByagDr3"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#5865F2] transition-colors cursor-pointer font-semibold flex items-center gap-1 group"
+            className="hover:text-discord transition-colors cursor-pointer font-semibold flex items-center gap-1 group"
             title="Unirse al Discord de Chituk"
           >
-            <svg className="w-3.5 h-3.5 text-[#5865F2] fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.0777.0777 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+            <svg className="w-3.5 h-3.5 text-discord fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.0777.0777 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
             </svg>
             Discord
           </a>
         </div>
-        <p className="text-[11px] text-muted/70">© 2026 Chituk</p>
+        <p className="text-[11px] text-muted">© 2026 Chituk</p>
       </div>
     </>
   );
@@ -273,7 +272,7 @@ export default function Sidebar() {
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           {/* Backdrop */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileOpen(false)}
             aria-label="Cerrar menú"
@@ -283,8 +282,8 @@ export default function Sidebar() {
           <aside className="relative w-[280px] max-w-[85vw] bg-base border-r border-border-theme h-full flex flex-col z-10 shadow-2xl overflow-hidden">
             {/* Drawer Header */}
             <div className="h-16 px-4 flex items-center justify-between border-b border-border-theme shrink-0 bg-card/60">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 onClick={() => setIsMobileOpen(false)}
                 className="text-lg font-bold text-foreground flex items-center tracking-tight"
               >

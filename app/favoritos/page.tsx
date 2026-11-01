@@ -226,7 +226,7 @@ export default function FavoritosPage() {
                   {/* Botón para remover de favoritos */}
                   <button
                     onClick={() => handleRemoveFavorite(script.id)}
-                    className="text-yellow-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-base border border-transparent hover:border-border-theme transition-colors cursor-pointer shrink-0"
+                    className="text-warning hover:text-danger p-1.5 rounded-lg hover:bg-base border border-transparent hover:border-border-theme transition-colors cursor-pointer shrink-0"
                     title="Quitar de favoritos"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
