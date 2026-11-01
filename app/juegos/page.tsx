@@ -6,7 +6,8 @@ import Link from 'next/link';
 interface GameItem {
   id: number;
   name: string;
-  icon: string;
+  image: string;
+  icon?: string;
   color: string;
   keywords: string[];
 }
@@ -15,6 +16,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 1,
     name: 'Blox Fruits',
+    image: '/games/bloxfruits.png',
     icon: '🍇',
     color: 'from-purple-500/20 to-transparent',
     keywords: ['blox fruits', 'bloxfruits']
@@ -22,6 +24,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 2,
     name: 'Da Hood',
+    image: '/games/dahood.png',
     icon: '👊',
     color: 'from-red-500/20 to-transparent',
     keywords: ['da hood', 'dahood']
@@ -29,6 +32,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 3,
     name: 'Arsenal',
+    image: '/games/arsenal.png',
     icon: '🔫',
     color: 'from-green-500/20 to-transparent',
     keywords: ['arsenal']
@@ -36,6 +40,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 4,
     name: 'Adopt Me!',
+    image: '/games/adoptme.png',
     icon: '🐶',
     color: 'from-blue-500/20 to-transparent',
     keywords: ['adopt me', 'adoptme']
@@ -43,6 +48,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 5,
     name: 'Pet Simulator 99',
+    image: '/games/petsimulator99.png',
     icon: '🐱',
     color: 'from-yellow-500/20 to-transparent',
     keywords: ['pet simulator 99', 'pet simulator', 'ps99']
@@ -50,6 +56,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 6,
     name: 'Murder Mystery 2',
+    image: '/games/mm2.png',
     icon: '🔪',
     color: 'from-orange-500/20 to-transparent',
     keywords: ['murder mystery 2', 'murder mystery', 'mm2']
@@ -57,6 +64,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 7,
     name: 'Blade Ball',
+    image: '/games/bladeball.png',
     icon: '⚔️',
     color: 'from-red-600/20 to-transparent',
     keywords: ['blade ball', 'bladeball']
@@ -64,6 +72,7 @@ const BASE_GAMES: GameItem[] = [
   {
     id: 8,
     name: 'Brookhaven RP',
+    image: '/games/brookhaven.png',
     icon: '🏠',
     color: 'from-sky-500/20 to-transparent',
     keywords: ['brookhaven rp', 'brookhaven']
@@ -145,19 +154,24 @@ export default function JuegosPage() {
             <Link 
               key={game.id} 
               href={`/scripts?search=${encodeURIComponent(game.name)}`}
-              className="group relative bg-card border border-border-theme rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-accent/5 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
+              className="group relative bg-card border border-border-theme rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-accent/5 hover:border-accent/60 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
             >
               {/* Background Gradient Effect */}
               <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
               
               {/* Content */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-base border border-border-theme rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                  {game.icon}
+              <div className="relative z-10 flex flex-col items-center w-full">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-base border border-border-theme rounded-2xl flex items-center justify-center overflow-hidden mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                  <img
+                    src={game.image}
+                    alt={game.name}
+                    className="w-full h-full object-cover select-none"
+                    loading="lazy"
+                  />
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-border-theme rounded-full text-xs font-bold text-muted">
-                  <div className={`w-1.5 h-1.5 rounded-full ${scriptCount > 0 ? 'bg-[#22C55E]' : 'bg-neutral-500'}`}></div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-border-theme rounded-full text-xs font-bold text-foreground">
+                  <div className={`w-1.5 h-1.5 rounded-full ${scriptCount > 0 ? 'bg-success' : 'bg-muted'}`}></div>
                   {scriptCount} Scripts disponibles
                 </span>
               </div>
@@ -167,7 +181,7 @@ export default function JuegosPage() {
       </div>
       
       {/* Search Hint or Missing Game */}
-      <div className="mt-10 sm:mt-16 flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-card/40 border border-border-theme/70 rounded-2xl border-dashed">
+      <div className="mt-10 sm:mt-16 flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-card border border-border-theme rounded-2xl border-dashed">
         <svg className="w-8 h-8 text-muted mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
