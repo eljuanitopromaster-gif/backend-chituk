@@ -240,7 +240,7 @@ export default function ScriptViewPage() {
   if (error || !script) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 gap-4 text-foreground min-h-screen">
-        <p className="text-red-400 text-lg">{error || 'Script no encontrado'}</p>
+        <p className="text-danger font-semibold text-lg">{error || 'Script no encontrado'}</p>
         <button onClick={() => router.push('/')} className="text-muted hover:text-foreground transition-colors underline">Volver al inicio</button>
       </div>
     );
@@ -266,21 +266,21 @@ export default function ScriptViewPage() {
           
           {/* Badges */}
           {script.is_mobile_friendly && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 text-cyan-400 font-bold text-xs bg-black/60 px-2 py-1 rounded">
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 text-cyan-300 font-bold text-xs bg-black/75 px-2.5 py-1 rounded backdrop-blur-sm">
                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                </svg>
                PARA MÓVIL
             </div>
           )}
-          <div className="absolute bottom-4 left-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold text-white flex items-center gap-1.5">
+          <div className="absolute bottom-4 left-4 bg-black/75 px-2.5 py-1 rounded text-xs font-bold text-white flex items-center gap-1.5 backdrop-blur-sm">
              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
              </svg>
              {script.views || 0}
           </div>
-          <div className="absolute bottom-4 right-4 bg-black/60 px-2.5 py-1 rounded text-xs font-bold text-white">
+          <div className="absolute bottom-4 right-4 bg-black/75 px-2.5 py-1 rounded text-xs font-bold text-white backdrop-blur-sm">
              {timeAgo(script.createdAt)}
           </div>
         </div>
@@ -334,26 +334,26 @@ export default function ScriptViewPage() {
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {script.scriptMode?.includes('no-key') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-foreground font-bold text-xs rounded-lg border border-border-theme">
+                <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 Sin key
               </div>
             )}
             {script.is_mobile_friendly && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-foreground font-bold text-xs rounded-lg border border-border-theme">
+                <svg className="w-4 h-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                 Para móvil
               </div>
             )}
             {script.scriptMode?.includes('open-source') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-foreground font-bold text-xs rounded-lg border border-border-theme">
+                <svg className="w-4 h-4 text-purple-theme" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
                 Código abierto
               </div>
             )}
             {script.scriptMode?.includes('paid') && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-muted font-bold text-xs rounded-lg border border-border-theme">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-card text-foreground font-bold text-xs rounded-lg border border-border-theme">
+                <svg className="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 De pago
               </div>
             )}
@@ -370,7 +370,7 @@ export default function ScriptViewPage() {
                 {script.favorites || 0} FAVORITOS
              </button>
              <button onClick={handleLike} className={`flex items-center gap-2 transition-colors cursor-pointer ${
-               isLiked ? 'text-red-500' : 'hover:text-foreground'
+               isLiked ? 'text-danger' : 'hover:text-foreground'
              }`}>
                 <svg className="w-4 h-4" fill={isLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -452,7 +452,7 @@ export default function ScriptViewPage() {
                 </button>
               </div>
               <div className="p-6 pt-16 overflow-x-auto min-h-[150px]">
-                <pre className="text-sm font-mono text-muted">
+                <pre className="text-sm font-mono text-foreground">
                   {script.script}
                 </pre>
               </div>
@@ -469,7 +469,7 @@ export default function ScriptViewPage() {
       {/* Notificación flotante de Favoritos */}
       {favToast && (
         <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 bg-card border border-border-theme shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
-          <div className="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-warning/20 text-warning flex items-center justify-center shrink-0">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>

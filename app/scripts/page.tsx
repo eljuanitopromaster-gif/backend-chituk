@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../components/AuthProvider';
 
 type ScriptItem = {
@@ -22,22 +22,23 @@ type ScriptItem = {
   likesCount?: number;
 };
 
-export default function ScriptsCatalogPage() {
+function ScriptsCatalogContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [scripts, setScripts] = useState<ScriptItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('all');
-  const router = useRouter();
+
+  // Sincronizar término de búsqueda desde URL query params (?search= o ?game=)
+  useEffect(() => {
+    const query = searchParams?.get('search') || searchParams?.get('game') || '';
+    if (query) {
+      setSearchTerm(query);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const query = params.get('search') || params.get('game');
-      if (query) {
-        setSearchTerm(query);
-      }
-    }
-
     const fetchScripts = async () => {
       try {
         const res = await fetch('/api/scripts');
@@ -112,17 +113,53 @@ export default function ScriptsCatalogPage() {
             <span className="text-accent">&lt;/&gt;</span> Catálogo de Scripts
           </h1>
           <p className="text-muted text-sm sm:text-base">Encuentra y utiliza scripts compartidos por la comunidad.</p>
+          
+          {/* Badge de filtro activo */}
+          {searchTerm && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-xs text-muted">Filtrando por:</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-accent/15 text-accent border border-accent/30 shadow-xs">
+                &quot;{searchTerm}&quot;
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    router.replace('/scripts');
+                  }}
+                  className="hover:text-foreground cursor-pointer text-sm font-black ml-1 transition-colors"
+                  title="Quitar filtro"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          <input
-            type="text"
-            placeholder="Buscar por título o descripción..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full sm:w-64 px-4 py-2 bg-card border border-border-theme rounded-lg text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
-          />
+          <div className="relative w-full sm:w-72">
+            <input
+              type="text"
+              placeholder="Buscar por título o descripción..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 bg-card border border-border-theme rounded-lg text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent pr-8"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  router.replace('/scripts');
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-foreground cursor-pointer p-1"
+                title="Limpiar búsqueda"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
           <select
             value={selectedLanguage}
@@ -143,17 +180,29 @@ export default function ScriptsCatalogPage() {
           <p className="text-muted col-span-full text-center py-12">Cargando scripts del servidor...</p>
         ) : filteredScripts.length === 0 ? (
           <div className="col-span-full text-center py-16 bg-card border border-border-theme rounded-xl p-8">
-            <p className="text-muted text-lg mb-2">No se encontraron scripts.</p>
-            <p className="text-muted/70 text-sm">Intenta con otro término de búsqueda o publica el primero.</p>
+            <p className="text-foreground font-semibold text-lg mb-2">No se encontraron scripts.</p>
+            <p className="text-muted text-sm">Intenta con otro término de búsqueda o publica el primero.</p>
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  router.replace('/scripts');
+                }}
+                className="mt-4 px-4 py-2 rounded-xl bg-accent text-accent-contrast font-bold text-xs hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                Ver todos los scripts
+              </button>
+            )}
           </div>
         ) : (
           filteredScripts.map(script => (
             <div key={script.id} className="bg-card border border-border-theme rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group">
-              <div className="h-40 bg-base relative border-b border-border-theme flex items-center justify-center">
+              <div className="h-40 bg-base relative border-b border-border-theme flex items-center justify-center overflow-hidden">
                 {script.image ? (
-                  <img src={script.image} alt={script.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <img src={script.image} alt={script.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
-                  <div className="text-muted/40 font-mono text-3xl">&lt;/&gt;</div>
+                  <div className="text-muted font-mono text-3xl">&lt;/&gt;</div>
                 )}
               </div>
               <div className="p-4 sm:p-6 flex flex-col flex-1">
@@ -168,16 +217,16 @@ export default function ScriptsCatalogPage() {
                 {script.scriptMode && script.scriptMode !== 'script' && (
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {script.scriptMode.includes('no-key') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">No key</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">No key</span>
                     )}
                     {script.scriptMode.includes('mobile-friendly') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Mobile</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Mobile</span>
                     )}
                     {script.scriptMode.includes('open-source') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Open source</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Open source</span>
                     )}
                     {script.scriptMode.includes('paid') && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-muted rounded-md">Paid</span>
+                      <span className="text-[10px] font-bold px-2 py-1 bg-card-hover border border-border-theme text-foreground rounded-md">Paid</span>
                     )}
                   </div>
                 )}
@@ -189,7 +238,7 @@ export default function ScriptsCatalogPage() {
                     <div className="w-6 h-6 rounded-full bg-base border border-border-theme flex items-center justify-center text-[10px] text-foreground shrink-0 font-bold">
                       {(script.authorName || script.authorId || '?').charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-xs text-muted font-medium truncate max-w-[100px]">
+                    <span className="text-xs text-foreground font-medium truncate max-w-[100px]">
                       {script.authorName || script.authorId}
                     </span>
                   </div>
@@ -199,8 +248,8 @@ export default function ScriptsCatalogPage() {
                       onClick={() => handleLike(script.id)}
                       className={`flex items-center gap-1 text-xs font-bold transition-colors ${
                         (typeof window !== 'undefined' && JSON.parse(window.localStorage.getItem('user_liked_scripts') || '[]').includes(script.id))
-                          ? 'text-red-500' 
-                          : 'text-muted hover:text-red-500'
+                          ? 'text-danger' 
+                          : 'text-muted hover:text-danger'
                       }`}
                       title="Me gusta"
                     >
@@ -223,5 +272,17 @@ export default function ScriptsCatalogPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ScriptsCatalogPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-8 max-w-7xl mx-auto w-full text-center text-muted">
+        Cargando catálogo de scripts...
+      </div>
+    }>
+      <ScriptsCatalogContent />
+    </Suspense>
   );
 }
