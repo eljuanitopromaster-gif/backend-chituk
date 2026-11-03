@@ -6,7 +6,7 @@ import CaptchaWidget, { CaptchaValue } from './CaptchaWidget';
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, authTab } = useAuth();
   const [tab, setTab] = useState<'login' | 'signup' | 'forgot'>(authTab);
-  
+
   // Login fields
   const [identifier, setIdentifier] = useState(''); // Email o Username
   const [password, setPassword] = useState('');
@@ -43,15 +43,17 @@ export default function AuthModal() {
     setError('');
     setGoogleLoading(true);
     try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
       const { error: oAuthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+          redirectTo: `${origin}/`,
         },
       });
 
       if (oAuthError) throw oAuthError;
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error;
       setError(err.message || "Error al iniciar sesión con Google.");
       setGoogleLoading(false);
     }
@@ -69,12 +71,13 @@ export default function AuthModal() {
         throw new Error("Por favor ingresa un correo electrónico o nombre de usuario registrado.");
       }
 
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
       const res = await fetch('/api/auth/recover-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: forgotEmail.trim(),
-          origin: window.location.origin
+          origin
         })
       });
 
@@ -91,7 +94,8 @@ export default function AuthModal() {
       }
 
       setForgotSent(true);
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error;
       setError(err.message || "Error al solicitar el enlace de recuperación");
     } finally {
       setLoading(false);
@@ -107,7 +111,6 @@ export default function AuthModal() {
       if (tab === 'login') {
         let loginEmail = identifier.trim();
 
-        // Si no tiene @, el usuario ingresó su nombre de usuario
         if (!loginEmail.includes('@')) {
           const res = await fetch('/api/auth/lookup-email', {
             method: 'POST',
@@ -128,28 +131,27 @@ export default function AuthModal() {
           email: loginEmail,
           password
         });
-        
+
         if (signInError) {
           if (signInError.message.toLowerCase().includes('invalid login credentials')) {
             throw new Error("Credenciales inválidas. Verifica tu correo/usuario y contraseña.");
           }
           throw signInError;
         }
-        
+
         closeAuthModal();
       } else if (tab === 'signup') {
         if (username.length < 3) throw new Error("El nombre de usuario debe tener al menos 3 caracteres.");
         if (!captchaValue.isReady || !captchaValue.answer) throw new Error("Por favor completa la verificación de seguridad anti-bot.");
-        
+
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
         });
 
         if (signUpError) throw signUpError;
-        
+
         if (data.user) {
-          // Sync with public table via our API
           const res = await fetch('/api/auth/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -162,16 +164,17 @@ export default function AuthModal() {
               honeypot: captchaValue.honeypot
             })
           });
-          
+
           if (!res.ok) {
             const errData = await res.json();
             throw new Error(errData.error || "Error al crear el perfil público.");
           }
-          
+
           closeAuthModal();
         }
       }
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error;
       setError(err.message || "Ocurrió un error");
     } finally {
       setLoading(false);
@@ -180,11 +183,11 @@ export default function AuthModal() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={closeAuthModal}>
-      <div 
+      <div
         className="bg-base border border-border-theme rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
         onClick={e => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={closeAuthModal}
           className="absolute top-4 right-4 text-muted hover:text-foreground transition-colors cursor-pointer"
         >
@@ -202,14 +205,14 @@ export default function AuthModal() {
           {tab !== 'forgot' ? (
             <>
               <div className="flex border-b border-border-theme mb-5">
-                <button 
+                <button
                   className={`flex-1 pb-3 text-sm font-medium cursor-pointer transition-colors ${tab === 'login' ? 'text-foreground border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
                   onClick={() => { setTab('login'); setError(''); }}
                   type="button"
                 >
                   Iniciar sesión
                 </button>
-                <button 
+                <button
                   className={`flex-1 pb-3 text-sm font-medium cursor-pointer transition-colors ${tab === 'signup' ? 'text-foreground border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
                   onClick={() => { setTab('signup'); setError(''); }}
                   type="button"
@@ -277,7 +280,6 @@ export default function AuthModal() {
           )}
 
           {tab === 'forgot' ? (
-            /* FORMULARIO RECUPERAR CONTRASEÑA */
             forgotSent ? (
               <div className="flex flex-col gap-4 text-center py-4">
                 {recoveryMethod === 'direct_link' ? (
@@ -352,9 +354,9 @@ export default function AuthModal() {
                 </p>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm text-foreground font-medium">Correo Electrónico o Usuario</label>
-                  <input 
-                    type="text" 
-                    required 
+                  <input
+                    type="text"
+                    required
                     value={forgotEmail}
                     onChange={e => setForgotEmail(e.target.value)}
                     placeholder="tu@email.com o tu_usuario"
@@ -366,8 +368,8 @@ export default function AuthModal() {
                   <p className="text-danger text-sm bg-danger/10 p-3 rounded-lg border border-danger/25">{error}</p>
                 )}
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className="mt-2 w-full py-3 bg-accent text-accent-contrast rounded-lg font-bold hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
                 >
@@ -384,14 +386,13 @@ export default function AuthModal() {
               </form>
             )
           ) : (
-            /* FORMULARIO LOGIN / SIGNUP */
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {tab === 'login' ? (
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm text-foreground font-medium">Email o Nombre de Usuario</label>
-                  <input 
-                    type="text" 
-                    required 
+                  <input
+                    type="text"
+                    required
                     value={identifier}
                     onChange={e => setIdentifier(e.target.value)}
                     placeholder="tu@email.com o tu_usuario"
@@ -402,9 +403,9 @@ export default function AuthModal() {
                 <>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm text-foreground font-medium">Email</label>
-                    <input 
-                      type="email" 
-                      required 
+                    <input
+                      type="email"
+                      required
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="tu@email.com"
@@ -413,9 +414,9 @@ export default function AuthModal() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm text-foreground font-medium">Nombre de Usuario</label>
-                    <input 
-                      type="text" 
-                      required 
+                    <input
+                      type="text"
+                      required
                       value={username}
                       onChange={e => setUsername(e.target.value)}
                       placeholder="Sin espacios"
@@ -438,9 +439,9 @@ export default function AuthModal() {
                     </button>
                   )}
                 </div>
-                <input 
-                  type="password" 
-                  required 
+                <input
+                  type="password"
+                  required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Mínimo 8 caracteres"
@@ -452,10 +453,10 @@ export default function AuthModal() {
                 <div className="flex flex-col gap-3">
                   <CaptchaWidget onChange={setCaptchaValue} compact />
                   <div className="flex items-start gap-2">
-                    <input 
-                      type="checkbox" 
-                      id="terms" 
-                      required 
+                    <input
+                      type="checkbox"
+                      id="terms"
+                      required
                       className="mt-1 w-4 h-4 rounded border-border-theme text-accent focus:ring-accent bg-card"
                     />
                     <label htmlFor="terms" className="text-xs text-muted">
@@ -469,8 +470,8 @@ export default function AuthModal() {
                 <p className="text-danger text-sm bg-danger/10 p-3 rounded-lg border border-danger/25">{error}</p>
               )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="mt-2 w-full py-3 bg-accent text-accent-contrast rounded-lg font-bold hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
               >
