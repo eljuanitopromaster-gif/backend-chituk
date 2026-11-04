@@ -58,8 +58,13 @@ CREATE TABLE IF NOT EXISTS public.tools (
     features TEXT[] DEFAULT '{}',
     download_url TEXT NOT NULL,
     image_src TEXT,
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Asegurar columnas en tools si la tabla ya existía
+ALTER TABLE public.tools ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE public.tools ADD COLUMN IF NOT EXISTS image_src TEXT;
 
 -- ==========================================================
 -- GESTIÓN DE JUEGOS Y RELACIÓN CON SCRIPTS
