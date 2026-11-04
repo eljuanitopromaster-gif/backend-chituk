@@ -18,7 +18,7 @@ const POPULAR_GAMES = [
 
 export default function Navbar() {
   const router = useRouter();
-  const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
+  const { user, signOut, openAuthModal, openProfileModal } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
@@ -421,24 +421,6 @@ export default function Navbar() {
           </svg>
           <span className="hidden sm:inline font-semibold">Discord</span>
         </a>
-
-        {/* Theme Button */}
-        <button
-          onClick={() => {
-            if (openThemeModal) openThemeModal();
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('open-theme-modal'));
-              document.dispatchEvent(new CustomEvent('open-theme-modal'));
-            }
-          }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-foreground bg-card hover:bg-card-hover border border-border-theme transition-all text-xs cursor-pointer group"
-          title="Cambiar tema visual (14 temas)"
-        >
-          <svg className="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.64 0 1.25.15 1.8.42A5.98 5.98 0 0113 11a5.98 5.98 0 014.2 2.42c.55-.27 1.16-.42 1.8-.42a4 4 0 014 4 4 4 0 01-4 4c-.64 0-1.25-.15-1.8-.42A5.98 5.98 0 0113 21a5.98 5.98 0 01-4.2-2.42c-.55.27-1.16.42-1.8.42z" />
-          </svg>
-          <span className="hidden sm:inline font-semibold">Temas</span>
-        </button>
 
         {!user ? (
           <div className="flex items-center gap-1.5 sm:gap-2">
