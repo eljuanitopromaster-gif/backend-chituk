@@ -55,10 +55,15 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        // Limpiamos los datos para que coincidan exacto con tu tabla de Supabase
-        const projectToSave = {
+        const rawGameId = body.game_id || body.gameId || null;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const validGameId = (rawGameId && typeof rawGameId === 'string' && uuidRegex.test(rawGameId)) ? rawGameId : null;
+
+        // Limpiamos los datos para la tabla projects en Supabase
+        const projectToSave: any = {
             id: body.id,
             title: body.title,
+            game_id: validGameId,
             description: body.description,
             script: body.script,
             scriptMode: body.scriptMode,
@@ -73,7 +78,17 @@ export async function POST(request: Request) {
             createdAt: body.createdAt
         };
 
-        const { data, error } = await supabase.from('projects').insert([projectToSave]).select();
+        let data = null;
+        let { data: insertedData, error } = await supabase.from('projects').insert([projectToSave]).select();
+        if (error && error.message?.includes('game_id')) {
+            delete projectToSave.game_id;
+            const retry = await supabase.from('projects').insert([projectToSave]).select();
+            error = retry.error;
+            data = retry.data;
+        } else {
+            data = insertedData;
+        }
+
         if (error) throw error;
 
         return NextResponse.json({ success: true, data }, { headers: corsHeaders });

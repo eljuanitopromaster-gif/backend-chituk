@@ -33,7 +33,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, game, description, script, isMobileFriendly, image, captchaToken, captchaAnswer, honeypot } = body;
+    const { title, game, game_id, gameId, description, script, isMobileFriendly, image, captchaToken, captchaAnswer, honeypot } = body;
+
+    // Validación segura de UUID para la relación projects.game_id -> games.id
+    const rawGameId = game_id || gameId || null;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validGameId = (rawGameId && typeof rawGameId === 'string' && uuidRegex.test(rawGameId)) ? rawGameId : null;
 
     // Verificar protección anti-bot
     const captchaCheck = verifyCaptcha(captchaToken, captchaAnswer, honeypot);
@@ -76,9 +81,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const projectToSave = {
+    // Inserción en la tabla 'projects' (Chituk almacena los scripts en 'projects')
+    const projectToSave: any = {
         id: newId,
         title: title,
+        game_id: validGameId,
         description: fullDescription,
         script: script,
         image: finalImageUrl,
@@ -95,7 +102,20 @@ export async function POST(req: Request) {
         language: 'lua'
     };
 
-    const { data, error } = await supabase.from('projects').insert([projectToSave]).select();
+    let data = null;
+    let { data: insertedData, error } = await supabase.from('projects').insert([projectToSave]).select();
+    
+    // Fallback si la columna game_id aún no ha sido agregada en la BD
+    if (error && error.message?.includes('game_id')) {
+      console.warn("Retrying insert without game_id column:", error.message);
+      delete projectToSave.game_id;
+      const retryResult = await supabase.from('projects').insert([projectToSave]).select();
+      error = retryResult.error;
+      data = retryResult.data;
+    } else {
+      data = insertedData;
+    }
+
     if (error) throw error;
 
     // Obtener username del autor para la notificación
