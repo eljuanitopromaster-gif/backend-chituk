@@ -66,6 +66,41 @@ async function checkAdminAuth(request: Request) {
   return { authorized: true, userId, userRole: user.role };
 }
 
+// Subir imagen en Base64 a Supabase Storage bucket 'covers' si aplica
+async function handleImageUpload(image: string | null | undefined, toolId: string): Promise<string | null> {
+  if (!image) return null;
+  if (!image.startsWith('data:image')) {
+    return image.trim();
+  }
+
+  try {
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      const mimeType = matches[1];
+      const ext = mimeType.split('/')[1] || 'jpeg';
+      const buffer = Buffer.from(matches[2], 'base64');
+      const fileName = `tool-${toolId}-${Date.now()}.${ext}`;
+
+      const { data: uploadData, error: uploadErr } = await supabase.storage
+        .from('covers')
+        .upload(fileName, buffer, { contentType: mimeType, upsert: true });
+
+      if (!uploadErr && uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('covers')
+          .getPublicUrl(fileName);
+        if (publicUrlData?.publicUrl) {
+          return publicUrlData.publicUrl;
+        }
+      }
+    }
+  } catch (storageErr) {
+    console.warn('Storage upload fallback for tools:', storageErr);
+  }
+
+  return image;
+}
+
 // 1. GET: List all tools
 export async function GET(request: Request) {
   const auth = await checkAdminAuth(request);
@@ -128,6 +163,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Ya existe una herramienta con el identificador "${id}". Cambia el nombre o edítala.` }, { status: 400 });
     }
 
+    const uploadedImageSrc = await handleImageUpload(imageSrc, id);
+
     const parsedFeatures = Array.isArray(features) 
       ? features.map((f: any) => String(f).trim()).filter(Boolean)
       : String(features).split('\n').map(s => s.trim()).filter(Boolean);
@@ -147,7 +184,7 @@ export async function POST(request: Request) {
       description: description.trim(),
       features: parsedFeatures,
       downloadUrl: downloadUrl.trim(),
-      imageSrc: imageSrc?.trim() || undefined,
+      imageSrc: uploadedImageSrc?.trim() || undefined,
       createdAt: new Date().toISOString()
     };
 
@@ -210,6 +247,10 @@ export async function PUT(request: Request) {
           : String(body.features).split('\n').map((s: string) => s.trim()).filter(Boolean))
       : current.features;
 
+    const uploadedImageSrc = body.imageSrc !== undefined
+      ? await handleImageUpload(body.imageSrc, id)
+      : current.imageSrc;
+
     const updated = {
       ...current,
       name: body.name !== undefined ? body.name.trim() : current.name,
@@ -225,7 +266,7 @@ export async function PUT(request: Request) {
       description: body.description !== undefined ? body.description.trim() : current.description,
       features: parsedFeatures,
       downloadUrl: body.downloadUrl !== undefined ? body.downloadUrl.trim() : current.downloadUrl,
-      imageSrc: body.imageSrc !== undefined ? (body.imageSrc.trim() || undefined) : current.imageSrc,
+      imageSrc: uploadedImageSrc !== null && uploadedImageSrc !== undefined ? (uploadedImageSrc.trim() || undefined) : undefined,
       updatedAt: new Date().toISOString()
     };
 
