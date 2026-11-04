@@ -7,10 +7,8 @@ import { useAuth } from './AuthProvider';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
+  const { user, openThemeModal } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
 
   useEffect(() => {
     const handleOpen = () => setIsMobileOpen(true);
@@ -113,130 +111,6 @@ export default function Sidebar() {
             Temas y Apariencia
           </button>
         </div>
-
-        {/* ADMIN SECTION */}
-        {isAdmin && (
-          <>
-            <div className="mt-8 mb-2 px-3">
-              <p className="text-[10px] font-bold tracking-widest text-muted uppercase">Administración</p>
-            </div>
-            <div className="flex flex-col gap-1 px-3">
-              <Link href="/admin/queue" onClick={onItemClick} className={navLinkClass('/admin/queue')}>
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Cola de Scripts
-              </Link>
-              <Link href="/admin/users" onClick={onItemClick} className={navLinkClass('/admin/users')}>
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                Usuarios y Roles
-              </Link>
-              <Link href="/admin/herramientas" onClick={onItemClick} className={navLinkClass('/admin/herramientas')}>
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Gestionar Herramientas
-              </Link>
-              <Link href="/admin/games" onClick={onItemClick} className={navLinkClass('/admin/games')}>
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Gestionar Juegos
-              </Link>
-            </div>
-          </>
-        )}
-
-        {/* ACCOUNT SECTION */}
-        <div className="mt-8 mb-2 px-3">
-          <p className="text-[10px] font-bold tracking-widest text-muted uppercase">Cuenta</p>
-        </div>
-
-        {user && (
-          <div className="flex flex-col gap-1 px-3 mb-2">
-            <Link href="/dashboard" onClick={onItemClick} className={navLinkClass('/dashboard')}>
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Dashboard
-            </Link>
-            <Link href="/favoritos" onClick={onItemClick} className={navLinkClass('/favoritos')}>
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-              Mis Favoritos
-            </Link>
-          </div>
-        )}
-
-        {!user ? (
-          <div className="flex flex-col gap-2 px-3 mt-1">
-            <button
-              onClick={() => {
-                if (onItemClick) onItemClick();
-                openAuthModal('login');
-              }}
-              className="flex items-center gap-3 px-4 py-2.5 bg-card text-foreground rounded-lg text-sm font-medium hover:bg-card-hover transition-colors border border-border-theme cursor-pointer"
-            >
-              <svg className="w-5 h-5 text-muted pointer-events-none shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Acceder
-            </button>
-            <button
-              onClick={() => {
-                if (onItemClick) onItemClick();
-                openAuthModal('signup');
-              }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-accent-contrast rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
-            >
-              <svg className="w-5 h-5 pointer-events-none shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Registrarse
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2 px-3 mt-1">
-            <button
-              onClick={() => {
-                if (onItemClick) onItemClick();
-                if (openProfileModal) openProfileModal();
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('open-profile-modal'));
-                  document.dispatchEvent(new CustomEvent('open-profile-modal'));
-                }
-              }}
-              className="flex items-center gap-3 px-3.5 py-2.5 bg-card text-foreground rounded-lg text-sm font-medium border border-border-theme hover:border-accent hover:bg-card-hover transition-all cursor-pointer text-left group"
-              title="Haz clic para personalizar tu perfil"
-            >
-              <div className="w-7 h-7 rounded-full bg-base flex items-center justify-center text-[10px] text-foreground font-bold shrink-0 overflow-hidden border border-border-theme">
-                {user.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  user.username ? user.username.charAt(0).toUpperCase() : '?'
-                )}
-              </div>
-              <span className="flex-1 truncate group-hover:text-accent transition-colors font-medium">{user.username || user.email}</span>
-              <svg className="w-4 h-4 text-muted group-hover:text-accent transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => {
-                if (onItemClick) onItemClick();
-                signOut();
-              }}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-card text-muted rounded-lg text-sm font-medium hover:text-foreground hover:bg-card-hover border border-border-theme transition-colors cursor-pointer"
-            >
-              Cerrar Sesión
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Footer */}
