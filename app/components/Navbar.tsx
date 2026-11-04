@@ -21,9 +21,16 @@ export default function Navbar() {
   const { user, signOut, openAuthModal, openThemeModal, openProfileModal } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const settingsDropdownRef = useRef<HTMLDivElement>(null);
+
+  const roleNormalized = (user?.role || '').toLowerCase().trim();
+  const isAdminOrMod = Boolean(
+    user && ['admin', 'moderator', 'mod', 'creator', 'owner'].includes(roleNormalized)
+  );
 
   // Estados y referencias para la barra de búsqueda global
   const [searchQuery, setSearchQuery] = useState('');
@@ -95,6 +102,9 @@ export default function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+      }
+      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target as Node)) {
+        setShowSettingsDropdown(false);
       }
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowSearchDropdown(false);
@@ -433,14 +443,16 @@ export default function Navbar() {
         {!user ? (
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button 
+              type="button"
               onClick={() => openAuthModal('login')}
               className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg font-medium bg-card hover:bg-card-hover text-foreground transition-colors text-xs sm:text-sm border border-border-theme cursor-pointer"
             >
               Acceder
             </button>
             <button 
+              type="button"
               onClick={() => openAuthModal('signup')}
-              className="hidden sm:block px-3.5 py-2 rounded-lg font-bold bg-accent text-accent-contrast hover:opacity-90 transition-opacity text-sm cursor-pointer shadow-sm"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg font-bold bg-accent text-accent-contrast hover:opacity-90 transition-opacity text-xs sm:text-sm cursor-pointer shadow-sm"
             >
               Registrarse
             </button>
@@ -566,35 +578,192 @@ export default function Navbar() {
 
             <div className="w-px h-6 bg-border-theme"></div>
 
-            {/* User Profile */}
-            <button 
-              onClick={() => {
-                if (openProfileModal) openProfileModal();
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('open-profile-modal'));
-                  document.dispatchEvent(new CustomEvent('open-profile-modal'));
-                }
-              }}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-card border border-transparent hover:border-border-theme transition-all group cursor-pointer text-left"
-              title="Editar perfil"
-            >
-              <div className="w-7 h-7 rounded-full bg-base flex items-center justify-center text-xs font-bold text-foreground border border-border-theme overflow-hidden group-hover:border-accent transition-colors shrink-0">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.username || 'Avatar'} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</span>
-                )}
-              </div>
-              <span className="text-sm font-medium text-foreground hidden md:block group-hover:text-accent transition-colors max-w-[120px] truncate">
-                {user.username || user.email}
-              </span>
-            </button>
-            <button 
-              onClick={() => signOut()}
-              className="hidden sm:block px-3 py-1.5 rounded-lg font-medium text-muted hover:text-foreground hover:bg-card transition-colors text-sm cursor-pointer"
-            >
-              Cerrar Sesión
-            </button>
+            {/* Gear Settings Button & Dropdown */}
+            <div className="relative" ref={settingsDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShowSettingsDropdown(prev => !prev)}
+                className={`p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                  showSettingsDropdown
+                    ? 'bg-accent/15 border-accent text-accent shadow-sm'
+                    : 'bg-card hover:bg-card-hover border-border-theme text-muted hover:text-foreground'
+                }`}
+                aria-label="Configuración y Cuenta"
+                title="Configuración y Cuenta"
+                aria-expanded={showSettingsDropdown}
+              >
+                <svg
+                  className={`w-5 h-5 transition-transform duration-200 ${showSettingsDropdown ? 'rotate-90 text-accent' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+
+              {/* Floating Dropdown 100% en ESPAÑOL */}
+              {showSettingsDropdown && (
+                <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-card border border-border-theme rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Sección Pública del Dropdown: Avatar / Header del Usuario */}
+                  <div
+                    onClick={() => {
+                      setShowSettingsDropdown(false);
+                      if (openProfileModal) openProfileModal();
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-profile-modal'));
+                        document.dispatchEvent(new CustomEvent('open-profile-modal'));
+                      }
+                    }}
+                    className="p-3.5 border-b border-border-theme/70 bg-base flex items-center gap-3 cursor-pointer hover:bg-card-hover transition-colors group"
+                    title="Haz clic para personalizar tu perfil"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-card border border-border-theme flex items-center justify-center text-xs font-bold text-foreground overflow-hidden shrink-0 group-hover:border-accent transition-colors">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-foreground truncate group-hover:text-accent transition-colors">
+                          {user.username || 'Usuario'}
+                        </p>
+                        <svg className="w-3 h-3 text-muted group-hover:text-accent transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </div>
+                      <p className="text-[11px] text-muted truncate">{user.email || 'Miembro de Chituk'}</p>
+                    </div>
+                    {user.role && user.role !== 'user' && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30 shrink-0">
+                        {user.role}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-2 space-y-1">
+                    {/* Sección Privada del Dropdown: Administración (SOLO admin/moderator o equivalente) */}
+                    {isAdminOrMod && (
+                      <div>
+                        <div className="px-2.5 pt-2 pb-1 text-[10px] font-bold tracking-widest text-muted uppercase">
+                          Administración
+                        </div>
+                        <Link
+                          href="/admin/queue"
+                          onClick={() => setShowSettingsDropdown(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                        >
+                          <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <span>Cola de Scripts</span>
+                        </Link>
+                        <Link
+                          href="/admin/users"
+                          onClick={() => setShowSettingsDropdown(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                        >
+                          <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                          <span>Usuarios y Roles</span>
+                        </Link>
+                        <Link
+                          href="/admin/herramientas"
+                          onClick={() => setShowSettingsDropdown(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                        >
+                          <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span>Gestionar Herramientas</span>
+                        </Link>
+                        <Link
+                          href="/admin/games"
+                          onClick={() => setShowSettingsDropdown(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                        >
+                          <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Gestionar Juegos</span>
+                        </Link>
+                        <div className="my-1.5 border-t border-border-theme/60"></div>
+                      </div>
+                    )}
+
+                    {/* Sección Cuenta */}
+                    <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-bold tracking-widest text-muted uppercase">
+                      Cuenta
+                    </div>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setShowSettingsDropdown(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                    >
+                      <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      href="/favoritos"
+                      onClick={() => setShowSettingsDropdown(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                    >
+                      <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                      <span>Mis Favoritos</span>
+                    </Link>
+                    <Link
+                      href="/preferencias"
+                      onClick={() => setShowSettingsDropdown(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground hover:bg-card-hover transition-colors group"
+                    >
+                      <svg className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                      </svg>
+                      <span>Preferencias</span>
+                    </Link>
+
+                    {/* Divisor visual */}
+                    <div className="my-1.5 border-t border-border-theme/60"></div>
+
+                    {/* Acción: Cerrar Sesión (con texto y un icono de salir en color rojo) */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setShowSettingsDropdown(false);
+                        await signOut();
+                        router.push('/');
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-danger hover:bg-danger/10 transition-colors text-left cursor-pointer group"
+                    >
+                      <svg className="w-4 h-4 shrink-0 text-danger group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>Cerrar Sesión</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
