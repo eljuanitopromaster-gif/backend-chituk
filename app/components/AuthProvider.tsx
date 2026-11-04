@@ -137,7 +137,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           }
 
-          if (isMounted) setUser(publicUser);
+          const mergedUser = {
+            ...publicUser,
+            email: publicUser.email || session.user.email,
+            identities: session.user.identities,
+            app_metadata: session.user.app_metadata,
+            user_metadata: session.user.user_metadata,
+            authUser: session.user
+          };
+
+          if (isMounted) setUser(mergedUser);
 
           // Sincronizar tema: respetar la elección local si ya existe, o aplicar la del perfil si no hay local
           try {
@@ -237,7 +246,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('id', session.user.id)
         .single();
       if (publicUser) {
-        setUser(publicUser);
+        setUser({
+          ...publicUser,
+          email: publicUser.email || session.user.email,
+          identities: session.user.identities,
+          app_metadata: session.user.app_metadata,
+          user_metadata: session.user.user_metadata,
+          authUser: session.user
+        });
       }
     }
   };
