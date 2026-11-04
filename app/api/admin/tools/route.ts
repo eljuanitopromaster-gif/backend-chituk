@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
@@ -9,39 +7,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'tools.json');
-
-function ensureDataFile() {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), 'utf8');
-  }
-}
-
-function getLocalTools(): any[] {
-  try {
-    ensureDataFile();
-    const content = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(content);
-  } catch (err) {
-    console.error('Error reading data/tools.json:', err);
-    return [];
-  }
-}
-
-function saveLocalTools(tools: any[]) {
-  ensureDataFile();
-  fs.writeFileSync(DATA_FILE, JSON.stringify(tools, null, 2), 'utf8');
-}
-
 // Authentication & Role verification helper
 async function checkAdminAuth(request: Request) {
   let userId = request.headers.get('X-User-Id');
   const authHeader = request.headers.get('authorization');
-  
+
   if (!userId && authHeader?.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
     const { data: { user: authUser } } = await supabase.auth.getUser(token);
@@ -49,7 +19,7 @@ async function checkAdminAuth(request: Request) {
   }
 
   if (!userId) {
-    return { authorized: false, error: 'No autorizado', status: 401 };
+    return { authorized: false, error: 'No autorizado. Se requiere iniciar sesión.', status: 401 };
   }
 
   const { data: user, error: userError } = await supabase
@@ -58,15 +28,15 @@ async function checkAdminAuth(request: Request) {
     .eq('id', userId)
     .maybeSingle();
 
-  const allowedRoles = ['owner', 'admin', 'creator'];
+  const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
   if (userError || !user || !allowedRoles.includes(user.role)) {
-    return { authorized: false, error: 'Acceso denegado. Se requieren permisos de administrador u owner.', status: 403 };
+    return { authorized: false, error: 'Acceso denegado. Se requieren permisos de administrador.', status: 403 };
   }
 
   return { authorized: true, userId, userRole: user.role };
 }
 
-// Subir imagen en Base64 a Supabase Storage bucket 'covers' si aplica
+// Subir imagen en Base64 a Supabase Storage bucket 'covers' si aplica (en memoria, sin tocar disco)
 async function handleImageUpload(image: string | null | undefined, toolId: string): Promise<string | null> {
   if (!image) return null;
   if (!image.startsWith('data:image')) {
@@ -101,7 +71,40 @@ async function handleImageUpload(image: string | null | undefined, toolId: strin
   return image;
 }
 
-// 1. GET: List all tools
+// Normaliza el objeto devuelto al frontend soportando snake_case y camelCase
+function formatTool(row: any) {
+  const imageUrl = row.image_url || row.image_src || row.imageSrc || null;
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category || 'executors',
+    platforms: Array.isArray(row.platforms) ? row.platforms : ['windows'],
+    access: row.access || 'free',
+    priceDisplay: row.price_display || row.priceDisplay || 'FREE',
+    price_display: row.price_display || row.priceDisplay || 'FREE',
+    viewsDisplay: row.views_display || row.viewsDisplay || `${row.views_count || 0}`,
+    views_display: row.views_display || row.viewsDisplay || `${row.views_count || 0}`,
+    viewsCount: Number(row.views_count || row.viewsCount || 0),
+    views_count: Number(row.views_count || row.viewsCount || 0),
+    rating: Number(row.rating || 5.0),
+    reviewsCount: Number(row.reviews_count || row.reviewsCount || 0),
+    reviews_count: Number(row.reviews_count || row.reviewsCount || 0),
+    status: row.status || 'Actualizado',
+    description: row.description || '',
+    features: Array.isArray(row.features) ? row.features : [],
+    downloadUrl: row.download_url || row.downloadUrl || row.download_link || row.downloadLink || row.url || '',
+    download_url: row.download_url || row.downloadUrl || row.download_link || row.downloadLink || row.url || '',
+    downloadLink: row.download_link || row.downloadLink || row.download_url || row.downloadUrl || row.url || '',
+    url: row.url || row.download_link || row.downloadLink || row.download_url || row.downloadUrl || '',
+    image_url: imageUrl,
+    image_src: imageUrl,
+    imageSrc: imageUrl,
+    createdAt: row.created_at || row.createdAt,
+    created_at: row.created_at || row.createdAt
+  };
+}
+
+// 1. GET: Retorna las herramientas directamente desde Supabase
 export async function GET(request: Request) {
   const auth = await checkAdminAuth(request);
   if (!auth.authorized) {
@@ -109,14 +112,27 @@ export async function GET(request: Request) {
   }
 
   try {
-    const tools = getLocalTools();
-    return NextResponse.json({ tools });
+    const { data, error } = await supabase
+      .from('tools')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      // Reintentar sin ordenar en caso de que la columna created_at varíe
+      const fallback = await supabase.from('tools').select('*');
+      if (fallback.error) {
+        throw new Error(fallback.error.message);
+      }
+      return NextResponse.json({ tools: (fallback.data || []).map(formatTool) });
+    }
+
+    return NextResponse.json({ tools: (data || []).map(formatTool) });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// 2. POST: Create a new tool
+// 2. POST: Inserta directamente en la tabla tools de Supabase
 export async function POST(request: Request) {
   const auth = await checkAdminAuth(request);
   if (!auth.authorized) {
@@ -130,23 +146,32 @@ export async function POST(request: Request) {
       category = 'executors',
       platforms = ['windows'],
       access = 'free',
-      priceDisplay = 'FREE',
-      viewsDisplay = '1.0K',
-      viewsCount = 1000,
+      priceDisplay,
+      price_display,
+      viewsDisplay,
+      views_display,
+      viewsCount,
+      views_count,
       rating = 5.0,
-      reviewsCount = 1,
+      reviewsCount,
+      reviews_count,
       status = 'Actualizado',
       description,
       features = [],
       downloadUrl,
-      imageSrc
+      download_url,
+      imageSrc,
+      image_src,
+      image_url,
+      imageUrl
     } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'El nombre del programa es obligatorio.' }, { status: 400 });
     }
 
-    if (!downloadUrl || !downloadUrl.trim()) {
+    const targetDownloadUrl = (downloadUrl || download_url || '').trim();
+    if (!targetDownloadUrl) {
       return NextResponse.json({ error: 'El enlace de descarga o web es obligatorio.' }, { status: 400 });
     }
 
@@ -154,73 +179,65 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'La descripción es obligatoria.' }, { status: 400 });
     }
 
-    // Generate unique slug id
+    // Slug identificador único
     const baseSlug = name.toLowerCase().trim().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
     const id = baseSlug || `tool-${Date.now()}`;
 
-    const tools = getLocalTools();
-    if (tools.some((t: any) => t.id === id)) {
-      return NextResponse.json({ error: `Ya existe una herramienta con el identificador "${id}". Cambia el nombre o edítala.` }, { status: 400 });
-    }
+    // Obtener la URL de imagen (si vino en base64 se sube a Storage en memoria)
+    const rawImage = image_url || imageUrl || imageSrc || image_src || null;
+    const finalImageUrl = await handleImageUpload(rawImage, id);
 
-    const uploadedImageSrc = await handleImageUpload(imageSrc, id);
-
-    const parsedFeatures = Array.isArray(features) 
+    const parsedFeatures = Array.isArray(features)
       ? features.map((f: any) => String(f).trim()).filter(Boolean)
-      : String(features).split('\n').map(s => s.trim()).filter(Boolean);
+      : String(features).split('\n').map((s: string) => s.trim()).filter(Boolean);
 
-    const newTool = {
+    const toolPayload: any = {
       id,
       name: name.trim(),
       category: category === 'externals' ? 'externals' : 'executors',
       platforms: Array.isArray(platforms) && platforms.length > 0 ? platforms : ['windows'],
       access: access === 'paid' ? 'paid' : 'free',
-      priceDisplay: priceDisplay || 'FREE',
-      viewsDisplay: viewsDisplay || '1.0K',
-      viewsCount: Number(viewsCount) || 1000,
+      price_display: (price_display || priceDisplay || 'FREE').trim(),
+      views_display: (views_display || viewsDisplay || '1.0K').trim(),
+      views_count: Number(views_count || viewsCount || 1000),
       rating: Number(rating) || 5.0,
-      reviewsCount: Number(reviewsCount) || 1,
+      reviews_count: Number(reviews_count || reviewsCount || 1),
       status: status || 'Actualizado',
       description: description.trim(),
       features: parsedFeatures,
-      downloadUrl: downloadUrl.trim(),
-      imageSrc: uploadedImageSrc?.trim() || undefined,
-      createdAt: new Date().toISOString()
+      download_url: targetDownloadUrl,
+      image_url: finalImageUrl || null,
+      image_src: finalImageUrl || null,
+      created_at: new Date().toISOString()
     };
 
-    tools.unshift(newTool);
-    saveLocalTools(tools);
+    // Inserción directa en Supabase
+    let { error: insertError } = await supabase.from('tools').insert([toolPayload]);
 
-    // Intentar replicar en Supabase si la tabla existe
-    try {
-      await supabase.from('tools').insert([{
-        id: newTool.id,
-        name: newTool.name,
-        category: newTool.category,
-        platforms: newTool.platforms,
-        access: newTool.access,
-        price_display: newTool.priceDisplay,
-        views_display: newTool.viewsDisplay,
-        views_count: newTool.viewsCount,
-        rating: newTool.rating,
-        reviews_count: newTool.reviewsCount,
-        status: newTool.status,
-        description: newTool.description,
-        features: newTool.features,
-        download_url: newTool.downloadUrl,
-        image_src: newTool.imageSrc
-      }]);
-    } catch (e) {
-      // Ignorar si la tabla no existe en la BD
+    // Resiliencia de esquema si image_url o image_src no existen en la BD
+    if (insertError && insertError.message?.includes('image_url')) {
+      const fallback = { ...toolPayload };
+      delete fallback.image_url;
+      const retry = await supabase.from('tools').insert([fallback]);
+      insertError = retry.error;
+    } else if (insertError && insertError.message?.includes('image_src')) {
+      const fallback = { ...toolPayload };
+      delete fallback.image_src;
+      const retry = await supabase.from('tools').insert([fallback]);
+      insertError = retry.error;
     }
 
-    return NextResponse.json({ success: true, tool: newTool });
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+
+    return NextResponse.json({ success: true, tool: formatTool(toolPayload) });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// 3. PUT: Update an existing tool
+// 3. PUT: Actualiza directamente en la tabla tools de Supabase
 export async function PUT(request: Request) {
   const auth = await checkAdminAuth(request);
   if (!auth.authorized) {
@@ -234,73 +251,79 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID de la herramienta requerido.' }, { status: 400 });
     }
 
-    const tools = getLocalTools();
-    const index = tools.findIndex((t: any) => t.id === id);
-    if (index === -1) {
-      return NextResponse.json({ error: 'Herramienta no encontrada.' }, { status: 404 });
+    const rawImage = body.image_url ?? body.imageUrl ?? body.imageSrc ?? body.image_src;
+    let finalImageUrl: string | null | undefined = undefined;
+    if (rawImage !== undefined) {
+      finalImageUrl = await handleImageUpload(rawImage, id);
     }
 
-    const current = tools[index];
     const parsedFeatures = body.features !== undefined
-      ? (Array.isArray(body.features) 
+      ? (Array.isArray(body.features)
           ? body.features.map((f: any) => String(f).trim()).filter(Boolean)
           : String(body.features).split('\n').map((s: string) => s.trim()).filter(Boolean))
-      : current.features;
+      : undefined;
 
-    const uploadedImageSrc = body.imageSrc !== undefined
-      ? await handleImageUpload(body.imageSrc, id)
-      : current.imageSrc;
+    const updatePayload: any = {};
+    if (body.name !== undefined) updatePayload.name = body.name.trim();
+    if (body.category !== undefined) updatePayload.category = body.category;
+    if (body.platforms !== undefined) updatePayload.platforms = body.platforms;
+    if (body.access !== undefined) updatePayload.access = body.access;
+    if (body.priceDisplay !== undefined || body.price_display !== undefined) {
+      updatePayload.price_display = (body.price_display || body.priceDisplay || 'FREE').trim();
+    }
+    if (body.viewsDisplay !== undefined || body.views_display !== undefined) {
+      updatePayload.views_display = (body.views_display || body.viewsDisplay || '1.0K').trim();
+    }
+    if (body.viewsCount !== undefined || body.views_count !== undefined) {
+      updatePayload.views_count = Number(body.views_count || body.viewsCount || 0);
+    }
+    if (body.rating !== undefined) updatePayload.rating = Number(body.rating);
+    if (body.reviewsCount !== undefined || body.reviews_count !== undefined) {
+      updatePayload.reviews_count = Number(body.reviews_count || body.reviewsCount || 0);
+    }
+    if (body.status !== undefined) updatePayload.status = body.status;
+    if (body.description !== undefined) updatePayload.description = body.description.trim();
+    if (parsedFeatures !== undefined) updatePayload.features = parsedFeatures;
+    if (body.downloadUrl !== undefined || body.download_url !== undefined) {
+      updatePayload.download_url = (body.download_url || body.downloadUrl || '').trim();
+    }
+    if (finalImageUrl !== undefined) {
+      updatePayload.image_url = finalImageUrl;
+      updatePayload.image_src = finalImageUrl;
+    }
 
-    const updated = {
-      ...current,
-      name: body.name !== undefined ? body.name.trim() : current.name,
-      category: body.category !== undefined ? body.category : current.category,
-      platforms: body.platforms !== undefined ? body.platforms : current.platforms,
-      access: body.access !== undefined ? body.access : current.access,
-      priceDisplay: body.priceDisplay !== undefined ? body.priceDisplay : current.priceDisplay,
-      viewsDisplay: body.viewsDisplay !== undefined ? body.viewsDisplay : current.viewsDisplay,
-      viewsCount: body.viewsCount !== undefined ? Number(body.viewsCount) : current.viewsCount,
-      rating: body.rating !== undefined ? Number(body.rating) : current.rating,
-      reviewsCount: body.reviewsCount !== undefined ? Number(body.reviewsCount) : current.reviewsCount,
-      status: body.status !== undefined ? body.status : current.status,
-      description: body.description !== undefined ? body.description.trim() : current.description,
-      features: parsedFeatures,
-      downloadUrl: body.downloadUrl !== undefined ? body.downloadUrl.trim() : current.downloadUrl,
-      imageSrc: uploadedImageSrc !== null && uploadedImageSrc !== undefined ? (uploadedImageSrc.trim() || undefined) : undefined,
-      updatedAt: new Date().toISOString()
-    };
+    let { error: updateError, data } = await supabase
+      .from('tools')
+      .update(updatePayload)
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
 
-    tools[index] = updated;
-    saveLocalTools(tools);
+    if (updateError && updateError.message?.includes('image_url')) {
+      const fallback = { ...updatePayload };
+      delete fallback.image_url;
+      const retry = await supabase.from('tools').update(fallback).eq('id', id).select('*').maybeSingle();
+      updateError = retry.error;
+      data = retry.data;
+    } else if (updateError && updateError.message?.includes('image_src')) {
+      const fallback = { ...updatePayload };
+      delete fallback.image_src;
+      const retry = await supabase.from('tools').update(fallback).eq('id', id).select('*').maybeSingle();
+      updateError = retry.error;
+      data = retry.data;
+    }
 
-    // Intentar actualizar en Supabase si la tabla existe
-    try {
-      await supabase.from('tools').upsert([{
-        id: updated.id,
-        name: updated.name,
-        category: updated.category,
-        platforms: updated.platforms,
-        access: updated.access,
-        price_display: updated.priceDisplay,
-        views_display: updated.viewsDisplay,
-        views_count: updated.viewsCount,
-        rating: updated.rating,
-        reviews_count: updated.reviewsCount,
-        status: updated.status,
-        description: updated.description,
-        features: updated.features,
-        download_url: updated.downloadUrl,
-        image_src: updated.imageSrc
-      }]);
-    } catch (e) {}
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
 
-    return NextResponse.json({ success: true, tool: updated });
+    return NextResponse.json({ success: true, tool: formatTool(data || { id, ...updatePayload }) });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// 4. DELETE: Remove a tool
+// 4. DELETE: Borra directamente la fila en Supabase
 export async function DELETE(request: Request) {
   const auth = await checkAdminAuth(request);
   if (!auth.authorized) {
@@ -315,19 +338,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID de la herramienta requerido.' }, { status: 400 });
     }
 
-    const tools = getLocalTools();
-    const filtered = tools.filter((t: any) => t.id !== id);
+    const { error: deleteError } = await supabase
+      .from('tools')
+      .delete()
+      .eq('id', id);
 
-    if (tools.length === filtered.length) {
-      return NextResponse.json({ error: 'Herramienta no encontrada.' }, { status: 404 });
+    if (deleteError) {
+      throw new Error(deleteError.message);
     }
-
-    saveLocalTools(filtered);
-
-    // Intentar eliminar de Supabase si la tabla existe
-    try {
-      await supabase.from('tools').delete().eq('id', id);
-    } catch (e) {}
 
     return NextResponse.json({ success: true, deletedId: id });
   } catch (err: any) {
