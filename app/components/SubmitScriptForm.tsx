@@ -8,17 +8,22 @@ import React, { useState, useRef, useEffect } from 'react';
 export interface GameOption {
   id: string | number;
   name: string;
+  title?: string;
   placeId: string;
+  place_id?: string;
   universeId?: string;
-  icon: string;
+  icon?: string;
+  cover_image_url?: string;
   image?: string;
-  category: string;
+  category?: string;
+  description?: string;
 }
 
 export interface ScriptFormState {
   targetType: 'specific' | 'universal';
   gameName: string;
   placeId: string;
+  gameId?: string | null;
   selectedGame: GameOption | null;
   title: string;
   thumbnailUrl: string | null;
@@ -92,8 +97,51 @@ export default function SubmitScriptForm({
   const [selectedGame, setSelectedGame] = useState<GameOption | null>(
     initialData?.selectedGame || POPULAR_ROBLOX_GAMES[0]
   );
+  const [catalogGames, setCatalogGames] = useState<GameOption[]>(POPULAR_ROBLOX_GAMES);
   const [gameSearchQuery, setGameSearchQuery] = useState('');
   const [isGameDropdownOpen, setIsGameDropdownOpen] = useState(false);
+
+  // Cargar catálogo de juegos desde la base de datos (/api/games)
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCatalog = async () => {
+      try {
+        const res = await fetch('/api/games');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.games && Array.isArray(data.games) && data.games.length > 0) {
+            const mapped: GameOption[] = data.games.map((g: any) => ({
+              id: g.id,
+              name: g.title || g.name,
+              title: g.title || g.name,
+              placeId: g.place_id || g.placeId || '',
+              place_id: g.place_id || g.placeId || '',
+              cover_image_url: g.cover_image_url || g.image || undefined,
+              image: g.cover_image_url || g.image || undefined,
+              icon: '🎮',
+              category: 'Catálogo de Juegos',
+              description: g.description
+            }));
+
+            if (isMounted) {
+              setCatalogGames(mapped);
+              // Si no se pasó un juego inicial explícito, seleccionar el primer juego del catálogo dinámico
+              if (!initialData?.selectedGame && mapped.length > 0) {
+                setSelectedGame(mapped[0]);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch games catalog:', err);
+      }
+    };
+
+    fetchCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, [initialData]);
 
   const [title, setTitle] = useState(initialData?.title || '');
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
@@ -151,13 +199,14 @@ export default function SubmitScriptForm({
   }, []);
 
   // Filtrar juegos según la búsqueda
-  const filteredGames = POPULAR_ROBLOX_GAMES.filter((g) => {
+  const filteredGames = catalogGames.filter((g) => {
     const q = gameSearchQuery.toLowerCase().trim();
     if (!q) return true;
     return (
       g.name.toLowerCase().includes(q) ||
-      g.placeId.includes(q) ||
-      g.category.toLowerCase().includes(q)
+      (g.placeId && g.placeId.includes(q)) ||
+      (g.category && g.category.toLowerCase().includes(q)) ||
+      (g.description && g.description.toLowerCase().includes(q))
     );
   });
 
@@ -303,6 +352,7 @@ export default function SubmitScriptForm({
       gameName:
         targetType === 'specific' ? selectedGame?.name || 'Juego Específico' : 'Universal',
       placeId: targetType === 'specific' ? selectedGame?.placeId || '' : '',
+      gameId: targetType === 'specific' ? (selectedGame?.id ? String(selectedGame.id) : null) : null,
       selectedGame: targetType === 'specific' ? selectedGame : null,
       title: title.trim(),
       thumbnailUrl,
@@ -501,6 +551,59 @@ export default function SubmitScriptForm({
             </div>
           </div>
 
+          {/* ============================================================ */}
+          {/* COMPONENTE SELECT DE JUEGOS DEL CATÁLOGO (TABLA games) */}
+          {/* ============================================================ */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="catalog-game-select" className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+                <span>🎮</span> Selector de Juego (Catálogo de Supabase) <span className="text-accent">*</span>
+              </label>
+              <span className="text-[11px] text-accent font-semibold">
+                {catalogGames.length} juegos cargados de la tabla games
+              </span>
+            </div>
+
+            <div className="relative">
+              <select
+                id="catalog-game-select"
+                value={targetType === 'universal' ? 'universal' : (selectedGame?.id ? String(selectedGame.id) : '')}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'universal') {
+                    setTargetType('universal');
+                    setSelectedGame(null);
+                  } else {
+                    setTargetType('specific');
+                    const found = catalogGames.find((g) => String(g.id) === val);
+                    if (found) {
+                      setSelectedGame(found);
+                    }
+                  }
+                }}
+                className="w-full bg-base border-2 border-border-theme hover:border-accent/60 focus:border-accent rounded-2xl px-4 py-3.5 text-sm sm:text-base text-foreground font-semibold focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all appearance-none cursor-pointer pr-10 shadow-sm"
+              >
+                <option value="" disabled>-- Selecciona un juego del catálogo --</option>
+                <option value="universal">🌐 Script Universal (Compatible con todos los juegos)</option>
+                <optgroup label="Juegos Activos en Supabase (games)">
+                  {catalogGames.map((game) => (
+                    <option key={game.id} value={String(game.id)}>
+                      🎮 {game.title || game.name} {game.placeId ? `— Place ID: ${game.placeId}` : ''}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-accent">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted">
+              Selecciona el juego correspondiente. Su identificador único se vinculará a la columna <code className="text-accent font-mono text-[10px]">game_id</code> en la tabla <code className="text-accent font-mono text-[10px]">projects</code> de Supabase.
+            </p>
+          </div>
+
           {/* Grid de opciones visuales grandes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Opción A: Juego Específico */}
@@ -678,12 +781,13 @@ export default function SubmitScriptForm({
               {/* Sugerencias rápidas en chips */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[11px] text-muted font-semibold uppercase">Populares:</span>
-                {POPULAR_ROBLOX_GAMES.slice(0, 5).map((game) => (
+                {catalogGames.slice(0, 6).map((game) => (
                   <button
                     key={game.id}
                     type="button"
                     onClick={() => setSelectedGame(game)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${selectedGame?.placeId === game.placeId
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                      selectedGame?.id === game.id || selectedGame?.placeId === game.placeId || selectedGame?.name === game.name
                         ? 'bg-accent text-accent-contrast font-bold shadow-sm'
                         : 'bg-base text-muted hover:text-foreground border border-border-theme hover:border-accent/40'
                       }`}
@@ -691,7 +795,7 @@ export default function SubmitScriptForm({
                     {game.image ? (
                       <img src={game.image} alt="" className="w-3.5 h-3.5 rounded-full object-cover inline-block" />
                     ) : (
-                      <span>{game.icon}</span>
+                      <span>{game.icon || '🎮'}</span>
                     )}
                     {game.name}
                   </button>

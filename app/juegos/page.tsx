@@ -4,17 +4,29 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 interface GameItem {
-  id: number;
+  id: string | number;
   name: string;
   image: string;
   icon?: string;
-  color: string;
-  keywords: string[];
+  color?: string;
+  keywords?: string[];
+  description?: string;
 }
+
+const GRADIENTS = [
+  'from-purple-500/20 to-transparent',
+  'from-red-500/20 to-transparent',
+  'from-green-500/20 to-transparent',
+  'from-blue-500/20 to-transparent',
+  'from-yellow-500/20 to-transparent',
+  'from-orange-500/20 to-transparent',
+  'from-pink-500/20 to-transparent',
+  'from-sky-500/20 to-transparent'
+];
 
 const BASE_GAMES: GameItem[] = [
   {
-    id: 1,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780001',
     name: 'Blox Fruits',
     image: '/games/bloxfruits.png',
     icon: '🍇',
@@ -22,7 +34,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['blox fruits', 'bloxfruits']
   },
   {
-    id: 2,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780002',
     name: 'Da Hood',
     image: '/games/dahood.png',
     icon: '👊',
@@ -30,7 +42,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['da hood', 'dahood']
   },
   {
-    id: 3,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780005',
     name: 'Arsenal',
     image: '/games/arsenal.png',
     icon: '🔫',
@@ -38,7 +50,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['arsenal']
   },
   {
-    id: 4,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780006',
     name: 'Adopt Me!',
     image: '/games/adoptme.png',
     icon: '🐶',
@@ -46,7 +58,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['adopt me', 'adoptme']
   },
   {
-    id: 5,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780004',
     name: 'Pet Simulator 99',
     image: '/games/petsimulator99.png',
     icon: '🐱',
@@ -54,7 +66,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['pet simulator 99', 'pet simulator', 'ps99']
   },
   {
-    id: 6,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780007',
     name: 'Murder Mystery 2',
     image: '/games/mm2.png',
     icon: '🔪',
@@ -62,7 +74,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['murder mystery 2', 'murder mystery', 'mm2']
   },
   {
-    id: 7,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780003',
     name: 'Blade Ball',
     image: '/games/bladeball.png',
     icon: '⚔️',
@@ -70,7 +82,7 @@ const BASE_GAMES: GameItem[] = [
     keywords: ['blade ball', 'bladeball']
   },
   {
-    id: 8,
+    id: 'c1f7b62e-4b2a-43c2-a8c6-33924f780008',
     name: 'Brookhaven RP',
     image: '/games/brookhaven.png',
     icon: '🏠',
@@ -80,47 +92,60 @@ const BASE_GAMES: GameItem[] = [
 ];
 
 export default function JuegosPage() {
-  const [counts, setCounts] = useState<Record<number, number>>({
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 0,
-    8: 0
-  });
+  const [games, setGames] = useState<GameItem[]>(BASE_GAMES);
+  const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchGameCounts = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/scripts');
-        if (res.ok) {
-          const scripts = await res.json();
+        let loadedGames = BASE_GAMES;
+
+        // 1. Obtener catálogo dinámico
+        try {
+          const resGames = await fetch('/api/games');
+          if (resGames.ok) {
+            const dataGames = await resGames.json();
+            if (dataGames.games && Array.isArray(dataGames.games) && dataGames.games.length > 0) {
+              loadedGames = dataGames.games.map((g: any, index: number) => ({
+                id: g.id,
+                name: g.title || g.name,
+                image: g.image || '/games/bloxfruits.png',
+                icon: '🎮',
+                color: GRADIENTS[index % GRADIENTS.length],
+                keywords: [(g.title || g.name || '').toLowerCase()],
+                description: g.description
+              }));
+              setGames(loadedGames);
+            }
+          }
+        } catch (e) {
+          console.warn("Could not load dynamic games catalog:", e);
+        }
+
+        // 2. Obtener recuento de scripts asociados
+        const resScripts = await fetch('/api/scripts');
+        if (resScripts.ok) {
+          const scripts = await resScripts.json();
           if (Array.isArray(scripts)) {
-            const newCounts: Record<number, number> = {
-              1: 0,
-              2: 0,
-              3: 0,
-              4: 0,
-              5: 0,
-              6: 0,
-              7: 0,
-              8: 0
-            };
+            const newCounts: Record<string, number> = {};
 
             scripts.forEach((script: any) => {
+              const sGameId = script.game_id;
               const title = (script.title || '').toLowerCase();
               const desc = (script.description || '').toLowerCase();
               const firstLine = desc.split('\n')[0].trim();
 
-              BASE_GAMES.forEach(game => {
-                const matches = game.keywords.some(kw => 
+              loadedGames.forEach(game => {
+                const gameKey = String(game.id);
+                // Matchear por game_id directo o por texto
+                const matchesId = sGameId && String(sGameId) === gameKey;
+                const matchesText = (game.keywords || [game.name.toLowerCase()]).some(kw =>
                   firstLine.includes(kw) || title.includes(kw) || desc.includes(kw)
                 );
-                if (matches) {
-                  newCounts[game.id] = (newCounts[game.id] || 0) + 1;
+
+                if (matchesId || matchesText) {
+                  newCounts[gameKey] = (newCounts[gameKey] || 0) + 1;
                 }
               });
             });
@@ -129,13 +154,13 @@ export default function JuegosPage() {
           }
         }
       } catch (err) {
-        console.error("Error al cargar contador de juegos:", err);
+        console.error("Error al cargar datos de juegos:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGameCounts();
+    fetchData();
   }, []);
 
   return (
@@ -148,8 +173,8 @@ export default function JuegosPage() {
 
       {/* Grid of Games */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        {BASE_GAMES.map((game) => {
-          const scriptCount = counts[game.id] || 0;
+        {games.map((game) => {
+          const scriptCount = counts[String(game.id)] || 0;
           return (
             <Link 
               key={game.id} 
@@ -157,17 +182,24 @@ export default function JuegosPage() {
               className="group relative bg-card border border-border-theme rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-accent/5 hover:border-accent/60 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center"
             >
               {/* Background Gradient Effect */}
-              <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
+              <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${game.color || 'from-accent/20 to-transparent'} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
               
               {/* Content */}
               <div className="relative z-10 flex flex-col items-center w-full">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-base border border-border-theme rounded-2xl flex items-center justify-center overflow-hidden mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                  <img
-                    src={game.image}
-                    alt={game.name}
-                    className="w-full h-full object-cover select-none"
-                    loading="lazy"
-                  />
+                  {game.image ? (
+                    <img
+                      src={game.image}
+                      alt={game.name}
+                      className="w-full h-full object-cover select-none"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-3xl">🎮</span>
+                  )}
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3 group-hover:text-accent transition-colors">{game.name}</h2>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-card-hover border border-border-theme rounded-full text-xs font-bold text-foreground">
@@ -193,4 +225,3 @@ export default function JuegosPage() {
     </div>
   );
 }
-

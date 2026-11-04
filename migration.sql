@@ -61,4 +61,53 @@ CREATE TABLE IF NOT EXISTS public.tools (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- ==========================================================
+-- GESTIÓN DE JUEGOS Y RELACIÓN CON SCRIPTS
+-- ==========================================================
 
+-- 1. Tabla de Juegos del Catálogo
+CREATE TABLE IF NOT EXISTS public.games (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    cover_image_url TEXT,
+    image TEXT,
+    place_id TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Asegurar columnas cover_image_url e image si la tabla ya existía
+ALTER TABLE public.games ADD COLUMN IF NOT EXISTS cover_image_url TEXT;
+ALTER TABLE public.games ADD COLUMN IF NOT EXISTS image TEXT;
+
+-- Habilitar RLS en games
+ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de RLS para games
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'games' AND policyname = 'Permitir lectura publica de juegos'
+    ) THEN
+        CREATE POLICY "Permitir lectura publica de juegos" ON public.games FOR SELECT USING (true);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'games' AND policyname = 'Permitir administracion completa de juegos'
+    ) THEN
+        CREATE POLICY "Permitir administracion completa de juegos" ON public.games FOR ALL USING (true);
+    END IF;
+END $$;
+
+-- 2. Columna game_id en la tabla projects (que gestiona los scripts en Chituk)
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS game_id UUID REFERENCES public.games(id) ON DELETE SET NULL;
+
+-- 3. Si existe una tabla alternativa 'scripts', asegurar la columna game_id también
+DO $$ BEGIN
+    IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'scripts') THEN
+        ALTER TABLE public.scripts ADD COLUMN IF NOT EXISTS game_id UUID REFERENCES public.games(id) ON DELETE SET NULL;
+    END IF;
+END $$;
+
+-- Índices para optimizar búsquedas por juego
+CREATE INDEX IF NOT EXISTS idx_projects_game_id ON public.projects(game_id);

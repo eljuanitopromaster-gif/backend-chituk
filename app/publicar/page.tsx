@@ -48,6 +48,10 @@ export default function PublicarPage() {
         compiledDescription += `\n\n${formData.tags.map(t => `#${t}`).join(' ')}`;
       }
 
+      const gameId = formData.targetType === 'universal'
+        ? null
+        : (formData.gameId || (formData.selectedGame?.id ? String(formData.selectedGame.id) : null));
+
       const res = await fetch('/api/scripts/create', {
         method: 'POST',
         headers: {
@@ -58,6 +62,7 @@ export default function PublicarPage() {
         body: JSON.stringify({
           title: formData.title,
           game: formData.targetType === 'universal' ? 'Universal' : formData.gameName,
+          game_id: gameId,
           description: compiledDescription,
           script: formData.scriptLua,
           isMobileFriendly: formData.properties.mobileFriendly,

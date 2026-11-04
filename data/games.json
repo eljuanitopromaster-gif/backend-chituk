@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1fd82221-5859-44de-9212-12ceab9c585f",
+    "title": "Rivals",
+    "description": "Te damos la bienvenida a RIVALES, el juego de disparos en primera persona más intenso de Roblox. Desafía a otros jugadores en duelos de 1v1 a 5v5 en los que gana el primero que llegue a 5.",
+    "cover_image_url": "https://fearraxcfmpxxpbsdwej.supabase.co/storage/v1/object/public/covers/game-1fd82221-5859-44de-9212-12ceab9c585f-1793770764085.png",
+    "image": "https://fearraxcfmpxxpbsdwej.supabase.co/storage/v1/object/public/covers/game-1fd82221-5859-44de-9212-12ceab9c585f-1793770764085.png",
+    "place_id": "17625359962",
+    "created_at": "2026-11-04T05:39:24.672Z",
+    "updated_at": "2026-11-04T05:39:24.672Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780001",
+    "title": "Blox Fruits",
+    "description": "Explora islas, derrota enemigos y maestros, despierta frutas legendarias y domina los mares.",
+    "cover_image_url": "/games/bloxfruits.png",
+    "image": "/games/bloxfruits.png",
+    "place_id": "2753915549",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780002",
+    "title": "Da Hood",
+    "description": "Juego de rol urbano, armas, peleas callejeras y supervivencia en los barrios.",
+    "cover_image_url": "/games/dahood.png",
+    "image": "/games/dahood.png",
+    "place_id": "2788229376",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780003",
+    "title": "Blade Ball",
+    "description": "Esquiva y desvía la bola con reflejos rápidos y habilidades únicas en batallas tensas.",
+    "cover_image_url": "/games/bladeball.png",
+    "image": "/games/bladeball.png",
+    "place_id": "13772394625",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780004",
+    "title": "Pet Simulator 99",
+    "description": "Abre huevos, colecciona mascotas gigantes y exclusivas, desbloquea zonas y monedas masivas.",
+    "cover_image_url": "/games/petsimulator99.png",
+    "image": "/games/petsimulator99.png",
+    "place_id": "8737899170",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780005",
+    "title": "Arsenal",
+    "description": "FPS arcade con un gran arsenal de armas, carreras de armas y combate frenético.",
+    "cover_image_url": "/games/arsenal.png",
+    "image": "/games/arsenal.png",
+    "place_id": "286090429",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780006",
+    "title": "Adopt Me!",
+    "description": "Adopta y cuida cientos de adorables mascotas, decora tu hogar e intercambia con amigos.",
+    "cover_image_url": "/games/adoptme.png",
+    "image": "/games/adoptme.png",
+    "place_id": "92898409",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780007",
+    "title": "Murder Mystery 2",
+    "description": "Descubre al asesino, protege a los inocentes como sheriff o elimina sigilosamente a todos.",
+    "cover_image_url": "/games/mm2.png",
+    "image": "/games/mm2.png",
+    "place_id": "142823291",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "c1f7b62e-4b2a-43c2-a8c6-33924f780008",
+    "title": "Brookhaven RP",
+    "description": "Lugar de reunión para socializar, explorar casas modernas, conducir autos y roleplay ilimitado.",
+    "cover_image_url": "/games/brookhaven.png",
+    "image": "/games/brookhaven.png",
+    "place_id": "4924922222",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z"
+  }
+]
