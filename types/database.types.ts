@@ -54,6 +54,7 @@ export interface Database {
         Row: {
           id: string
           title: string
+          game_id: string | null
           description: string
           script: string
           scriptMode: string
@@ -73,6 +74,7 @@ export interface Database {
         Insert: {
           id: string
           title: string
+          game_id?: string | null
           description: string
           script: string
           scriptMode: string
@@ -92,6 +94,7 @@ export interface Database {
         Update: {
           id?: string
           title?: string
+          game_id?: string | null
           description?: string
           script?: string
           scriptMode?: string
@@ -107,6 +110,38 @@ export interface Database {
           status?: 'pending' | 'approved' | 'rejected'
           copies?: number
           likes?: number
+        }
+      }
+      games: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          cover_image_url: string | null
+          image: string | null
+          place_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          cover_image_url?: string | null
+          image?: string | null
+          place_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          cover_image_url?: string | null
+          image?: string | null
+          place_id?: string | null
+          created_at?: string
+          updated_at?: string
         }
       }
       notifications: {
