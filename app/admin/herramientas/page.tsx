@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAuth, supabase } from '../../components/AuthProvider';
 
 export interface ToolItem {
@@ -61,6 +61,9 @@ export default function AdminHerramientasPage() {
   const [formFeatures, setFormFeatures] = useState('');
   const [formDownloadUrl, setFormDownloadUrl] = useState('');
   const [formImageSrc, setFormImageSrc] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formViewsDisplay, setFormViewsDisplay] = useState('50.0K');
   const [formRating, setFormRating] = useState('4.8');
 
@@ -101,6 +104,47 @@ export default function AdminHerramientasPage() {
     }
   }, [user, authLoading, canManage]);
 
+  // Convertir File a Base64 asíncronamente
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      alert('Por favor selecciona un archivo de imagen válido (JPEG, PNG o WEBP).');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('El archivo supera los 2MB recomendados (máx. 2MB).');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setFormImageSrc('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const openCreateModal = () => {
     setEditingTool(null);
     setFormName('');
@@ -113,6 +157,9 @@ export default function AdminHerramientasPage() {
     setFormFeatures('Inyección rápida\nSin claves tediosas\nSoporte Luau');
     setFormDownloadUrl('');
     setFormImageSrc('');
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setFormViewsDisplay('25.0K');
     setFormRating('4.5');
     setIsModalOpen(true);
@@ -131,6 +178,9 @@ export default function AdminHerramientasPage() {
     setFormFeatures((tool.features || []).join('\n'));
     setFormDownloadUrl(tool.downloadUrl || '');
     setFormImageSrc(tool.imageSrc || '');
+    setSelectedFile(null);
+    setPreviewUrl(tool.imageSrc || null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setFormViewsDisplay(tool.viewsDisplay || '25.0K');
     setFormRating(String(tool.rating || 4.5));
     setIsModalOpen(true);
@@ -141,6 +191,9 @@ export default function AdminHerramientasPage() {
     setIsModalOpen(false);
     setEditingTool(null);
     setIsSubmitting(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const togglePlatform = (p: 'windows' | 'android' | 'mac' | 'ios') => {
@@ -170,6 +223,22 @@ export default function AdminHerramientasPage() {
     setFeedbackMsg(null);
 
     try {
+      let finalImageSrc: string | undefined = formImageSrc.trim() || undefined;
+
+      // Si el administrador seleccionó un archivo, convertirlo a Base64 de forma asíncrona
+      if (selectedFile) {
+        try {
+          finalImageSrc = await fileToBase64(selectedFile);
+        } catch (fileErr) {
+          console.error('Error al convertir imagen a Base64:', fileErr);
+          alert('Error al procesar la imagen seleccionada. Intenta nuevamente.');
+          setIsSubmitting(false);
+          return;
+        }
+      } else if (!previewUrl) {
+        finalImageSrc = undefined;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -190,7 +259,7 @@ export default function AdminHerramientasPage() {
         description: formDescription.trim(),
         features: formFeatures.split('\n').map(s => s.trim()).filter(Boolean),
         downloadUrl: formDownloadUrl.trim(),
-        imageSrc: formImageSrc.trim() || undefined,
+        imageSrc: finalImageSrc,
         viewsDisplay: formViewsDisplay.trim() || '25.0K',
         rating: parseFloat(formRating) || 4.5
       };
@@ -697,15 +766,49 @@ export default function AdminHerramientasPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                    URL de Portada o Imagen (Opcional)
+                    Portada o Imagen (Opcional)
                   </label>
                   <input
-                    type="text"
-                    value={formImageSrc}
-                    onChange={e => setFormImageSrc(e.target.value)}
-                    placeholder="/assets/Executors Tools/Solara.jpg o https://..."
-                    className="w-full bg-base border border-border-theme text-foreground placeholder:text-muted rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg, image/png, image/webp"
+                    onChange={handleFileChange}
+                    className="w-full text-xs text-muted file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-accent file:text-accent-contrast hover:file:opacity-90 file:cursor-pointer cursor-pointer bg-base border border-border-theme rounded-xl p-1.5 focus:outline-none focus:border-accent"
                   />
+
+                  {/* Thumbnail de previsualización */}
+                  {previewUrl && (
+                    <div className="mt-2.5 flex items-center gap-3 p-2 bg-base/70 border border-border-theme rounded-xl">
+                      <div className="relative w-24 h-14 rounded-lg overflow-hidden border border-border-theme bg-base shrink-0">
+                        <img
+                          src={previewUrl}
+                          alt="Previsualización"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">
+                          {selectedFile ? selectedFile.name : 'Imagen actual'}
+                        </p>
+                        {selectedFile && (
+                          <p className="text-[10px] text-muted">
+                            {(selectedFile.size / 1024).toFixed(1)} KB
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="text-[11px] text-danger hover:underline font-semibold mt-0.5 inline-block"
+                        >
+                          Quitar imagen
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-muted mt-1.5 leading-relaxed">
+                    Recomendación: Sube imágenes en formato horizontal (16:9) con un tamaño aproximado de 800x450 píxeles y peso menor a 2MB para asegurar una carga rápida y correcta visualización.
+                  </p>
                 </div>
               </div>
 
