@@ -7,7 +7,7 @@ import { useAuth } from './AuthProvider';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, openThemeModal } = useAuth();
+  const { user } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -33,10 +33,11 @@ export default function Sidebar() {
 
   const navLinkClass = (path: string) => {
     const isActive = pathname === path;
-    return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
+    return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+      isActive
         ? 'bg-accent/15 text-accent font-bold shadow-sm border border-accent/40'
         : 'text-muted hover:text-foreground hover:bg-card-hover'
-      }`;
+    }`;
   };
 
   const renderNavLinks = (onItemClick?: () => void) => (
@@ -94,22 +95,6 @@ export default function Sidebar() {
             </svg>
             Comunidad
           </Link>
-          <button
-            onClick={() => {
-              if (onItemClick) onItemClick();
-              if (openThemeModal) openThemeModal();
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('open-theme-modal'));
-                document.dispatchEvent(new CustomEvent('open-theme-modal'));
-              }
-            }}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-muted hover:text-foreground hover:bg-card-hover text-left cursor-pointer w-full"
-          >
-            <svg className="w-5 h-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.64 0 1.25.15 1.8.42A5.98 5.98 0 0113 11a5.98 5.98 0 014.2 2.42c.55-.27 1.16-.42 1.8-.42a4 4 0 014 4 4 4 0 01-4 4c-.64 0-1.25-.15-1.8-.42A5.98 5.98 0 0113 21a5.98 5.98 0 01-4.2-2.42c-.55.27-1.16.42-1.8.42z" />
-            </svg>
-            Temas y Apariencia
-          </button>
         </div>
       </div>
 
