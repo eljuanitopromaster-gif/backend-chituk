@@ -139,6 +139,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           const mergedUser = {
             ...publicUser,
+            id: publicUser.id || session.user.id,
+            username:
+              publicUser.username ||
+              session.user.user_metadata?.username ||
+              session.user.email?.split('@')[0] ||
+              '',
             email: publicUser.email || session.user.email,
             identities: session.user.identities,
             app_metadata: session.user.app_metadata,
@@ -248,6 +254,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (publicUser) {
         setUser({
           ...publicUser,
+          id: publicUser.id || session.user.id,
+          username:
+            publicUser.username ||
+            session.user.user_metadata?.username ||
+            session.user.email?.split('@')[0] ||
+            '',
           email: publicUser.email || session.user.email,
           identities: session.user.identities,
           app_metadata: session.user.app_metadata,

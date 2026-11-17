@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth, supabase } from '../../components/AuthProvider';
 import CommentsSection from '../../components/CommentsSection';
+import DeleteScriptModal from '../../components/DeleteScriptModal';
+import { canUserDeleteScript } from '../../lib/scriptPermissions';
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -87,6 +89,12 @@ export default function ScriptViewPage() {
   const [isFavorited, setIsFavorited] = useState(false);
   const [favToast, setFavToast] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'about' | 'comments'>('about');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteToast, setDeleteToast] = useState<string | null>(null);
+
+  const canDelete = canUserDeleteScript(user, script);
 
   useEffect(() => {
     if (!id) return;
@@ -229,6 +237,43 @@ export default function ScriptViewPage() {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!script || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setIsDeleteModalOpen(false);
+        openAuthModal('login');
+        return;
+      }
+
+      const res = await fetch(`/api/scripts/${script.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo eliminar el script');
+      }
+
+      setIsDeleteModalOpen(false);
+      setDeleteToast('¡Script eliminado exitosamente!');
+      setTimeout(() => {
+        router.push('/scripts');
+      }, 900);
+    } catch (err: any) {
+      setDeleteError(err.message || 'Ocurrió un error al eliminar el script');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full p-8 text-foreground min-h-screen">
@@ -330,6 +375,24 @@ export default function ScriptViewPage() {
                 {playing ? 'Abriendo Roblox...' : 'Jugar'}
              </button>
           </div>
+
+          {canDelete && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError(null);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-danger/10 hover:bg-danger/20 text-danger border border-danger/30 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Eliminar Script
+              </button>
+            </div>
+          )}
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
@@ -482,6 +545,32 @@ export default function ScriptViewPage() {
           </div>
         </div>
       )}
+
+      {/* Notificación flotante de Eliminación */}
+      {deleteToast && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 bg-card border border-success/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
+          <div className="w-8 h-8 rounded-lg bg-success/20 text-success flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="text-xs font-bold text-foreground">{deleteToast}</span>
+        </div>
+      )}
+
+      <DeleteScriptModal
+        isOpen={isDeleteModalOpen}
+        scriptTitle={script?.title}
+        isDeleting={isDeleting}
+        error={deleteError}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setDeleteError(null);
+          }
+        }}
+      />
     </div>
   );
 }

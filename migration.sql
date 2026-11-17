@@ -116,3 +116,28 @@ END $$;
 
 -- Índices para optimizar búsquedas por juego
 CREATE INDEX IF NOT EXISTS idx_projects_game_id ON public.projects(game_id);
+
+-- ==========================================================
+-- RLS PARA ELIMINACIÓN DE SCRIPTS (AUTOR O STAFF)
+-- ==========================================================
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename = 'projects'
+          AND policyname = 'Permitir eliminacion de scripts a autor o staff'
+    ) THEN
+        CREATE POLICY "Permitir eliminacion de scripts a autor o staff"
+        ON public.projects
+        FOR DELETE
+        TO authenticated
+        USING (
+            auth.uid()::text = "authorId"::text
+            OR EXISTS (
+                SELECT 1 FROM public.users u
+                WHERE u.id::text = auth.uid()::text
+                  AND lower(u.role) IN ('admin', 'moderator', 'mod', 'owner', 'creator')
+            )
+        );
+    END IF;
+END $$;

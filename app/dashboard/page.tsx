@@ -4,6 +4,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, supabase } from '../components/AuthProvider';
+import DeleteScriptModal from '../components/DeleteScriptModal';
+import { canUserDeleteScript } from '../lib/scriptPermissions';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface Achievement {
@@ -122,6 +124,10 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [error, setError] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('Todos');
+  const [scriptToDelete, setScriptToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteToast, setDeleteToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -174,6 +180,61 @@ export default function DashboardPage() {
     if (categoryFilter === 'Pendientes') return ALL_ACHIEVEMENTS.filter(a => !unlockedSet.has(a.id));
     return ALL_ACHIEVEMENTS.filter(a => a.category === categoryFilter);
   }, [categoryFilter, unlockedSet]);
+
+  const handleConfirmDelete = async () => {
+    if (!scriptToDelete || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setScriptToDelete(null);
+        openAuthModal('login');
+        return;
+      }
+
+      const res = await fetch(`/api/scripts/${scriptToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo eliminar el script');
+      }
+
+      const deletedId = scriptToDelete.id;
+      const deletedViews = scriptToDelete.views || 0;
+      const deletedCopies = scriptToDelete.copies || 0;
+      const deletedLikes = scriptToDelete.likes || 0;
+
+      setStats((prev: any) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          scripts: (prev.scripts || []).filter((s: any) => s.id !== deletedId),
+          chartData: (prev.chartData || []).filter((c: any) => c.id !== deletedId),
+          totals: {
+            views: Math.max(0, (prev.totals?.views || 0) - deletedViews),
+            copies: Math.max(0, (prev.totals?.copies || 0) - deletedCopies),
+            likes: Math.max(0, (prev.totals?.likes || 0) - deletedLikes),
+            projectsCount: Math.max(0, (prev.totals?.projectsCount || 0) - 1),
+          },
+        };
+      });
+
+      setScriptToDelete(null);
+      setDeleteToast('¡Script eliminado exitosamente!');
+      setTimeout(() => setDeleteToast(null), 3500);
+    } catch (err: any) {
+      setDeleteError(err.message || 'Ocurrió un error al eliminar el script');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (authLoading || !user) {
     return (
@@ -351,6 +412,112 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* My Published Scripts Section */}
+      <div className="bg-card border border-border-theme rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl flex flex-col gap-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-foreground">Mis Scripts Publicados</h2>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Administra tus scripts publicados y revisa su estado actual.
+            </p>
+          </div>
+          <Link
+            href="/publicar"
+            className="px-4 py-2 rounded-xl bg-accent text-accent-contrast font-bold text-xs hover:opacity-90 transition-opacity self-start sm:self-auto"
+          >
+            + Publicar Script
+          </Link>
+        </div>
+
+        {loadingStats ? (
+          <div className="py-10 flex items-center justify-center">
+            <div className="inline-block animate-spin w-7 h-7 border-2 border-accent border-t-transparent rounded-full" />
+          </div>
+        ) : !stats?.scripts || stats.scripts.length === 0 ? (
+          <div className="py-10 px-6 text-center border-2 border-dashed border-border-theme rounded-xl">
+            <p className="text-sm font-semibold text-foreground">No tienes scripts publicados todavía.</p>
+            <p className="text-xs text-muted mt-1">Comparte tu primer script con la comunidad para verlo aquí.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {stats.scripts.map((s: any) => {
+              const canDelete = canUserDeleteScript(user, s);
+              const statusLabel =
+                s.status === 'approved' ? 'Aprobado' : s.status === 'rejected' ? 'Rechazado' : 'Pendiente';
+              const statusClasses =
+                s.status === 'approved'
+                  ? 'bg-success/15 text-success border-success/35'
+                  : s.status === 'rejected'
+                    ? 'bg-danger/15 text-danger border-danger/35'
+                    : 'bg-warning/15 text-warning border-warning/35';
+
+              return (
+                <div
+                  key={s.id}
+                  className="bg-base border border-border-theme rounded-xl p-4 flex flex-col justify-between gap-4 hover:border-accent/40 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/scripts/${s.id}`}
+                        className="text-base font-bold text-foreground hover:text-accent transition-colors line-clamp-1"
+                      >
+                        {s.title}
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${statusClasses}`}>
+                          {statusLabel}
+                        </span>
+                        <span className="text-[11px] font-semibold text-muted uppercase">
+                          {s.language || 'Lua'}
+                        </span>
+                        {s.createdAt && (
+                          <span className="text-[11px] text-muted">
+                            • {new Date(s.createdAt).toLocaleDateString('es-ES')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 pt-3 border-t border-border-theme flex-wrap">
+                    <div className="flex items-center gap-4 text-xs text-muted font-semibold">
+                      <span>👁️ {(s.views || 0).toLocaleString()}</span>
+                      <span>❤️ {(s.likes || 0).toLocaleString()}</span>
+                      <span>📋 {(s.copies || 0).toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/scripts/${s.id}`}
+                        className="px-3 py-1.5 rounded-lg bg-card hover:bg-card-hover border border-border-theme text-xs font-semibold text-foreground transition-colors"
+                      >
+                        Ver
+                      </Link>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeleteError(null);
+                            setScriptToDelete(s);
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-danger/10 hover:bg-danger/20 border border-danger/30 text-danger text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Eliminar Script
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Badges & Achievements Section */}
       <div className="bg-card border border-border-theme rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl flex flex-col gap-6">
 
@@ -456,6 +623,31 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+      {deleteToast && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 bg-card border border-success/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3 backdrop-blur-md">
+          <div className="w-8 h-8 rounded-lg bg-success/20 text-success flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="text-xs font-bold text-foreground">{deleteToast}</span>
+        </div>
+      )}
+
+      <DeleteScriptModal
+        isOpen={Boolean(scriptToDelete)}
+        scriptTitle={scriptToDelete?.title}
+        isDeleting={isDeleting}
+        error={deleteError}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) {
+            setScriptToDelete(null);
+            setDeleteError(null);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -26,17 +26,19 @@ export async function GET(req: Request) {
       .eq('id', user.id)
       .maybeSingle();
 
-    const username = publicUser?.username;
+    const username = publicUser?.username || user.user_metadata?.username;
+    const authorRefs = Array.from(
+      new Set(
+        [user.id, username, username?.toLowerCase()]
+          .filter((val): val is string => typeof val === 'string' && val.trim().length > 0)
+      )
+    );
 
-    let query = supabase.from('projects').select('id, title, views, copies, likes, createdAt');
-    
-    if (username) {
-      query = query.or(`authorId.eq.${user.id},authorId.eq.${username}`);
-    } else {
-      query = query.eq('authorId', user.id);
-    }
-
-    const { data: projects, error: projectsError } = await query;
+    const { data: projects, error: projectsError } = await supabase
+      .from('projects')
+      .select('id, title, description, language, status, authorId, views, copies, likes, createdAt')
+      .in('authorId', authorRefs)
+      .order('createdAt', { ascending: false });
 
     if (projectsError) {
       throw projectsError;
@@ -51,9 +53,11 @@ export async function GET(req: Request) {
       totalViews += p.views || 0;
       totalCopies += p.copies || 0;
       totalLikes += p.likes || 0;
+      const safeTitle = p.title || 'Sin título';
       
       return {
-        name: p.title.length > 15 ? p.title.substring(0, 15) + '...' : p.title,
+        id: p.id,
+        name: safeTitle.length > 15 ? safeTitle.substring(0, 15) + '...' : safeTitle,
         views: p.views || 0,
         copies: p.copies || 0,
         likes: p.likes || 0,
@@ -110,7 +114,11 @@ export async function GET(req: Request) {
         projectsCount
       },
       badges: unlockedBadges,
-      chartData
+      chartData,
+      scripts: (projects || []).map(p => ({
+        ...p,
+        authorId: p.authorId || user.id,
+      }))
     });
 
   } catch (error: any) {
