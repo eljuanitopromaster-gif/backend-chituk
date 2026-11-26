@@ -2,6 +2,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from './supabaseAdmin';
 import { isStaffRole } from '../scriptPermissions';
+import { canManageUsers } from '../userPermissions';
 
 export interface ServerUser {
   id: string;
@@ -69,6 +70,15 @@ export async function requireStaff(request: Request): Promise<AuthResult> {
   const auth = await requireActiveUser(request);
   if (auth.ok && !isStaffRole(auth.user.role)) {
     return deny('Acceso denegado. Se requieren permisos de staff.', 403);
+  }
+  return auth;
+}
+
+/** Gestión de usuarios y roles: solo `owner` y `admin`. */
+export async function requireUserAdmin(request: Request): Promise<AuthResult> {
+  const auth = await requireActiveUser(request);
+  if (auth.ok && !canManageUsers(auth.user.role)) {
+    return deny('Acceso denegado. Solo propietarios y administradores.', 403);
   }
   return auth;
 }

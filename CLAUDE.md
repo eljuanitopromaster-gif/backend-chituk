@@ -30,6 +30,11 @@ Respetar los nombres exactos de tablas y tipos de datos existentes:
 ## 4. Roles, Permisos y Seguridad
 - **Roles de Staff:** `admin`, `moderator`, `mod`, `owner`, `creator` (normalizar siempre con `.toLowerCase()`).
 - **Cliente Admin en API Routes:** Toda mutación privilegiada debe leer y validar `Authorization: Bearer <token>`, verificar rol y estado `banned` en `public.users`, y ejecutar la operación con `supabaseAdmin` (`SUPABASE_SERVICE_ROLE_KEY`, `autoRefreshToken: false`, `persistSession: false`).
+- **Helpers de servidor (`app/lib/server/auth.ts`):** toda ruta que identifique a un usuario usa `requireActiveUser`, `requireStaff` o `requireUserAdmin`. La identidad sale solo del Bearer token; `role`, `username` y `banned` solo de `public.users`. Prohibido confiar en `X-User-Id`, en IDs del body o en `user_metadata`.
+- **Gestión de usuarios y roles (`/admin/users`, `/api/admin/users`):** solo `owner` y `admin` (`app/lib/userPermissions.ts`).
+  - Roles asignables (lista blanca): `user`, `creator`, `mod`, `moderator`, `admin`, `owner`.
+  - Jerarquía estricta: un `admin` nunca puede promover a `owner` ni modificar o banear a un `owner`.
+  - Nadie puede cambiar su propio rol ni banearse a sí mismo.
 - **Helper central de permisos:** Usar `scriptPermissions.ts` (`isStaffRole`, `canUserDeleteScript`) como única fuente de verdad en frontend y backend.
 - **Eliminación de Scripts (Validación Dual):**
   - Permitida si el usuario es **staff** O es el **autor original** (`user.id === script.authorId` o compatibilidad legacy `user.username === script.authorId` / `script.author`).
@@ -63,7 +68,7 @@ Al modificar navegación o layouts, editar siempre los componentes **globales** 
   - **Usuario autenticado (`user`, de CUALQUIER rol):** Mostrar el botón de **icono de engranaje** con menú desplegable (dropdown). No dejar botones sueltos de `Cerrar Sesión` fuera del menú.
   - **Contenido del Dropdown del Engranaje:**
     1. Encabezado con avatar, usuario, correo y badge de rol (si aplica).
-    2. Sección `Administración` (solo para roles de staff): Cola de Scripts (`/admin/queue`), Usuarios y Roles (`/admin/users`), Gestionar Herramientas (`/admin/herramientas`), Gestionar Juegos (`/admin/games`).
+    2. Sección `Administración` (solo para roles de staff): Cola de Scripts (`/admin/queue`), Usuarios y Roles (`/admin/users`, visible solo para `owner` y `admin`), Gestionar Herramientas (`/admin/herramientas`), Gestionar Juegos (`/admin/games`).
     3. Sección `Cuenta` (para TODOS los usuarios autenticados): Dashboard (`/dashboard`), Mis Favoritos (`/favoritos`), Preferencias (`/preferencias`).
     4. Divisor visual y acción `Cerrar Sesión` en rojo.
 - **Selector de Temas:** Vive **exclusivamente** en `/preferencias` (pestaña `Tema y Apariencia`, 15 temas). No crear accesos duplicados ni modales redundantes en la navegación principal.

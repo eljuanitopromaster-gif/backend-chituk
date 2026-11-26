@@ -1,29 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireUserAdmin } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
+import { canAssignRole, canModifyUser, ASSIGNABLE_ROLES } from '@/app/lib/userPermissions';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export async function GET(request: Request) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Validate user role
-    const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-    const allowedRoles = ['owner', 'admin', 'creator'];
-    if (userError || !user || !allowedRoles.includes(user.role)) {
-        return NextResponse.json({ error: 'Forbidden. Owner or Admin only.' }, { status: 403 });
-    }
+    const auth = await requireUserAdmin(request);
+    if (!auth.ok) return auth.response;
 
     // Fetch all users using service role (bypasses RLS)
     const { data: publicUsers, error } = await supabase
@@ -88,35 +72,52 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Validate user role
-    const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-    const allowedRoles = ['owner', 'admin', 'creator'];
-    if (userError || !user || !allowedRoles.includes(user.role)) {
-        return NextResponse.json({ error: 'Forbidden. Owner or Admin only.' }, { status: 403 });
-    }
+    const auth = await requireUserAdmin(request);
+    if (!auth.ok) return auth.response;
+    const actor = auth.user;
 
     try {
         const body = await request.json();
         const { targetUserId, action, value } = body;
 
-        if (!targetUserId || !action) {
-            return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+        if (!targetUserId || typeof targetUserId !== 'string' || !action) {
+            return NextResponse.json({ error: 'Faltan parámetros.' }, { status: 400 });
+        }
+
+        // Jerarquía: se comprueba el rol actual del objetivo antes de cualquier acción
+        const { data: targetUser, error: targetError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', targetUserId)
+            .maybeSingle();
+
+        if (targetError) throw targetError;
+
+        if (!canModifyUser(actor.role, targetUser?.role)) {
+            return NextResponse.json({ error: 'Solo un propietario puede modificar a otro propietario.' }, { status: 403 });
+        }
+
+        // Rol y verificación viven en public.users: sin perfil no hay nada que actualizar
+        if ((action === 'role' || action === 'verify') && !targetUser) {
+            return NextResponse.json({ error: 'Usuario no encontrado.' }, { status: 404 });
         }
 
         if (action === 'role') {
+            if (targetUserId === actor.id) {
+                return NextResponse.json({ error: 'No puedes cambiar tu propio rol.' }, { status: 400 });
+            }
+            if (!(ASSIGNABLE_ROLES as readonly string[]).includes(value)) {
+                return NextResponse.json({ error: 'Rol no válido.' }, { status: 400 });
+            }
+            if (!canAssignRole(actor.role, value)) {
+                return NextResponse.json({ error: 'Solo un propietario puede asignar el rol de propietario.' }, { status: 403 });
+            }
             const { error } = await supabase.from('users').update({ role: value }).eq('id', targetUserId);
             if (error) throw error;
         } else if (action === 'verify') {
+            if (typeof value !== 'boolean') {
+                return NextResponse.json({ error: 'Valor de verificación no válido.' }, { status: 400 });
+            }
             const { error } = await supabase.from('users').update({ is_verified: value }).eq('id', targetUserId);
             if (error) throw error;
         } else if (action === 'email') {
@@ -139,19 +140,8 @@ export async function POST(request: Request) {
         } else if (action === 'ban') {
             const { isBanned, reason } = body;
 
-            if (targetUserId === userId) {
+            if (targetUserId === actor.id) {
                 return NextResponse.json({ error: 'No puedes banear tu propia cuenta.' }, { status: 400 });
-            }
-
-            // Validar que un no-owner no pueda banear a un owner
-            const { data: targetUser } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', targetUserId)
-                .single();
-
-            if (targetUser?.role === 'owner' && user.role !== 'owner') {
-                return NextResponse.json({ error: 'Solo un Propietario (Owner) puede sancionar a otro Propietario.' }, { status: 403 });
             }
 
             // Actualizar tabla users
@@ -174,11 +164,11 @@ export async function POST(request: Request) {
                 console.warn("Auth ban sync error:", authErr);
             }
         } else {
-            return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+            return NextResponse.json({ error: 'Acción no válida.' }, { status: 400 });
         }
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Error desconocido.' }, { status: 500 });
     }
 }
