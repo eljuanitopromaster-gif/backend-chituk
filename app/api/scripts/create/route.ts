@@ -1,36 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 import { verifyCaptcha } from '@/app/lib/captcha';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {
-    let userId: string | null = null;
-    let actorEmail: string | null = null;
-
-    const authHeader = req.headers.get('authorization');
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      if (!authError && user) {
-        userId = user.id;
-        actorEmail = user.email || null;
-      }
-    }
-
-    if (!userId) {
-      const xUserId = req.headers.get('x-user-id');
-      if (xUserId) {
-        userId = xUserId;
-      }
-    }
-
-    if (!userId) {
-      return NextResponse.json({ error: 'No autorizado. Por favor inicia sesión.' }, { status: 401 });
-    }
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
+    const userId = auth.user.id;
 
     const body = await req.json();
     const { title, game, game_id, gameId, description, script, isMobileFriendly, image, captchaToken, captchaAnswer, honeypot } = body;
@@ -118,9 +95,7 @@ export async function POST(req: Request) {
 
     if (error) throw error;
 
-    // Obtener username del autor para la notificación
-    const { data: publicUser } = await supabase.from('users').select('username').eq('id', userId).maybeSingle();
-    const actorUsername = publicUser?.username || actorEmail || 'Usuario';
+    const actorUsername = auth.user.username || auth.user.email || 'Usuario';
 
     // Notificar a los administradores
     try {

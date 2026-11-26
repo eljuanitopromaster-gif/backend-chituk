@@ -14,7 +14,7 @@ const DATA_FILE = path.join(process.cwd(), 'data', 'games.json');
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-Id',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 function getLocalGames(): any[] {

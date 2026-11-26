@@ -1,17 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useAuth, supabase } from './AuthProvider';
 
 export default function TermsModal() {
   const { user, refreshUser } = useAuth();
   const [show, setShow] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user && user.terms_accepted === false) {
-      setUserId(user.id);
       setShow(true);
     } else {
       setShow(false);
@@ -19,14 +17,13 @@ export default function TermsModal() {
   }, [user]);
 
   const handleAccept = async () => {
-    if (!userId) return;
     setLoading(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/users/accept-terms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId })
+        headers: { 'Authorization': `Bearer ${session?.access_token}` }
       });
 
       if (res.ok) {

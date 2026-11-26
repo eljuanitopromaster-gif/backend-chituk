@@ -30,9 +30,7 @@ export default function FavoritosPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const headers: Record<string, string> = {
-        'X-User-Id': user.id
-      };
+      const headers: Record<string, string> = {};
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
@@ -77,7 +75,6 @@ export default function FavoritosPage() {
       const { data: { session } } = await supabase.auth.getSession();
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'X-User-Id': user.id
       };
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
