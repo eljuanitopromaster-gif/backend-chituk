@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { STAFF_DELETE_ROLES } from '@/app/lib/scriptPermissions';
 import { requireActiveUser } from '@/app/lib/server/auth';
 import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 import { verifyCaptcha } from '@/app/lib/captcha';
@@ -102,7 +103,7 @@ export async function POST(req: Request) {
       const { data: admins } = await supabase
         .from('users')
         .select('id')
-        .in('role', ['owner', 'mod']);
+        .in('role', [...STAFF_DELETE_ROLES]);
 
       if (admins && admins.length > 0) {
         const notifications = admins.map(admin => ({

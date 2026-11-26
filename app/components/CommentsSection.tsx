@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth, supabase } from './AuthProvider';
+import { isStaffRole } from '../lib/scriptPermissions';
 import CaptchaWidget, { CaptchaValue } from './CaptchaWidget';
 
 export interface CommentItem {
@@ -392,7 +393,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
           comments.map(comment => {
             const isAuthor = scriptAuthorId && (comment.userId === scriptAuthorId || comment.authorName === scriptAuthorId);
             const isSelf = user && user.id === comment.userId;
-            const isStaff = user && ['admin', 'owner', 'creator', 'mod'].includes(user.role);
+            const isStaff = user && isStaffRole(user.role);
 
             return (
               <article
@@ -423,7 +424,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                             Autor
                           </span>
                         )}
-                        {comment.authorRole && ['admin', 'owner', 'creator', 'mod'].includes(comment.authorRole) && !isAuthor && (
+                        {isStaffRole(comment.authorRole) && !isAuthor && (
                           <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-info/15 text-info border border-info/40 uppercase tracking-wider">
                             Staff
                           </span>

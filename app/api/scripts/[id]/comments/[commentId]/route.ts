@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
+import { isStaffRole } from '@/app/lib/scriptPermissions';
 import fs from 'fs';
 import path from 'path';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const FALLBACK_DIR = path.join(process.cwd(), 'scratch');
 const FALLBACK_FILE = path.join(FALLBACK_DIR, 'comments_db.json');
@@ -35,15 +33,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     const { id: scriptId, commentId } = await params;
 
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Inicia sesión para realizar esta acción' }, { status: 401 });
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return NextResponse.json({ error: 'Sesión no válida' }, { status: 401 });
-
-    const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle();
-    const isStaff = userData && ['admin', 'owner', 'creator', 'mod'].includes(userData.role);
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
+    const isStaff = isStaffRole(user.role);
 
     // 1. Try Supabase
     const { data: existingComment, error: findErr } = await supabase

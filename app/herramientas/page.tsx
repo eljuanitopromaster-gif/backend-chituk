@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../components/AuthProvider';
+import { isStaffRole } from '../lib/scriptPermissions';
 import ExecutorModal, { ToolItem } from '../components/ExecutorModal';
 export type { ToolItem };
 
@@ -94,7 +95,7 @@ const DEFAULT_TOOLS: ToolItem[] = [
 
 export default function HerramientasPage() {
   const { user } = useAuth();
-  const isAdmin = user && ['owner', 'creator', 'admin', 'mod'].includes(user.role);
+  const isAdmin = user && isStaffRole(user.role);
 
   const [toolsData, setToolsData] = useState<ToolItem[]>(DEFAULT_TOOLS);
 
