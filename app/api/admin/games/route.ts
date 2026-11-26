@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { createClient } from '@supabase/supabase-js';
+import { requireStaff } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'games.json');
 
@@ -35,35 +32,6 @@ function getLocalGames(): any[] {
 function saveLocalGames(games: any[]) {
   ensureDataFile();
   fs.writeFileSync(DATA_FILE, JSON.stringify(games, null, 2), 'utf8');
-}
-
-// Authentication & Role verification helper
-async function checkAdminAuth(request: Request) {
-  let userId = request.headers.get('X-User-Id');
-  const authHeader = request.headers.get('authorization');
-
-  if (!userId && authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    const { data: { user: authUser } } = await supabase.auth.getUser(token);
-    if (authUser) userId = authUser.id;
-  }
-
-  if (!userId) {
-    return { authorized: false, error: 'No autorizado. Se requiere iniciar sesión.', status: 401 };
-  }
-
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle();
-
-  const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
-  if (userError || !user || !allowedRoles.includes(user.role)) {
-    return { authorized: false, error: 'Acceso denegado. Se requieren permisos de administrador.', status: 403 };
-  }
-
-  return { authorized: true, userId, userRole: user.role };
 }
 
 // Subir imagen en Base64 a Supabase Storage bucket 'covers' si aplica
@@ -103,10 +71,8 @@ async function handleImageUpload(image: string | null | undefined, gameId: strin
 
 // 1. GET: Listar todos los juegos con recuento de scripts asociados
 export async function GET(request: Request) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   try {
     let games: any[] = [];
@@ -184,10 +150,8 @@ export async function GET(request: Request) {
 
 // 2. POST: Crear un nuevo juego (title, description, cover_image_url)
 export async function POST(request: Request) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();
@@ -253,10 +217,8 @@ export async function POST(request: Request) {
 
 // 3. PUT: Actualizar un juego existente
 export async function PUT(request: Request) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await request.json();
@@ -347,10 +309,8 @@ export async function PUT(request: Request) {
 
 // 4. DELETE: Eliminar un juego del catálogo
 export async function DELETE(request: Request) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   try {
     const { searchParams } = new URL(request.url);

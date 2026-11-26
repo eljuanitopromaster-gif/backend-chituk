@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireStaff } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 import fs from 'fs';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'games.json');
 
@@ -27,42 +24,12 @@ function saveLocalGames(games: any[]) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(games, null, 2), 'utf8');
 }
 
-async function checkAdminAuth(request: Request) {
-  let userId = request.headers.get('X-User-Id');
-  const authHeader = request.headers.get('authorization');
-
-  if (!userId && authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    const { data: { user: authUser } } = await supabase.auth.getUser(token);
-    if (authUser) userId = authUser.id;
-  }
-
-  if (!userId) {
-    return { authorized: false, error: 'No autorizado', status: 401 };
-  }
-
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle();
-
-  const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
-  if (userError || !user || !allowedRoles.includes(user.role)) {
-    return { authorized: false, error: 'Acceso denegado', status: 403 };
-  }
-
-  return { authorized: true, userId, userRole: user.role };
-}
-
 export async function GET(
   request: Request,
   props: { params: Promise<{ id: string }> }
 ) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   const { id } = await props.params;
 
@@ -105,10 +72,8 @@ export async function PUT(
   request: Request,
   props: { params: Promise<{ id: string }> }
 ) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   const { id } = await props.params;
   const body = await request.json();
@@ -152,10 +117,8 @@ export async function DELETE(
   request: Request,
   props: { params: Promise<{ id: string }> }
 ) {
-  const auth = await checkAdminAuth(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+  const auth = await requireStaff(request);
+  if (!auth.ok) return auth.response;
 
   const { id } = await props.params;
 

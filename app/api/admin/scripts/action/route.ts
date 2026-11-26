@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { requireStaff } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 
 export async function POST(request: Request) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const auth = await requireStaff(request);
+    if (!auth.ok) return auth.response;
 
     try {
         const body = await request.json();
@@ -17,18 +12,6 @@ export async function POST(request: Request) {
 
         if (!scriptId || !['approve', 'reject', 'delete'].includes(action)) {
             return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
-        }
-
-        // Validate user role
-        const { data: user, error: userError } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', userId)
-            .single();
-            
-        const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
-        if (userError || !user || !allowedRoles.includes(user.role)) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         if (action === 'delete') {

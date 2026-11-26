@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, supabase } from '../../components/AuthProvider';
+import { isStaffRole } from '../../lib/scriptPermissions';
 
 interface Script {
   id: string;
@@ -25,7 +26,7 @@ export default function AdminQueuePage() {
     async function checkAuthAndFetch() {
       if (authLoading) return;
 
-      if (!user || !['owner', 'admin', 'creator', 'mod'].includes(user.role)) {
+      if (!user || !isStaffRole(user.role)) {
         router.push('/');
         return;
       }
@@ -37,7 +38,6 @@ export default function AdminQueuePage() {
         const res = await fetch('/api/admin/scripts', {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
-            'X-User-Id': user.id
           }
         });
 
@@ -69,7 +69,6 @@ export default function AdminQueuePage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
-          'X-User-Id': user.id
         },
         body: JSON.stringify({ projectId: id, action })
       });
