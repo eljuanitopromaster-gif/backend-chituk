@@ -17,15 +17,22 @@ Plataforma web en español para descubrir, publicar y administrar scripts de Rob
 Respetar los nombres exactos de tablas y tipos de datos existentes:
 
 - **`public.projects` (CRÍTICO):** Aquí se guardan los **scripts** publicados. **NO existe la tabla `public.scripts`.**
+  - Columna `id`: tipo `text`.
   - Columna `game_id`: `UUID` nullable con FK hacia `public.games(id) ON DELETE SET NULL`. Validar formato UUID antes de insertar o actualizar.
+  - Columna `status`: enum `script_status` (`pending`, `approved`, `rejected`).
   - Columna `authorId`: tipo `text` (puede contener UUID de Supabase o `username` en registros legacy).
-- **`public.games`:** Catálogo de juegos (`id` UUID, `title`, `description`, `cover_image_url`, `image`, `place_id`, `is_active`, `created_at`, `updated_at`).
-- **`public.tools`:** Ejecutores y herramientas (`id` UUID, `name`, `category`, `platforms` TEXT[], `status`, `access_type`, `price_tag`, `download_url`, `image_url`, `description`, `features` TEXT[], `views`, `rating`, `created_at`, `updated_at`).
-- **`public.users`:** Perfiles y roles (`id`, `username`, `role`, `banned`).
+- **`public.games`:** Catálogo de juegos (`id` UUID, `title`, `description`, `cover_image_url`, `place_id`, `is_active`, `created_at`, `updated_at`). **No existe la columna `image`**; la API la devuelve como alias de `cover_image_url`.
+- **`public.tools`:** Ejecutores y herramientas (`id` TEXT tipo slug, `name`, `category`, `platforms` TEXT[], `access`, `price_display`, `views_display`, `views_count`, `rating`, `reviews_count`, `status`, `description`, `features` TEXT[], `download_url`, `image_url`, `image_src`, `created_at`, `updated_at`).
+- **`public.users`:** Perfiles y roles (`id`, `username`, `normalized`, `role`, `banned`, `banReason`, `is_verified`, `terms_accepted`, `theme`, `avatar`, `bio`, `email`). La columna legada `passwordHash` no debe usarse.
   - **GOTCHA SQL:** `public.users.id` es tipo **`text`**, mientras `auth.uid()` devuelve **`uuid`**. En políticas RLS o queries SQL, hacer cast explícito en ambos lados: `u.id::text = auth.uid()::text`.
-- **Tablas relacionales existentes:** `comments`, `comment_likes`, `notifications`, `user_badges`, `user_favorites`, `user_likes`.
+- **Tablas relacionales existentes:** `comments`, `comment_likes`, `notifications`, `user_badges` (fecha en `unlocked_at`), `user_favorites`, `user_likes`.
 - **Regla SQL RLS de Postgres:** Las políticas `FOR INSERT` solo admiten `WITH CHECK (...)`, nunca `USING (...)`.
 - **Storage:** Bucket público `covers` para portadas de juegos y herramientas.
+- **RLS (activa en las 10 tablas).** Toda escritura pasa por las rutas `/api` con `service_role`. Con la clave anónima/autenticada el cliente solo puede:
+  - Leer `games` y `tools`.
+  - Leer su propia fila de `users`, crearla con `role = 'user'` y actualizar únicamente `theme`.
+  - Leer sus propios `user_likes` y `user_favorites`.
+  - Cualquier acceso nuevo desde el cliente requiere añadir su permiso y política en `migration.sql`.
 
 ## 4. Roles, Permisos y Seguridad
 - **Roles de Staff:** `admin`, `moderator`, `mod`, `owner`, `creator` (normalizar siempre con `.toLowerCase()`).
@@ -52,7 +59,7 @@ Todos los endpoints deben operar exclusivamente contra Supabase, validar paráme
 - **Herramientas / Ejecutores (`public.tools`):**
   - `GET / POST / PUT / DELETE /api/admin/tools` (y lectura pública de herramientas): CRUD completo en `public.tools`. Mutaciones restringidas a roles de staff. Las imágenes locales se suben al bucket `covers` y su URL pública (`getPublicUrl`) se guarda en `image_url`.
 - **Juegos (`public.games`):**
-  - `GET / POST / PUT / DELETE /api/admin/games` (y catálogo público): CRUD completo en `public.games`. Mutaciones restringidas a roles de staff. Subida de portadas al bucket `covers` guardando la URL pública en `cover_image_url` / `image`.
+  - `GET / POST / PUT / DELETE /api/admin/games` (y catálogo público): CRUD completo en `public.games`. Mutaciones restringidas a roles de staff. Subida de portadas al bucket `covers` guardando la URL pública en `cover_image_url`.
 - **Dashboard y Cuenta:**
   - `GET /api/dashboard/stats`: Devuelve los `scripts` publicados por el usuario autenticado (incluyendo `authorId` e `id` en `chartData`) y los totales (`totals`) para gestión directa en `/dashboard`.
   - `POST /api/user/delete`: Valida Bearer token, purga datos relacionados (`comments`, `comment_likes`, `user_likes`, `user_favorites`, `projects`, `user_badges`, `public.users`) y elimina la cuenta con `supabase.auth.admin.deleteUser`.
