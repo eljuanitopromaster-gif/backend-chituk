@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth, supabase } from '../../components/AuthProvider';
-import { canManageUsers, canModifyUser } from '../../lib/userPermissions';
+import { canAssignRole, canManageUsers, canModifyUser } from '../../lib/userPermissions';
 
 interface UserData {
   id: string;
@@ -111,7 +111,7 @@ export default function UsersAdminPage() {
     }
 
     if (!canModifyUser(user?.role, targetRole)) {
-      alert("Solo un Propietario (Owner) puede sancionar a otro Propietario.");
+      alert("Solo un propietario puede sancionar a un administrador o a otro propietario.");
       return;
     }
 
@@ -435,10 +435,12 @@ export default function UsersAdminPage() {
                           u.banned || u.id === user?.id || !canModifyUser(user?.role, u.role) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         }`}
                       >
-                        {(canModifyUser(user?.role, 'owner') || u.role === 'owner') && (
+                        {(canAssignRole(user?.role, 'owner') || u.role === 'owner') && (
                           <option value="owner">👑 Dueño (Owner)</option>
                         )}
-                        <option value="admin">🛡️ Administrador</option>
+                        {(canAssignRole(user?.role, 'admin') || u.role === 'admin') && (
+                          <option value="admin">🛡️ Administrador</option>
+                        )}
                         <option value="mod">🔨 Moderador</option>
                         {u.role === 'moderator' && <option value="moderator">🔨 Moderador</option>}
                         <option value="creator">✨ Creador</option>

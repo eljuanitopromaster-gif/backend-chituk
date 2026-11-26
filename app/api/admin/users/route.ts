@@ -94,7 +94,7 @@ export async function POST(request: Request) {
         if (targetError) throw targetError;
 
         if (!canModifyUser(actor.role, targetUser?.role)) {
-            return NextResponse.json({ error: 'Solo un propietario puede modificar a otro propietario.' }, { status: 403 });
+            return NextResponse.json({ error: 'Solo un propietario puede modificar a un administrador o a otro propietario.' }, { status: 403 });
         }
 
         // Rol y verificación viven en public.users: sin perfil no hay nada que actualizar
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Rol no válido.' }, { status: 400 });
             }
             if (!canAssignRole(actor.role, value)) {
-                return NextResponse.json({ error: 'Solo un propietario puede asignar el rol de propietario.' }, { status: 403 });
+                return NextResponse.json({ error: 'Solo un propietario puede asignar los roles de administrador o propietario.' }, { status: 403 });
             }
             const { error } = await supabase.from('users').update({ role: value }).eq('id', targetUserId);
             if (error) throw error;

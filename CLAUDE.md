@@ -33,7 +33,8 @@ Respetar los nombres exactos de tablas y tipos de datos existentes:
 - **Helpers de servidor (`app/lib/server/auth.ts`):** toda ruta que identifique a un usuario usa `requireActiveUser`, `requireStaff` o `requireUserAdmin`. La identidad sale solo del Bearer token; `role`, `username` y `banned` solo de `public.users`. Prohibido confiar en `X-User-Id`, en IDs del body o en `user_metadata`.
 - **Gestión de usuarios y roles (`/admin/users`, `/api/admin/users`):** solo `owner` y `admin` (`app/lib/userPermissions.ts`).
   - Roles asignables (lista blanca): `user`, `creator`, `mod`, `moderator`, `admin`, `owner`.
-  - Jerarquía estricta: un `admin` nunca puede promover a `owner` ni modificar o banear a un `owner`.
+  - Jerarquía estricta: un `admin` solo puede modificar, banear o asignar rangos estrictamente inferiores (`user`, `creator`, `mod`, `moderator`).
+  - Solo un `owner` puede asignar `admin` u `owner`, o modificar a otro `admin` u `owner`.
   - Nadie puede cambiar su propio rol ni banearse a sí mismo.
 - **Helper central de permisos:** Usar `scriptPermissions.ts` (`isStaffRole`, `canUserDeleteScript`) como única fuente de verdad en frontend y backend.
 - **Eliminación de Scripts (Validación Dual):**
