@@ -3,9 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../components/AuthProvider';
+import { canManageUsers } from '../lib/userPermissions';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6">
@@ -25,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           Cola de Scripts
         </Link>
 
+        {canManageUsers(user?.role) && (
         <Link
           href="/admin/users"
           className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${pathname === '/admin/users'
@@ -37,6 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </svg>
           Usuarios y Roles
         </Link>
+        )}
 
         <Link
           href="/admin/herramientas"

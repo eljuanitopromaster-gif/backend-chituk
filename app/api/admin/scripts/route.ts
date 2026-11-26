@@ -1,30 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireStaff } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-const allowedRoles = ['owner', 'admin', 'creator', 'mod'];
-
 export async function GET(request: Request) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Validate user role
-    const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-    if (userError || !user || !allowedRoles.includes(user.role)) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const auth = await requireStaff(request);
+    if (!auth.ok) return auth.response;
 
     // Fetch pending scripts
     const { data, error } = await supabase
@@ -41,21 +23,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Validate user role
-    const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-    if (userError || !user || !allowedRoles.includes(user.role)) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const auth = await requireStaff(request);
+    if (!auth.ok) return auth.response;
 
     try {
         const body = await request.json();

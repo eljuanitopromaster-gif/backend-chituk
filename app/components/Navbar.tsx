@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, supabase } from './AuthProvider';
+import { isStaffRole } from '../lib/scriptPermissions';
+import { canManageUsers } from '../lib/userPermissions';
 
 const POPULAR_GAMES = [
   { id: 1, name: 'Blox Fruits', image: '/games/bloxfruits.png', keywords: ['blox fruits', 'bloxfruits'] },
@@ -27,10 +29,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const settingsDropdownRef = useRef<HTMLDivElement>(null);
 
-  const roleNormalized = (user?.role || '').toLowerCase().trim();
-  const isAdminOrMod = Boolean(
-    user && ['admin', 'moderator', 'mod', 'creator', 'owner'].includes(roleNormalized)
-  );
+  const isAdminOrMod = Boolean(user && isStaffRole(user.role));
 
   // Estados y referencias para la barra de búsqueda global
   const [searchQuery, setSearchQuery] = useState('');
@@ -653,6 +652,7 @@ export default function Navbar() {
                           </svg>
                           <span>Cola de Scripts</span>
                         </Link>
+                        {canManageUsers(user.role) && (
                         <Link
                           href="/admin/users"
                           onClick={() => setShowSettingsDropdown(false)}
@@ -663,6 +663,7 @@ export default function Navbar() {
                           </svg>
                           <span>Usuarios y Roles</span>
                         </Link>
+                        )}
                         <Link
                           href="/admin/herramientas"
                           onClick={() => setShowSettingsDropdown(false)}

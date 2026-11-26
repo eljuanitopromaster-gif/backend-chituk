@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth, supabase } from '../../components/AuthProvider';
+import { canAssignRole, canManageUsers, canModifyUser } from '../../lib/userPermissions';
 
 interface UserData {
   id: string;
@@ -24,7 +25,7 @@ export default function UsersAdminPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  const canManage = user && ['owner', 'admin', 'creator'].includes(user.role);
+  const canManage = user && canManageUsers(user.role);
 
   const fetchUsers = async () => {
     if (authLoading || !user || !canManage) return;
@@ -37,7 +38,6 @@ export default function UsersAdminPage() {
       const res = await fetch('/api/admin/users', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
-          'X-User-Id': user.id
         }
       });
       
@@ -68,13 +68,15 @@ export default function UsersAdminPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
-          'X-User-Id': user?.id || ''
         },
         body: JSON.stringify({ targetUserId: userId, action: 'role', value: newRole })
       });
-      if (!res.ok) throw new Error('Failed to update role');
-    } catch (err) {
-      alert("Error al actualizar rol del usuario");
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error al actualizar rol del usuario');
+      }
+    } catch (err: any) {
+      alert(err.message || "Error al actualizar rol del usuario");
       fetchUsers();
     }
   };
@@ -89,13 +91,15 @@ export default function UsersAdminPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
-          'X-User-Id': user?.id || ''
         },
         body: JSON.stringify({ targetUserId: userId, action: 'verify', value: !currentStatus })
       });
-      if (!res.ok) throw new Error('Failed to update verification');
-    } catch (err) {
-      alert("Error al actualizar verificación");
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error al actualizar verificación');
+      }
+    } catch (err: any) {
+      alert(err.message || "Error al actualizar verificación");
       fetchUsers();
     }
   };
@@ -106,8 +110,8 @@ export default function UsersAdminPage() {
       return;
     }
 
-    if (targetRole === 'owner' && user?.role !== 'owner') {
-      alert("Solo un Propietario (Owner) puede sancionar a otro Propietario.");
+    if (!canModifyUser(user?.role, targetRole)) {
+      alert("Solo un propietario puede sancionar a un administrador o a otro propietario.");
       return;
     }
 
@@ -135,7 +139,6 @@ export default function UsersAdminPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
-          'X-User-Id': user?.id || ''
         },
         body: JSON.stringify({
           targetUserId: userId,
@@ -174,7 +177,6 @@ export default function UsersAdminPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
-          'X-User-Id': user?.id || ''
         },
         body: JSON.stringify({ targetUserId: userId, action: 'email', email: cleanEmail })
       });
@@ -207,6 +209,7 @@ export default function UsersAdminPage() {
       case 'admin':
         return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-danger/15 text-danger border border-danger/35">Admin</span>;
       case 'mod':
+      case 'moderator':
         return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-success/15 text-success border border-success/35">Mod</span>;
       case 'creator':
         return <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-purple-theme/15 text-purple-theme border border-purple-theme/35">Creador</span>;
@@ -391,6 +394,7 @@ export default function UsersAdminPage() {
                         )}
                         <button
                           type="button"
+                          hidden={!canModifyUser(user?.role, u.role)}
                           onClick={() => handleEditEmail(u.id, u.email || '', u.username || 'usuario')}
                           className="opacity-0 group-hover/email:opacity-100 p-1 hover:bg-card-hover rounded text-muted hover:text-accent transition-all cursor-pointer"
                           title="Editar / Asignar correo"
@@ -425,15 +429,20 @@ export default function UsersAdminPage() {
                     <td className="py-4 px-6">
                       <select
                         value={u.role || 'user'}
-                        disabled={u.banned}
+                        disabled={u.banned || u.id === user?.id || !canModifyUser(user?.role, u.role)}
                         onChange={(e) => handleRoleChange(u.id, e.target.value)}
                         className={`bg-base border border-border-theme text-foreground text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent font-medium ${
-                          u.banned ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                          u.banned || u.id === user?.id || !canModifyUser(user?.role, u.role) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         }`}
                       >
-                        <option value="owner">👑 Dueño (Owner)</option>
-                        <option value="admin">🛡️ Administrador</option>
+                        {(canAssignRole(user?.role, 'owner') || u.role === 'owner') && (
+                          <option value="owner">👑 Dueño (Owner)</option>
+                        )}
+                        {(canAssignRole(user?.role, 'admin') || u.role === 'admin') && (
+                          <option value="admin">🛡️ Administrador</option>
+                        )}
                         <option value="mod">🔨 Moderador</option>
+                        {u.role === 'moderator' && <option value="moderator">🔨 Moderador</option>}
                         <option value="creator">✨ Creador</option>
                         <option value="user">👤 Usuario Normal</option>
                       </select>
@@ -443,7 +452,7 @@ export default function UsersAdminPage() {
                     <td className="py-4 px-6 text-center">
                       <button
                         onClick={() => handleToggleVerified(u.id, u.is_verified || false)}
-                        disabled={u.banned}
+                        disabled={u.banned || !canModifyUser(user?.role, u.role)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                           u.banned
                             ? 'opacity-40 cursor-not-allowed bg-base border border-border-theme text-muted'
@@ -460,6 +469,8 @@ export default function UsersAdminPage() {
                     <td className="py-4 px-6 text-right">
                       {u.id === user?.id ? (
                         <span className="text-xs text-muted italic px-3 py-1.5">Tu cuenta</span>
+                      ) : !canModifyUser(user?.role, u.role) ? (
+                        <span className="text-xs text-muted italic px-3 py-1.5">Protegido</span>
                       ) : (
                         <button
                           onClick={() => handleToggleBan(u.id, !!u.banned, u.username || 'usuario', u.role || 'user')}

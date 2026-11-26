@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin } from '@/app/lib/server/supabaseAdmin';
 import { canUserDeleteScript } from '@/app/lib/scriptPermissions';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -66,24 +58,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    if (!supabaseServiceKey) {
-      return NextResponse.json(
-        { error: 'Configuración incompleta: falta SUPABASE_SERVICE_ROLE_KEY en el servidor.' },
-        { status: 500 }
-      );
-    }
-
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'No autorizado. Inicia sesión para continuar.' }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
-
-    if (authError || !authUser) {
-      return NextResponse.json({ error: 'Sesión inválida o expirada.' }, { status: 401 });
-    }
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
 
     const { id } = await params;
 
@@ -102,27 +78,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Script no encontrado' }, { status: 404 });
     }
 
-    // 2. Obtener rol y estado del usuario autenticado desde public.users
-    const { data: publicUser } = await supabaseAdmin
-      .from('users')
-      .select('role, username, normalized, banned')
-      .eq('id', authUser.id)
-      .maybeSingle();
-
-    if (publicUser?.banned) {
-      return NextResponse.json({ error: 'Unauthorized: Cuenta suspendida.' }, { status: 403 });
-    }
-
-    // 3. Validación Dual: Autor original O Staff (admin / moderator / etc.)
-    const hasPermission = canUserDeleteScript(
-      {
-        id: authUser.id,
-        role: publicUser?.role || authUser.app_metadata?.role || authUser.user_metadata?.role,
-        username: publicUser?.username || authUser.user_metadata?.username,
-        normalized: publicUser?.normalized,
-      },
-      script
-    );
+    // 2. Validación Dual: Autor original O Staff, con datos exclusivamente de public.users
+    const hasPermission = canUserDeleteScript(auth.user, script);
 
     if (!hasPermission) {
       return NextResponse.json(

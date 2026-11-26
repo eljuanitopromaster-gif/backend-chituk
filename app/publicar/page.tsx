@@ -57,7 +57,6 @@ export default function PublicarPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
-          'X-User-Id': user.id
         },
         body: JSON.stringify({
           title: formData.title,

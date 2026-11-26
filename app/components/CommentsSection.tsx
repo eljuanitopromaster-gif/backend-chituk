@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth, supabase } from './AuthProvider';
+import { isStaffRole } from '../lib/scriptPermissions';
 import CaptchaWidget, { CaptchaValue } from './CaptchaWidget';
 
 export interface CommentItem {
@@ -48,6 +49,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
   const [captchaKey, setCaptchaKey] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'likes' | 'newest'>('likes');
   const [errorMessage, setErrorMessage] = useState('');
+  const [listError, setListError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchComments = async () => {
@@ -62,12 +64,16 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
         headers
       });
 
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
+        setListError('');
         setComments(data.comments || []);
+      } else {
+        setListError(data.error || 'No se pudieron cargar los comentarios.');
       }
     } catch (err) {
       console.error('Error fetching comments:', err);
+      setListError('No se pudieron cargar los comentarios.');
     } finally {
       setLoading(false);
     }
@@ -168,11 +174,13 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
         }
       });
 
+      const data = await res.json();
       if (!res.ok) {
         // Revert on error
         setComments(previousComments);
+        setListError(data.error || 'No se pudo registrar el me gusta.');
       } else {
-        const data = await res.json();
+        setListError('');
         setComments(prev =>
           prev.map(c =>
             c.id === commentId
@@ -267,6 +275,12 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
           </div>
         )}
       </div>
+
+      {listError && (
+        <p role="alert" className="mb-4 text-xs text-danger font-medium bg-danger/10 border border-danger/25 rounded-lg p-3">
+          {listError}
+        </p>
+      )}
 
       {/* Input / Post Form */}
       <div className="bg-card border border-border-theme rounded-2xl p-5 mb-10 shadow-lg">
@@ -392,7 +406,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
           comments.map(comment => {
             const isAuthor = scriptAuthorId && (comment.userId === scriptAuthorId || comment.authorName === scriptAuthorId);
             const isSelf = user && user.id === comment.userId;
-            const isStaff = user && ['admin', 'owner', 'creator', 'mod'].includes(user.role);
+            const isStaff = user && isStaffRole(user.role);
 
             return (
               <article
@@ -423,7 +437,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
                             Autor
                           </span>
                         )}
-                        {comment.authorRole && ['admin', 'owner', 'creator', 'mod'].includes(comment.authorRole) && !isAuthor && (
+                        {isStaffRole(comment.authorRole) && !isAuthor && (
                           <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-info/15 text-info border border-info/40 uppercase tracking-wider">
                             Staff
                           </span>

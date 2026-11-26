@@ -73,7 +73,7 @@ export default function ThemeModal({ isOpen, onClose }: { isOpen: boolean, onClo
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.access_token}`
               },
-              body: JSON.stringify({ theme: id, id: user.id })
+              body: JSON.stringify({ theme: id })
             }).catch(() => {});
           }
           supabase.from('users').update({ theme: id }).eq('id', user.id).then(() => {});

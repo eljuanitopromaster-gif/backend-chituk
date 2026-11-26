@@ -1,32 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 
 export async function GET(req: Request) {
   try {
-    let userId: string | null = null;
-    const authHeader = req.headers.get('authorization');
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      if (!authError && user) {
-        userId = user.id;
-      }
-    }
-
-    if (!userId) {
-      const xUserId = req.headers.get('x-user-id');
-      if (xUserId) {
-        userId = xUserId;
-      }
-    }
-
-    if (!userId) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
+    const userId = auth.user.id;
 
     // 1. Obtener los favoritos del usuario
     const { data: favs, error: favsError } = await supabase
