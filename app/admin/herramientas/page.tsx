@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAuth, supabase } from '../../components/AuthProvider';
+import { isStaffRole } from '../../lib/scriptPermissions';
 
 export interface ToolItem {
   id: string;
@@ -70,7 +71,7 @@ export default function AdminHerramientasPage() {
   // Delete Confirm State
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const canManage = user && ['owner', 'admin', 'creator'].includes(user.role);
+  const canManage = user && isStaffRole(user.role);
 
   const fetchTools = async () => {
     if (authLoading || !user || !canManage) return;
@@ -78,9 +79,7 @@ export default function AdminHerramientasPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const headers: Record<string, string> = {
-        'X-User-Id': user.id
-      };
+      const headers: Record<string, string> = {};
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
@@ -242,7 +241,6 @@ export default function AdminHerramientasPage() {
       const { data: { session } } = await supabase.auth.getSession();
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'X-User-Id': user.id
       };
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
@@ -299,9 +297,7 @@ export default function AdminHerramientasPage() {
     setDeletingId(toolId);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const headers: Record<string, string> = {
-        'X-User-Id': user.id
-      };
+      const headers: Record<string, string> = {};
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
@@ -352,7 +348,7 @@ export default function AdminHerramientasPage() {
       <div className="p-8 bg-card border border-danger/30 rounded-2xl text-center max-w-xl mx-auto my-12">
         <h2 className="text-xl font-bold text-danger mb-2">Acceso Restringido</h2>
         <p className="text-muted text-sm">
-          Esta sección está reservada exclusivamente para Owners, Creadores y Administradores de Chituk.
+          Esta sección está reservada para el equipo de staff de Chituk.
         </p>
       </div>
     );

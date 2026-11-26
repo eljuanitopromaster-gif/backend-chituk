@@ -18,9 +18,7 @@ export default function AuthModal() {
   // Forgot password fields
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
-  const [recoveryMethod, setRecoveryMethod] = useState<'email' | 'direct_link'>('email');
-  const [actionLink, setActionLink] = useState('');
-  const [copiedLink, setCopiedLink] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,8 +31,6 @@ export default function AuthModal() {
       setTab(authTab);
       setError('');
       setForgotSent(false);
-      setActionLink('');
-      setCopiedLink(false);
       setGoogleLoading(false);
     }
   }, [isAuthModalOpen, authTab]);
@@ -86,13 +82,7 @@ export default function AuthModal() {
         throw new Error(data.error || "Error al procesar la recuperación de contraseña.");
       }
 
-      if (data.method === 'direct_link' && data.actionLink) {
-        setRecoveryMethod('direct_link');
-        setActionLink(data.actionLink);
-      } else {
-        setRecoveryMethod('email');
-      }
-
+      setForgotMessage(data.message);
       setForgotSent(true);
     } catch (error) {
       const err = error as Error;
@@ -109,34 +99,37 @@ export default function AuthModal() {
 
     try {
       if (tab === 'login') {
-        let loginEmail = identifier.trim();
+        const loginId = identifier.trim();
 
-        if (!loginEmail.includes('@')) {
-          const res = await fetch('/api/auth/lookup-email', {
+        if (!loginId.includes('@')) {
+          const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: loginEmail })
+            body: JSON.stringify({ username: loginId, password })
           });
 
+          const loginData = await res.json();
           if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.error || "No existe ninguna cuenta registrada con ese nombre de usuario.");
+            throw new Error(loginData.error || "No se pudo iniciar sesión.");
           }
 
-          const lookupData = await res.json();
-          loginEmail = lookupData.email;
-        }
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: loginData.access_token,
+            refresh_token: loginData.refresh_token
+          });
+          if (sessionError) throw sessionError;
+        } else {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: loginId,
+            password
+          });
 
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: loginEmail,
-          password
-        });
-
-        if (signInError) {
-          if (signInError.message.toLowerCase().includes('invalid login credentials')) {
-            throw new Error("Credenciales inválidas. Verifica tu correo/usuario y contraseña.");
+          if (signInError) {
+            if (signInError.message.toLowerCase().includes('invalid login credentials')) {
+              throw new Error("Credenciales inválidas. Verifica tu correo/usuario y contraseña.");
+            }
+            throw signInError;
           }
-          throw signInError;
         }
 
         closeAuthModal();
@@ -282,70 +275,22 @@ export default function AuthModal() {
           {tab === 'forgot' ? (
             forgotSent ? (
               <div className="flex flex-col gap-4 text-center py-4">
-                {recoveryMethod === 'direct_link' ? (
-                  <>
-                    <div className="w-14 h-14 bg-accent/15 border border-accent/30 text-accent rounded-2xl flex items-center justify-center mx-auto shadow-md">
-                      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">¡Enlace Seguro Listo!</h3>
-                    <p className="text-xs text-muted leading-relaxed">
-                      Para tu comodidad inmediata (evitando esperas por límites del servidor de correo), puedes restablecer tu contraseña directamente haciendo clic aquí:
-                    </p>
-                    <div className="flex flex-col gap-2 mt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          window.location.href = actionLink;
-                        }}
-                        className="w-full py-3 bg-accent text-accent-contrast rounded-xl font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-md flex items-center justify-center gap-2"
-                      >
-                        <span>Restablecer Contraseña Ahora</span>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          await navigator.clipboard.writeText(actionLink);
-                          setCopiedLink(true);
-                          setTimeout(() => setCopiedLink(false), 2500);
-                        }}
-                        className="w-full py-2 bg-card border border-border-theme hover:border-accent text-xs text-muted hover:text-foreground rounded-xl font-medium transition-colors cursor-pointer"
-                      >
-                        {copiedLink ? '✓ ¡Enlace copiado al portapapeles!' : 'Copiar enlace directo de recuperación'}
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setTab('login'); setForgotSent(false); }}
-                      className="mt-2 text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
-                    >
-                      Regresar a Iniciar Sesión
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-12 h-12 bg-success/15 border border-success/30 text-success rounded-full flex items-center justify-center mx-auto">
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground">¡Enlace enviado!</h3>
-                    <p className="text-sm text-muted leading-relaxed">
-                      Hemos enviado las instrucciones para restablecer tu contraseña a <strong className="text-accent">{forgotEmail}</strong>. Revisa tu bandeja de entrada o spam.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => { setTab('login'); setForgotSent(false); }}
-                      className="mt-2 w-full py-3 bg-accent text-accent-contrast rounded-lg font-bold hover:opacity-90 transition-opacity cursor-pointer"
-                    >
-                      Regresar a Iniciar Sesión
-                    </button>
-                  </>
-                )}
+                <div className="w-12 h-12 bg-success/15 border border-success/30 text-success rounded-full flex items-center justify-center mx-auto">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-foreground">Revisa tu correo</h3>
+                <p className="text-sm text-muted leading-relaxed">
+                  {forgotMessage}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setTab('login'); setForgotSent(false); }}
+                  className="mt-2 w-full py-3 bg-accent text-accent-contrast rounded-lg font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  Regresar a Iniciar Sesión
+                </button>
               </div>
             ) : (
               <form onSubmit={handleForgotSubmit} className="flex flex-col gap-4">

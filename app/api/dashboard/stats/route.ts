@@ -1,38 +1,25 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
+import { isUuid } from '@/app/lib/scriptPermissions';
 
 export async function GET(req: Request) {
   try {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'No authorization header' }, { status: 401 });
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     // Traemos el perfil público para obtener detalles
     const { data: publicUser } = await supabase
       .from('users')
-      .select('username, is_verified, avatar, bio, theme')
+      .select('is_verified, avatar, bio, theme')
       .eq('id', user.id)
       .maybeSingle();
 
-    const username = publicUser?.username || user.user_metadata?.username;
-    const authorRefs = Array.from(
-      new Set(
-        [user.id, username, username?.toLowerCase()]
-          .filter((val): val is string => typeof val === 'string' && val.trim().length > 0)
-      )
-    );
+    // Compatibilidad legacy: scripts guardados con el username. Un username con forma de UUID se ignora.
+    const legacyRefs = [user.username, user.username.toLowerCase()]
+      .filter(val => val.trim().length > 0 && !isUuid(val.trim()));
+    const authorRefs = Array.from(new Set([user.id, ...legacyRefs]));
 
     const { data: projects, error: projectsError } = await supabase
       .from('projects')

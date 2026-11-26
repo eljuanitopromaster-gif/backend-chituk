@@ -10,7 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Permisos CORS para que el HTML de tu compa no sea bloqueado
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -51,48 +51,5 @@ export async function GET() {
     return NextResponse.json(formattedData, { headers: corsHeaders });
 }
 
-export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-
-        const rawGameId = body.game_id || body.gameId || null;
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        const validGameId = (rawGameId && typeof rawGameId === 'string' && uuidRegex.test(rawGameId)) ? rawGameId : null;
-
-        // Limpiamos los datos para la tabla projects en Supabase
-        const projectToSave: any = {
-            id: body.id,
-            title: body.title,
-            game_id: validGameId,
-            description: body.description,
-            script: body.script,
-            scriptMode: body.scriptMode,
-            kind: body.kind,
-            authorId: body.authorId,
-            youtubeUrl: body.youtubeUrl || null,
-            destinationUrl: body.destinationUrl || null,
-            image: body.image || null,
-            views: body.views || 0,
-            unlocks: body.unlocks || 0,
-            language: body.language || 'text',
-            createdAt: body.createdAt
-        };
-
-        let data = null;
-        let { data: insertedData, error } = await supabase.from('projects').insert([projectToSave]).select();
-        if (error && error.message?.includes('game_id')) {
-            delete projectToSave.game_id;
-            const retry = await supabase.from('projects').insert([projectToSave]).select();
-            error = retry.error;
-            data = retry.data;
-        } else {
-            data = insertedData;
-        }
-
-        if (error) throw error;
-
-        return NextResponse.json({ success: true, data }, { headers: corsHeaders });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
-    }
-}
+// La publicación comparte la implementación autenticada (con captcha) de /api/scripts/create
+export { POST } from './create/route';

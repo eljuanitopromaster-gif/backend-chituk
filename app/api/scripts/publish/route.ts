@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { STAFF_DELETE_ROLES } from '@/app/lib/scriptPermissions';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
     const { data: admins } = await supabase
       .from('users')
       .select('id')
-      .in('role', ['owner', 'mod']);
+      .in('role', [...STAFF_DELETE_ROLES]);
 
     if (admins && admins.length > 0) {
       const notifications = admins.map(admin => ({

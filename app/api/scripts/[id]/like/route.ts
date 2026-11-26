@@ -1,43 +1,15 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { requireActiveUser } from '@/app/lib/server/auth';
+import { supabaseAdmin as supabase } from '@/app/lib/server/supabaseAdmin';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: scriptId } = await params;
     
-    // Auth check: support Bearer token and X-User-Id fallback
-    let userId: string | null = null;
-    let actorUsername: string | null = null;
-
-    const authHeader = req.headers.get('authorization');
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      if (!authError && user) {
-        userId = user.id;
-        actorUsername = user.email || null;
-      }
-    }
-
-    if (!userId) {
-      const xUserId = req.headers.get('x-user-id');
-      if (xUserId) {
-        userId = xUserId;
-      }
-    }
-
-    if (!userId) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    const { data: publicUser } = await supabase.from('users').select('username').eq('id', userId).single();
-    if (publicUser?.username) {
-      actorUsername = publicUser.username;
-    }
+    const auth = await requireActiveUser(req);
+    if (!auth.ok) return auth.response;
+    const userId = auth.user.id;
+    const actorUsername = auth.user.username || auth.user.email;
 
     // 1. Verificar si el usuario ya dio like a este script
     const { data: existingLike, error: likeCheckError } = await supabase
