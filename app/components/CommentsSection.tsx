@@ -49,6 +49,7 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
   const [captchaKey, setCaptchaKey] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'likes' | 'newest'>('likes');
   const [errorMessage, setErrorMessage] = useState('');
+  const [listError, setListError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchComments = async () => {
@@ -63,12 +64,16 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
         headers
       });
 
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
+        setListError('');
         setComments(data.comments || []);
+      } else {
+        setListError(data.error || 'No se pudieron cargar los comentarios.');
       }
     } catch (err) {
       console.error('Error fetching comments:', err);
+      setListError('No se pudieron cargar los comentarios.');
     } finally {
       setLoading(false);
     }
@@ -169,11 +174,13 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
         }
       });
 
+      const data = await res.json();
       if (!res.ok) {
         // Revert on error
         setComments(previousComments);
+        setListError(data.error || 'No se pudo registrar el me gusta.');
       } else {
-        const data = await res.json();
+        setListError('');
         setComments(prev =>
           prev.map(c =>
             c.id === commentId
@@ -268,6 +275,12 @@ export default function CommentsSection({ scriptId, scriptAuthorId }: CommentsSe
           </div>
         )}
       </div>
+
+      {listError && (
+        <p role="alert" className="mb-4 text-xs text-danger font-medium bg-danger/10 border border-danger/25 rounded-lg p-3">
+          {listError}
+        </p>
+      )}
 
       {/* Input / Post Form */}
       <div className="bg-card border border-border-theme rounded-2xl p-5 mb-10 shadow-lg">
